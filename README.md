@@ -1,131 +1,141 @@
-# octopus-skill 🐙
+<div align="center">
 
-**One brain, many arms.** A curated library of battle-tested prompts for
-long-horizon agent work, compiled to whatever host you run — Claude Code, Grok,
-Cursor, Codex. The methodology is shared; each *arm* adapts it to a host's native
-shape (a loop, or a goal). Like an octopus, one nervous system reaching into
-different environments and changing color to fit each one.
+# octopus 🐙
 
-This is **graph engineering** for agents: the shift from over-tuning a single
-agent loop to wiring specialized, clean-context roles — executor, supervisor,
-scout — into a graph that communicates only through durable, inspectable files.
-The loop stays dumb; the graph does the thinking.
+**Graph engineering for long-horizon agents.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-![Hosts: Claude Code · Grok · Cursor · Codex](https://img.shields.io/badge/hosts-Claude%20Code%20·%20Grok%20·%20Cursor%20·%20Codex-8A2BE2)
+Design once. Compile to a loop or a goal. Verify all the way to done.
+
+[![GitHub stars](https://img.shields.io/github/stars/levi-qiao/octopus-skill?style=flat-square&color=6C63FF)](https://github.com/levi-qiao/octopus-skill/stargazers)
+[![License: MIT](https://img.shields.io/badge/License-MIT-14B8A6?style=flat-square)](LICENSE)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-22C55E?style=flat-square)](CONTRIBUTING.md)
+![Hosts: Claude Code · Grok · Cursor · Codex](https://img.shields.io/badge/Hosts-Claude%20Code%20·%20Grok%20·%20Cursor%20·%20Codex-111827?style=flat-square)
 
 English · [简体中文](README.zh-CN.md)
 
-<img alt="the graph: an executor node and a clean-context supervisor node communicating only through durable files" src="assets/graph.png" width="100%" />
+</div>
 
-## Why this exists
+<img alt="Executor and clean-context supervisor loops running side by side" src="assets/graph.png" width="100%" />
 
-A strong model authoring a tuned, opinionated prompt beats hand-driving a host ad
-hoc — for repeatable, long-horizon, high-stakes work. (For a quick one-off, just
-type the task; the library's ROI is in reuse.) The durable value isn't any one
-mechanism — it's the **discipline**: "done" means verified not written, no test
-theater, no speculative building, forced convergence against growth, and hard
-owner red lines. That discipline is host-agnostic. octopus owns it once and exposes
-it through focused runtime contracts for each arm.
+octopus is a curated prompt library for agent work that lasts longer than one
+context window. Instead of making one loop increasingly complicated, it wires
+specialized roles — executor, supervisor, scout — into a small graph connected
+through durable, inspectable files.
 
-## The arms
+> **One brain, many arms.** The discipline stays the same; each arm compiles it
+> to the native shape of your host.
 
-| Arm | Use when | Ships |
-|-----|----------|-------|
-| **[`loop-graph`](skills/loop-graph)** | you'll drive it with `/loop` (Claude Code, Grok, Cursor, shell); multi-round work that scope-creeps or fakes "done"; multi-milestone phases; executor and supervisor split across hosts/models; owner-gated | an **executor node** (works a single-source-of-truth ledger) + a clean-context **supervisor node** that re-verifies from outside and corrects via a one-way directives file — two loops |
-| **[`quest`](skills/quest)** | you'll hand it to a goal command that self-drives to done (Grok `/goal`, a Codex task); a single self-contained goal, executor+reviewer in the same run | **one task-specific objective** that loads the focused [`quest-executor`](skills/quest-executor/SKILL.md) runtime skill — no second loop |
+## Why octopus
 
-Not sure which? The decision rule lives at the top of each arm's `SKILL.md`, and
-the host capability matrix is in [`lib/host-dialects.md`](lib/host-dialects.md).
+Long-running agents tend to drift in predictable ways: scope expands, “done”
+becomes self-reported, tests stop proving the real path, and early decisions
+disappear from context. octopus moves the safeguards outside the model’s memory:
 
-## Architecture
+- **Verified, not merely written** — acceptance gates are rerun against real output.
+- **Durable state** — the ledger survives context loss and remains the single scoreboard.
+- **Clean-context review** — an independent supervisor can catch drift the executor cannot see.
+- **Forced convergence** — growth is periodically stopped, measured, and simplified.
+- **Explicit owner boundaries** — destructive or unauthorized actions halt the run.
 
-`octopus` is the authoring router. `quest` and `loop-graph` are peer author skills:
-both interview, generate, and deliver; neither executes the result. Runtime stays
-focused:
+It is Markdown, not an orchestration framework: no application runtime, server,
+or vendor lock-in.
 
-- quest marks the objective `octopus.quest-executor/v1`, so execution loads only
-  [`quest-executor`](skills/quest-executor/SKILL.md);
-- loop-graph writes self-contained runtime nodes under
-  `.octopus/<date-slug>/`, so a scheduled tick follows the frozen run contract
-  without loading an authoring skill.
+## Choose an arm in 30 seconds
 
-## Which host, which way
+| Your task shape | Choose | What you get |
+| --- | --- | --- |
+| One self-contained goal that can drive itself to verified completion | [**quest**](skills/quest/SKILL.md) | One task-specific objective that loads the focused [**quest-executor**](skills/quest-executor/SKILL.md) runtime discipline |
+| Multiple milestones, non-skippable gates, owner approvals, or a truly independent verifier | [**loop-graph**](skills/loop-graph/README.md) | An executor loop plus a clean-context supervisor loop, coordinated through durable files |
 
-Two arms, one discipline. **Pick the arm by task shape** — then run it the way your
-host wants. Most hosts now do both; the host only rules options out.
+**Rule of thumb:** task shape chooses the arm; the host only rules options out.
 
-- **loop-graph** — multi-milestone / non-skippable gate / executor+supervisor split
-  across hosts / owner-gated, or you want an **independent** verifier. Two prompts: an
-  **executor** loop that works the ledger, plus a clean-context **supervisor** loop
-  that re-verifies from outside and steers via a one-way directives file. *The
-  supervisor is always a `/loop`, never a goal* — an auditor must wake from outside the
-  executor's context on an interval; a goal races to "done".
-- **quest** — a **single self-contained goal** that drives to a real "done". One
-  task-specific objective plus the reusable `quest-executor` runtime discipline;
-  the host's own harness drives it (and, on Grok, verifies it). No second loop.
+## Quick start
 
-Authoritative syntax + matrix: [`lib/host-dialects.md`](lib/host-dialects.md).
+### Claude Code
 
-Columns are the two arms; ✅ / ⚠️ / ❌ is whether the host can run that arm, and the
-cell is *how*.
+Install the plugin from the marketplace:
 
-| Host | **quest** — one self-contained goal | **loop-graph** — multi-milestone / gated / want a verifier |
-|---|---|---|
-| **Grok** | ✅ `/goal <objective>` — **native adversarial verifier** | ✅ executor `/loop` + supervisor `/loop` |
-| **Codex** | ✅ `/goal`, or just send the objective as a task (self-drives; no verifier) | ✅ **both** nodes on an interval `/loop` (e.g. `/loop 4m`) — **never `/goal`** (it livelocks a *parked* node) |
-| **Claude Code** | ⚠️ a self-paced single `/loop` — works, but **no independent verifier** | ✅ executor `/loop` (self-paced) + supervisor `/loop` (the supervisor *is* the verifier) |
-| **Cursor** | ❌ no goal primitive | ✅ executor `/loop` + supervisor `/loop` — keep each round < 20 min |
-| **shell / cron** | ❌ no goal primitive | ✅ both loops scheduled; `break` on a terminal ledger status |
-
-Rule of thumb: **task shape picks the arm; the host only rules options out** — ❌ hosts
-can't quest (no goal). The **supervisor is always a `/loop`, never a goal**.
-
-## The brain (`lib/`)
-
-- **[`methodology.md`](lib/methodology.md)** — *why* each rule exists, tied to the
-  specific failure mode of long agent runs it prevents. Read this to adapt rules
-  without breaking them.
-- **[`host-dialects.md`](lib/host-dialects.md)** — the single owner of per-host
-  differences: loop/goal invocation syntax, adaptive-vs-interval behavior, and
-  wake/notify/keep-alive primitives (Grok `Stop`/`Notification` hooks, etc.).
-
-## Install
-
-**Claude Code — plugin.** Claude Code's skill loader does **not** follow symlinked skill dirs, so install it here as a plugin (versioned, auto-updating via the marketplace):
-
-```
+```text
 /plugin marketplace add levi-qiao/octopus-skill
 /plugin install octopus@octopus-skill
 ```
 
-**Codex / Cursor — script.** These hosts' loaders *do* follow symlinks, so the script clones the library and symlinks it as a single `/octopus` skill (edits to the clone are live):
+### Codex or Cursor
+
+Install the library and symlink it into supported hosts:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/install.sh | sh
 ```
 
-To install from a local clone, run `./install.sh` from the repo root.
+To install from a local clone, run `./install.sh` from the repository root.
 
-**How it's invoked.** Type `/octopus` to design a run, or invoke `quest` /
-`loop-graph` directly when the arm is already known. Runtime prompts deliberately
-do not re-enter those authoring skills: the quest marker selects `quest-executor`,
-while existing `.octopus/` node files execute themselves.
+### Design a run
 
-## Governance — keep it a library, not a junk drawer
+Invoke `/octopus`. It interviews you about the goal, acceptance evidence,
+milestones, red lines, and host, then compiles the appropriate arm. If you
+already know the shape, invoke `quest` or `loop-graph` directly.
 
-octopus applies its own anti-bloat rule to itself: **no prompt enters the library
-without a real consumer** — a run it was actually proven on. Curated and
-opinionated beats comprehensive. Same bar the executor holds inside a run.
+Authoring and runtime stay separate: author skills compile the work but never
+execute it. A compiled quest selects `quest-executor`; generated loop-graph
+nodes follow their frozen run contract under `.octopus/<date-slug>/`.
+
+## How the graph works
+
+| Role | Responsibility | Durable edge |
+| --- | --- | --- |
+| **Executor** | Works one ledger item, verifies it in the same round, then records the result | Reads and writes `ledger.md` |
+| **Supervisor** | Re-verifies from a clean context, checkpoints passing work, and corrects drift | Reads the ledger; writes only `directives.md` |
+| **Scout** *(optional)* | Researches a bounded question away from the critical path | Writes a findings file read only on reference |
+
+The load-bearing rule is **one node = one prompt + one single-writer edge**.
+The ledger has exactly one writer. The supervisor never shares the executor’s
+context, never edits its scoreboard, and steers only through the one-way
+directives edge.
+
+For the rationale behind every constraint, read
+[the methodology](lib/methodology.md). For the node and edge model, see
+[the loop-graph model](skills/loop-graph/docs/model.md).
+
+## Host compatibility
+
+| Host | **quest** — one self-contained goal | **loop-graph** — gated or independently verified work |
+| --- | --- | --- |
+| **Grok** | ✅ `/goal <objective>` with a native adversarial verifier | ✅ executor `/loop` + supervisor `/loop` |
+| **Codex** | ✅ `/goal`, or send the objective as a task | ✅ both nodes on interval `/loop` heartbeats; never use `/goal` for a parked node |
+| **Claude Code** | ⚠️ one self-paced `/loop`; no independent verifier | ✅ self-paced executor `/loop` + supervisor `/loop` |
+| **Cursor** | ❌ no goal primitive | ✅ executor `/loop` + supervisor `/loop`; keep each round under 20 minutes |
+| **shell / cron** | ❌ no goal primitive | ✅ schedule both loops; stop on a terminal ledger status |
+
+The authoritative syntax, pacing behavior, and host-specific hooks live in
+[the host dialect matrix](lib/host-dialects.md).
+
+## Repository map
+
+| Path | Purpose |
+| --- | --- |
+| [Root `SKILL.md`](SKILL.md) | `/octopus` authoring router; chooses an arm and never executes generated work |
+| [Quest author](skills/quest/SKILL.md) | Interviews, compiles, and delivers one goal objective |
+| [Quest executor](skills/quest-executor/SKILL.md) | Focused runtime discipline loaded only by a compiled quest |
+| [Loop-graph author](skills/loop-graph/SKILL.md) | Generates executor, supervisor, ledger, and directive artifacts |
+| [`lib/`](lib) | Shared methodology and the single owner of host-specific facts |
+| [Worked examples](skills/loop-graph/examples) | Concrete loop-graph runs showing the ledger and gates in action |
+
+## Governance
+
+octopus applies its own anti-bloat rule to the library: **no prompt enters
+without a real run that proved its value.** Curated and opinionated beats
+comprehensive.
+
+Contributions are welcome. Start with [the contribution guide](CONTRIBUTING.md).
 
 ## Credits
 
-The `loop-graph` arm grew from real runs and community input. Special thanks to
-**[@BrightProgrammer7](https://github.com/BrightProgrammer7)** — the
-`migrate-blob-storage` worked example and the design discussions that sharpened
-the milestone-gate and node/edge vocabulary.
+The loop-graph arm grew from real runs and community input. Special thanks to
+[@BrightProgrammer7](https://github.com/BrightProgrammer7) for the
+`migrate-blob-storage` example and the discussions that sharpened milestone
+gates and the node/edge vocabulary.
 
 ## License
 
-See [LICENSE](LICENSE).
+[MIT](LICENSE) © 2026 [levi-qiao](https://github.com/levi-qiao)
