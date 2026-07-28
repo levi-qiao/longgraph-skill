@@ -1,106 +1,130 @@
-# octopus-skill 🐙
+<div align="center">
 
-**一个脑子,多条腕。** 一个面向长周期智能体任务的精选提示词库,可编译到你用的任意
-宿主 —— Claude Code、Grok、Cursor、Codex。方法论共享,每条*腕*把它适配到宿主原生的
-形态(一个 loop,或一个 goal)。像章鱼一样:一套神经系统伸进不同环境,并变色适应每一处。
+# octopus 🐙
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-![Hosts: Claude Code · Grok · Cursor · Codex](https://img.shields.io/badge/hosts-Claude%20Code%20·%20Grok%20·%20Cursor%20·%20Codex-8A2BE2)
+**面向长周期智能体任务的图工程。**
+
+设计一次，编译成 loop 或 goal，一路验证到真正完成。
+
+[![GitHub stars](https://img.shields.io/github/stars/levi-qiao/octopus-skill?style=flat-square&color=6C63FF)](https://github.com/levi-qiao/octopus-skill/stargazers)
+[![License: MIT](https://img.shields.io/badge/License-MIT-14B8A6?style=flat-square)](LICENSE)
+[![欢迎 PR](https://img.shields.io/badge/PRs-welcome-22C55E?style=flat-square)](CONTRIBUTING.md)
+![宿主：Claude Code · Grok · Cursor · Codex](https://img.shields.io/badge/Hosts-Claude%20Code%20·%20Grok%20·%20Cursor%20·%20Codex-111827?style=flat-square)
 
 [English](README.md) · 简体中文
 
-<img alt="图:执行者节点与清洁上下文的监督者节点,只通过持久文件通信" src="assets/graph.png" width="100%" />
+</div>
 
-## 为什么存在
+<img alt="执行者与清洁上下文监督者两个 loop 并排运行" src="assets/graph.png" width="100%" />
 
-用强模型写一段调好的、有主见的提示词,胜过临场手动驱动宿主 —— 对**可复用、长周期、
-高风险**的活尤其如此(一次性小活直接打字就好,库的价值在复用)。真正耐用的不是某一个
-机制,而是那套**纪律**:"done"意味着已验证而非只是写完、no test theater、不做投机式
-搭建、对增长的强制收敛、以及硬性的 owner 红线。这套纪律与宿主无关。octopus 只维护一份,
-再通过每条腕各自聚焦的运行契约交付。
+octopus 是一个面向长周期智能体任务的精选提示词库。它不继续堆叠单个 loop 的复杂度，
+而是把执行者、监督者、侦察者等专门角色连接成一个小图，只通过持久、可检查的文件通信。
 
-## 两条腕
+> **一个脑子，多条腕。** 方法纪律保持不变，每条腕把它编译成宿主原生的运行形态。
 
-| 腕 | 何时用 | 交付 |
-|-----|----------|-------|
-| **[`loop-graph`](skills/loop-graph)** | 你会用 `/loop` 驱动它(Claude Code、Grok、Cursor、shell);容易 scope 蔓延或假装"done"的多轮任务;多里程碑阶段;执行者与监督者跨宿主/模型拆分;有 owner 闸门 | 一个**执行者节点**(围绕单一真相源 ledger 干活)+ 一个**清洁上下文的监督者节点**,从外部复验、并通过单向 directives 文件纠偏 —— 两个 loop |
-| **[`quest`](skills/quest)** | 你会把它交给一个自驱到完成的 goal 命令(Grok `/goal`、Codex task);单一、自包含的目标,执行者与审查在同一次运行里 | **一段任务特有的 objective**,执行时只加载聚焦的 [`quest-executor`](skills/quest-executor/SKILL.md) —— 无第二个 loop |
+## 为什么需要 octopus
 
-拿不准?判定规则写在每条腕 `SKILL.md` 的开头,宿主能力矩阵在
-[`lib/host-dialects.md`](lib/host-dialects.md)。
+长周期智能体往往以相似方式漂移：范围不断膨胀，“完成”变成自我报告，测试不再证明真实
+路径，早期决定则随着上下文丢失。octopus 把保护机制搬到模型记忆之外：
 
-## 架构
+- **完成必须经过验证** —— 针对真实产物重新运行验收门。
+- **状态持久可查** —— ledger 跨越上下文丢失，并始终作为唯一记分牌。
+- **清洁上下文复审** —— 独立监督者能发现执行者身处同一历史时看不到的漂移。
+- **强制收敛** —— 定期停止增长、测量变化并做减法。
+- **明确 owner 边界** —— 破坏性或未授权操作会让 run 硬停。
 
-`octopus` 只做生成期路由。`quest` 与 `loop-graph` 是平行的 author skill：
-都只负责采访、生成、交付，不执行生成结果。运行期保持聚焦：
+它是 Markdown 提示词，不是编排框架：无需应用运行时、服务端或厂商绑定。
 
-- quest 给 objective 标记 `octopus.quest-executor/v1`，执行时只加载
-  [`quest-executor`](skills/quest-executor/SKILL.md)；
-- loop-graph 把自包含节点写进 `.octopus/<日期-slug>/`，每个 tick 都遵循
-  本次 run 已固化的契约，不再加载 author skill。
+## 30 秒选腕
 
-## 哪个宿主,怎么跑
+| 你的任务形态 | 选择 | 得到什么 |
+| --- | --- | --- |
+| 一个能自驱到可验证完成的自包含目标 | [**quest**](skills/quest/SKILL.md) | 一段任务特有的 objective，运行时加载聚焦的 [**quest-executor**](skills/quest-executor/SKILL.md) 纪律 |
+| 多里程碑、不可跳过的闸门、owner 审批，或需要真正独立的验证器 | [**loop-graph**](skills/loop-graph/README.zh-CN.md) | 一个执行者 loop + 一个清洁上下文监督者 loop，通过持久文件协作 |
 
-两条腕,一套纪律。**先按任务形态选腕**——再用那个宿主要的方式跑。大多数宿主两条都能跑,
-宿主只负责"排除掉不可用的那条":
+**一句话：**任务形态决定用哪条腕，宿主只排除不可用的选项。
 
-- **loop-graph** —— 多里程碑 / 有不可跳过的 gate / 执行者与监督者跨宿主拆分 / 有 owner
-  闸门,或你想要一个**独立**验证器。两段提示词:一个**执行者** loop 围绕 ledger 干活,加
-  一个清洁上下文的**监督者** loop,从外部复验、通过单向 directives 文件纠偏。*监督者永远
-  是一个 `/loop`,绝不是 goal*—— 审计者必须从执行者上下文之外、按间隔醒来;goal 会冲刺到
-  "done"。
-- **quest** —— 一个**单一、自包含、能驱动到真正 done** 的目标。一段任务特有的 objective
-  加可复用的 `quest-executor` 执行纪律，宿主自己的 harness 驱动它（在 Grok 上还负责验证）。
-  没有第二个 loop。
+## 快速开始
 
-权威语法与矩阵见 [`lib/host-dialects.md`](lib/host-dialects.md)。
+### Claude Code
 
-两列就是两条腕;✅ / ⚠️ / ❌ 表示这个宿主能不能跑那条腕,格子里是**怎么跑**。
+从 marketplace 安装插件：
 
-| 宿主 | **quest** —— 单一自包含目标 | **loop-graph** —— 多里程碑 / 有闸门 / 要验证器 |
-|---|---|---|
-| **Grok** | ✅ `/goal <objective>` —— **自带原生对抗式验证器** | ✅ 执行者 `/loop` + 监督者 `/loop` |
-| **Codex** | ✅ `/goal`,或直接把 objective 作为任务发给它(自驱;无验证器) | ✅ **两个节点**都用带间隔 `/loop`(如 `/loop 4m`)—— **绝不用 `/goal`**(会把**停泊中**的节点活锁)|
-| **Claude Code** | ⚠️ 一个自定步单 `/loop` —— 能跑,但**无独立验证器** | ✅ 执行者 `/loop`(自定步)+ 监督者 `/loop`(监督者*就是*验证器)|
-| **Cursor** | ❌ 无 goal 原语 | ✅ 执行者 `/loop` + 监督者 `/loop` —— 每轮 < 20 分钟 |
-| **shell / cron** | ❌ 无 goal 原语 | ✅ 两个 loop 都排期;ledger 到终态就 `break` |
+```text
+/plugin marketplace add levi-qiao/octopus-skill
+/plugin install octopus@octopus-skill
+```
 
-一句话记牢:**任务形态决定用哪条腕;宿主只排除不可用的** —— ❌ 的宿主跑不了 quest(没有
-goal)。**监督者永远是 `/loop`,绝不是 goal。**
+### Codex 或 Cursor
 
-## 脑(`lib/`)
-
-- **[`methodology.md`](lib/methodology.md)** —— *为什么*每条规则存在,对应它防范的那个长
-  周期智能体失败模式。想在不破坏方法的前提下调规则,先读它。
-- **[`host-dialects.md`](lib/host-dialects.md)** —— 各宿主差异的单一 owner:loop/goal 的调用
-  语法、自适应 vs 定间隔的行为、以及唤醒/通知/保活原语(Grok 的 `Stop`/`Notification` hook 等)。
-
-## 安装
+安装库并链接到支持的宿主：
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/install.sh | sh
 ```
 
-装成单一 **`/octopus`** 技能,Claude Code 和 Codex 都可用 —— 伞入口会路由到正确的腕。
-想从本地克隆安装,在仓库根目录跑 `./install.sh`。
+从本地克隆安装时，在仓库根目录运行 `./install.sh`。
 
-`/octopus` 只用于设计 run；已经知道 arm 时也可直接调用 `quest` 或 `loop-graph`。
-运行期不会重新进入这些 author skill：quest marker 只触发 `quest-executor`，现有
-`.octopus/` 节点文件则直接执行自身。
+### 设计一次 run
 
-## 治理 —— 让它是一个库,不是杂物抽屉
+调用 `/octopus`。它会采访你的目标、验收证据、里程碑、红线和宿主，再编译出合适的腕。
+如果已经知道任务形态，也可以直接调用 `quest` 或 `loop-graph`。
 
-octopus 把自己的 anti-bloat 规则用在自己身上:**没有真实 consumer(一个真正跑过、验证过
-它的 run)的提示词,不进库。** 精选、有主见,胜过大而全 —— 和执行者在一次 run 内守的是同
-一条线。
+生成期与运行期严格分离：author skill 只编译，不执行。编译后的 quest 只选择
+`quest-executor`；loop-graph 生成的节点则遵循 `.octopus/<日期-slug>/` 下已固化的
+本次 run 契约。
+
+## 这张图怎么运行
+
+| 角色 | 职责 | 持久边 |
+| --- | --- | --- |
+| **执行者** | 每轮只做一个 ledger 条目，同轮验证，再记录结果 | 读写 `ledger.md` |
+| **监督者** | 从清洁上下文重新验证、为通过的工作建立 checkpoint，并纠正漂移 | 只读 ledger；只写 `directives.md` |
+| **侦察者**（可选） | 在关键路径之外研究一个有边界的问题 | 写 findings 文件，仅在 ledger 引用时读取 |
+
+最关键的规则是：**一个节点 = 一段提示词 + 一条单写者边。** ledger 永远只有一个写者。
+监督者不共享执行者上下文、不编辑记分牌，只能通过单向 directives 边来纠偏。
+
+每条约束背后的理由见[方法论](lib/methodology.md)，节点与边模型见
+[loop-graph 模型](skills/loop-graph/docs/model.md)。
+
+## 宿主兼容性
+
+| 宿主 | **quest** —— 单一自包含目标 | **loop-graph** —— 有闸门或独立验证 |
+| --- | --- | --- |
+| **Grok** | ✅ `/goal <objective>`，自带原生对抗式验证器 | ✅ 执行者 `/loop` + 监督者 `/loop` |
+| **Codex** | ✅ `/goal`，或直接把 objective 作为 task 发出 | ✅ 两个节点都用定间隔 `/loop` 心跳；停泊节点绝不使用 `/goal` |
+| **Claude Code** | ⚠️ 一个自定步 `/loop`；无独立验证器 | ✅ 自定步执行者 `/loop` + 监督者 `/loop` |
+| **Cursor** | ❌ 无 goal 原语 | ✅ 执行者 `/loop` + 监督者 `/loop`；每轮保持在 20 分钟内 |
+| **shell / cron** | ❌ 无 goal 原语 | ✅ 调度两个 loop；ledger 到终态时停止 |
+
+权威语法、节奏行为和宿主特有 hook 统一维护在
+[宿主方言矩阵](lib/host-dialects.md)。
+
+## 仓库地图
+
+| 路径 | 用途 |
+| --- | --- |
+| [根 `SKILL.md`](SKILL.md) | `/octopus` 生成期路由，只选腕，绝不执行生成结果 |
+| [Quest author](skills/quest/SKILL.md) | 采访、编译并交付一段 goal objective |
+| [Quest executor](skills/quest-executor/SKILL.md) | 仅由编译后 quest 加载的聚焦运行纪律 |
+| [Loop-graph author](skills/loop-graph/SKILL.md) | 生成执行者、监督者、ledger 与 directive 产物 |
+| [`lib/`](lib) | 共享方法论与宿主特有事实的单一 owner |
+| [完整示例](skills/loop-graph/examples) | 展示 ledger 与闸门实际运行的具体 loop-graph run |
+
+## 治理
+
+octopus 把自己的 anti-bloat 规则用在库本身：**没有真实 run 证明过价值的提示词，不进库。**
+精选、有主见，胜过大而全。
+
+欢迎贡献，请先阅读[贡献指南](CONTRIBUTING.md)。
 
 ## 致谢
 
-`loop-graph` 腕来自真实运行与社区输入。特别感谢
-**[@BrightProgrammer7](https://github.com/BrightProgrammer7)** —— `migrate-blob-storage`
-这个实战范例,以及那些打磨了里程碑闸门和节点/边词汇的设计讨论。
+loop-graph 腕来自真实运行与社区输入。特别感谢
+[@BrightProgrammer7](https://github.com/BrightProgrammer7) 提供
+`migrate-blob-storage` 示例，并参与打磨里程碑闸门与节点/边词汇。
 
 ## 许可
 
-见 [LICENSE](LICENSE)。
+[MIT](LICENSE) © 2026 [levi-qiao](https://github.com/levi-qiao)
