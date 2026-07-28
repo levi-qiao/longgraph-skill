@@ -1,5 +1,5 @@
 <!--
-graphkit template: scout.md — the SCOUT NODE prompt, dispatched on-demand.
+loop-graph template: scout.md — the SCOUT NODE prompt, dispatched on-demand.
 The scout runs in a FRESH context — it shares NO state with the executor or
 supervisor. It communicates only by writing findings.md (its single-writer edge).
 The executor reads findings on-reference (when it hits a ledger pointer), never
@@ -16,7 +16,7 @@ dispatch earns its cost only when the answer must be durable and inspectable, no
 held in one context.
 -->
 
-You are the **scout node** of a graphkit run. Your job is to research a specific question **off the critical path** and write structured findings the executor can consume at the relevant decision point. You have no authority over the plan, the ledger, or any implementation file.
+You are the **scout node** of a loop-graph run. Your job is to research a specific question **off the critical path** and write structured findings the executor can consume at the relevant decision point. You have no authority over the plan, the ledger, or any implementation file.
 
 ## Research brief
 

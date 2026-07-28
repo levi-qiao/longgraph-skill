@@ -6,7 +6,7 @@
 
 A [Claude Code](https://claude.com/claude-code) skill that turns *"make this production-ready"* into an executor node that does the work and a supervisor node that watches from outside the executor's context and corrects drift before it compounds.
 
-graphkit is **graph engineering** made concrete — the shift from tuning a single agent loop to wiring specialized agent roles into a graph. Two roles today; more planned.
+loop-graph is **graph engineering** made concrete — the shift from tuning a single agent loop to wiring specialized agent roles into a graph. Two roles today; more planned.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](../../LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](../../CONTRIBUTING.md)
@@ -33,7 +33,7 @@ The agent cannot catch this in itself: it reasons from the same history that pro
 
 Loop engineering tries to fix this inside the loop — better prompts, more reminders, a bigger context window. It plateaus, because the loop's own history is what corrupts its judgment.
 
-Graph engineering moves the structure outside the model: a small graph of specialized agent roles, each starting from a clean context, connected only by durable, inspectable state. graphkit applies this to one scenario — long-horizon coding — with the smallest useful graph:
+Graph engineering moves the structure outside the model: a small graph of specialized agent roles, each starting from a clean context, connected only by durable, inspectable state. loop-graph applies this to one scenario — long-horizon coding — with the smallest useful graph:
 
 - **Executor** — does the work, one item per round, against a single ledger.
 - **Supervisor** — starts from a clean context on every tick and audits the run like an outside reviewer at acceptance: it **re-runs the gates itself** and inspects the real diff against the acceptance criteria and the repo's own standards (`AGENTS.md`/`CLAUDE.md`, `ops.md`), so it catches the drift, fake-done, and undisclosed shortcuts the executor cannot see in the context where the corner was cut — then commits what passes, decides pending items, and adjusts the plan through the one-way directives edge.
@@ -109,7 +109,7 @@ Both loops **stop themselves** when the run is done — the executor when the le
 
    <sub>Installs as a single `/octopus` skill for Claude Code and Codex.</sub>
 
-2. **Run `/octopus` in Claude Code** and answer the interview: repos and branches, the goal and how it is verified, milestones, gate commands, red lines, commit authorization, supervisor interval. The files land in a fresh `.graphkit/<date-slug>/` directory in your repo — one directory per run; a new run never edits an old run's files. ([What each file does →](#files-generated-per-run))
+2. **Run `/octopus` in Claude Code** and answer the interview: repos and branches, the goal and how it is verified, milestones, gate commands, red lines, commit authorization, supervisor interval. The files land in a fresh `.octopus/<date-slug>/` directory in your repo — one directory per run; a new run never edits an old run's files. ([What each file does →](#files-generated-per-run))
 
 3. **Start the executor loop** with the command `/octopus` prints in the chat — a thin pointer at `executor.md` on your host's loop (Claude Code `/loop`, a Cursor agent, or an agent CLI in a shell). It resumes from the ledger if the session dies, and **ends the loop itself** when the run reaches `exit-ready` — no overnight idling, no nudging each turn.
 
@@ -131,7 +131,7 @@ These files are read, not edited:
 
 ## Files generated per run
 
-Each run gets a fresh `.graphkit/<date-slug>/` in your repo:
+Each run gets a fresh `.octopus/<date-slug>/` in your repo:
 
 | File | Written by | Role |
 | --- | --- | --- |
@@ -147,7 +147,7 @@ Use it when the task spans many rounds, success is verifiable (tests, gates, met
 
 ## FAQ
 
-**Why a graph and not "a loop with a monitor"?** The load-bearing property is that the supervisor is a separate node with its own clean context, connected to the executor only by inspectable edges. That separation — not the schedule — is what lets it catch drift the executor can't. Multi-agent frameworks model runs as graphs for the same reason; graphkit does it with Markdown instead of a runtime.
+**Why a graph and not "a loop with a monitor"?** The load-bearing property is that the supervisor is a separate node with its own clean context, connected to the executor only by inspectable edges. That separation — not the schedule — is what lets it catch drift the executor can't. Multi-agent frameworks model runs as graphs for the same reason; loop-graph does it with Markdown instead of a runtime.
 
 **Does it require Claude Code?** The skill packaging and supervisor scheduling are Claude Code features, but the nodes and edges are plain Markdown — the method is agent-agnostic. The intended setup is mixed: author the graph once with a strong model, then run the executor on whatever agent is cheapest.
 

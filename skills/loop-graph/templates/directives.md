@@ -1,5 +1,5 @@
 <!--
-graphkit template: directives.md — the ONE-WAY corrections edge.
+loop-graph template: directives.md — the ONE-WAY corrections edge.
 Seeded near-empty at generation time into the run directory. The supervisor node
 appends here; the executor node reads it each round and folds open items into the
 round — it never writes this file. History is append-only: entries are never

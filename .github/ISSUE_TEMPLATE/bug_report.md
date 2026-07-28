@@ -9,7 +9,8 @@ labels: bug
 A clear description of the bug.
 
 **Which part**
-- [ ] `/octopus` skill / interview (loop-graph or quest arm)
+- [ ] `/octopus` authoring (loop-graph or quest)
+- [ ] `quest-executor` runtime
 - [ ] a template (`templates/…`)
 - [ ] the installer (`install.sh`)
 - [ ] docs / example

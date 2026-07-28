@@ -17,18 +17,28 @@
 用强模型写一段调好的、有主见的提示词,胜过临场手动驱动宿主 —— 对**可复用、长周期、
 高风险**的活尤其如此(一次性小活直接打字就好,库的价值在复用)。真正耐用的不是某一个
 机制,而是那套**纪律**:"done"意味着已验证而非只是写完、no test theater、不做投机式
-搭建、对增长的强制收敛、以及硬性的 owner 红线。这套纪律与宿主无关。octopus 就是它唯一
-存放的地方,再编译到各个宿主。
+搭建、对增长的强制收敛、以及硬性的 owner 红线。这套纪律与宿主无关。octopus 只维护一份,
+再通过每条腕各自聚焦的运行契约交付。
 
 ## 两条腕
 
 | 腕 | 何时用 | 交付 |
 |-----|----------|-------|
 | **[`loop-graph`](skills/loop-graph)** | 你会用 `/loop` 驱动它(Claude Code、Grok、Cursor、shell);容易 scope 蔓延或假装"done"的多轮任务;多里程碑阶段;执行者与监督者跨宿主/模型拆分;有 owner 闸门 | 一个**执行者节点**(围绕单一真相源 ledger 干活)+ 一个**清洁上下文的监督者节点**,从外部复验、并通过单向 directives 文件纠偏 —— 两个 loop |
-| **[`quest`](skills/quest)** | 你会把它交给一个自驱到完成的 goal 命令(Grok `/goal`、Codex task);单一、自包含的目标,执行者与审查在同一次运行里 | **一段 objective 提示词**,把纪律折进去,骑宿主自己的验证器 —— 无第二个 loop |
+| **[`quest`](skills/quest)** | 你会把它交给一个自驱到完成的 goal 命令(Grok `/goal`、Codex task);单一、自包含的目标,执行者与审查在同一次运行里 | **一段任务特有的 objective**,执行时只加载聚焦的 [`quest-executor`](skills/quest-executor/SKILL.md) —— 无第二个 loop |
 
 拿不准?判定规则写在每条腕 `SKILL.md` 的开头,宿主能力矩阵在
 [`lib/host-dialects.md`](lib/host-dialects.md)。
+
+## 架构
+
+`octopus` 只做生成期路由。`quest` 与 `loop-graph` 是平行的 author skill：
+都只负责采访、生成、交付，不执行生成结果。运行期保持聚焦：
+
+- quest 给 objective 标记 `octopus.quest-executor/v1`，执行时只加载
+  [`quest-executor`](skills/quest-executor/SKILL.md)；
+- loop-graph 把自包含节点写进 `.octopus/<日期-slug>/`，每个 tick 都遵循
+  本次 run 已固化的契约，不再加载 author skill。
 
 ## 哪个宿主,怎么跑
 
@@ -40,8 +50,9 @@
   一个清洁上下文的**监督者** loop,从外部复验、通过单向 directives 文件纠偏。*监督者永远
   是一个 `/loop`,绝不是 goal*—— 审计者必须从执行者上下文之外、按间隔醒来;goal 会冲刺到
   "done"。
-- **quest** —— 一个**单一、自包含、能驱动到真正 done** 的目标。一段 objective 提示词,宿主
-  自己的 harness 驱动它(在 Grok 上还负责验证)。没有第二个 loop。
+- **quest** —— 一个**单一、自包含、能驱动到真正 done** 的目标。一段任务特有的 objective
+  加可复用的 `quest-executor` 执行纪律，宿主自己的 harness 驱动它（在 Grok 上还负责验证）。
+  没有第二个 loop。
 
 权威语法与矩阵见 [`lib/host-dialects.md`](lib/host-dialects.md)。
 
@@ -72,7 +83,11 @@ curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/instal
 ```
 
 装成单一 **`/octopus`** 技能,Claude Code 和 Codex 都可用 —— 伞入口会路由到正确的腕。
-任何已有的 `/graphkit` 安装都不受影响。想从本地克隆安装,在仓库根目录跑 `./install.sh`。
+想从本地克隆安装,在仓库根目录跑 `./install.sh`。
+
+`/octopus` 只用于设计 run；已经知道 arm 时也可直接调用 `quest` 或 `loop-graph`。
+运行期不会重新进入这些 author skill：quest marker 只触发 `quest-executor`，现有
+`.octopus/` 节点文件则直接执行自身。
 
 ## 治理 —— 让它是一个库,不是杂物抽屉
 
@@ -82,8 +97,7 @@ octopus 把自己的 anti-bloat 规则用在自己身上:**没有真实 consumer
 
 ## 致谢
 
-`loop-graph` 腕来自真实运行与社区输入 —— 它最早是独立的 *graphkit* 技能,本仓库就是那个
-项目演进而来(老 `graphkit` 链接会重定向到这里)。特别感谢
+`loop-graph` 腕来自真实运行与社区输入。特别感谢
 **[@BrightProgrammer7](https://github.com/BrightProgrammer7)** —— `migrate-blob-storage`
 这个实战范例,以及那些打磨了里程碑闸门和节点/边词汇的设计讨论。
 

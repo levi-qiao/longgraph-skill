@@ -11,7 +11,10 @@ is no build step and no runtime. One umbrella (`/octopus`) routes to two arms:
 
 - **`skills/loop-graph/`** — an executor node + a clean-context supervisor node driven
   by two loops (for `/loop`-capable hosts).
-- **`skills/quest/`** — one objective prompt for a goal-capable host (Grok `/goal`, a Codex task).
+- **`skills/quest/`** — one task-specific objective for a goal-capable host (Grok
+  `/goal`, a Codex task).
+- **`skills/quest-executor/`** — the focused runtime discipline loaded only by a
+  compiled quest marked `octopus.quest-executor/v1`.
 
 Deep context lives in [`lib/methodology.md`](lib/methodology.md) (the *why* behind each
 rule) and [`skills/loop-graph/docs/model.md`](skills/loop-graph/docs/model.md) (the
@@ -21,9 +24,10 @@ node/edge vocabulary + invariants). The contribution bar is in [`CONTRIBUTING.md
 
 | Path | What it is |
 |---|---|
-| `SKILL.md` | umbrella router (`/octopus`) — picks the arm, doesn't do the work |
-| `skills/<arm>/SKILL.md` | the arm's interview → generate → deliver flow |
-| `skills/<arm>/templates/*.md` | node **prompts** pasted into an agent — not code; keep `{{PLACEHOLDER}}`s and structural headings intact |
+| `SKILL.md` | authoring router (`/octopus`) — picks the arm, never executes generated work |
+| `skills/quest/SKILL.md`, `skills/loop-graph/SKILL.md` | peer author skills: interview → generate → deliver |
+| `skills/quest-executor/SKILL.md` | quest runtime skill; no interview, routing, or prompt generation |
+| `skills/<arm>/templates/*.md` | compiled runtime prompts — not code; keep `{{PLACEHOLDER}}`s and structural headings intact |
 | `skills/loop-graph/examples/` | concrete, fully worked runs (these *are* project-specific — that's correct) |
 | `lib/host-dialects.md` | the **single owner** of per-host facts (loop/goal syntax, hooks) — put host specifics here, don't scatter them |
 | `.claude-plugin/` | Claude Code plugin + marketplace manifests |
@@ -49,6 +53,10 @@ node/edge vocabulary + invariants). The contribution bar is in [`CONTRIBUTING.md
    keep it **off the hot path** (only the ledger is read every round; new edges are read
    *on-reference* via a one-line ledger pointer), wire both peers, ship a generic
    example. The scout (#17→#18→#19) is the reference. See `CONTRIBUTING.md`.
+5. **Keep authoring and runtime separate.** Router and arm skills may interview and
+   compile; they never execute their output. Quest runtime loads only
+   `quest-executor`. Loop-graph runtime follows the self-contained node files in
+   `.octopus/<date-slug>/` and never reloads an authoring skill.
 
 ## Editing conventions
 

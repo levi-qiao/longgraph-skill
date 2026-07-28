@@ -1,5 +1,5 @@
 <!--
-graphkit template: findings.md — the SCOUT'S SINGLE-WRITER STATE EDGE.
+loop-graph template: findings.md — the SCOUT'S SINGLE-WRITER STATE EDGE.
 Seeded empty at generation time into the run directory. The scout node writes here;
 the executor reads it ON-REFERENCE ONLY (when it hits a ledger pointer), never
 every round. The supervisor may read it during audit to verify the executor consumed

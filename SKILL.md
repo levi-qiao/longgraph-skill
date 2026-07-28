@@ -1,13 +1,28 @@
 ---
 name: octopus
-description: Umbrella entry for the octopus-skill prompt library — pick the right arm for a long-horizon agent task and follow it. Two arms share one discipline (verified-not-written "done", no test theater, no speculative building, forced convergence, owner red lines). The `loop-graph` arm builds an executor + clean-context supervisor as two scheduled loops — for the `/loop` primitive (Claude Code, Grok, Cursor, Codex, shell), multi-milestone phases, executor/supervisor split across hosts/models, owner-gated runs. The `quest` arm emits one objective prompt handed to a host that already drives a goal to done with its own verifier — for the goal primitive (Grok `/goal`, a Codex task). Use this when the user invokes /octopus or is unsure which arm fits.
+description: Route an octopus authoring request to the right arm. Use when the user explicitly invokes /octopus, asks to design a long-horizon run, wants a quest objective or loop-graph generated, or needs help choosing between them. Do not use to execute or resume a compiled quest marked `octopus.quest-executor/v1`, or to follow an existing `.octopus/.../executor.md` or `supervisor.md`; those are runtime work.
 ---
 
 # octopus 🐙 — one brain, many arms
 
-A curated prompt library for long-horizon agent work. One shared discipline,
-compiled to whichever host you run. Your job on invocation: **pick the arm, then
-read and follow that arm's `SKILL.md`.** Don't reimplement it here.
+A curated prompt library for long-horizon agent work. On an authoring request,
+**pick the arm, then read and follow that arm's `SKILL.md`.** Do not execute the
+generated work from this router.
+
+## Architecture
+
+Keep three layers distinct:
+
+| Layer | Owner | Output |
+|---|---|---|
+| Router | this skill | arm choice |
+| Author | [`quest`](skills/quest/SKILL.md) or [`loop-graph`](skills/loop-graph/SKILL.md) | compiled runtime contract |
+| Runtime | [`quest-executor`](skills/quest-executor/SKILL.md) or generated loop-graph node files | verified work |
+
+The two author skills are peers: interview → generate → deliver. Runtime contracts
+differ only where the host shape requires it: quest loads one focused execution
+skill for one continuous goal; loop-graph freezes its executor and supervisor into
+the run directory so every scheduled activation uses the same auditable contract.
 
 ## Pick the arm — task shape decides; the host only gates what's available
 
@@ -16,7 +31,7 @@ Decide by **task shape first**, then check the host can run it (full matrix in
 
 | Choose | When |
 |--------|------|
-| **[`quest`](skills/quest/SKILL.md)** | a *single self-contained* goal · reproducible acceptance · no non-skippable milestone gate · no owner-only call on the critical path → emit **one objective prompt**, run it with the host's goal command, ride its own verifier — no second loop |
+| **[`quest`](skills/quest/SKILL.md)** | a *single self-contained* goal · reproducible acceptance · no non-skippable milestone gate · no owner-only call on the critical path → emit **one task-specific objective** marked for `quest-executor`, then ride the host's goal harness — no second loop |
 | **[`loop-graph`](skills/loop-graph/SKILL.md)** | *any* of: multi-milestone phases with a non-skippable gate · executor and supervisor on different hosts/models/cadences · owner red-lines/gates that must stop the run · cross-session durability · you want an **independent** verifier → build the **executor + clean-context supervisor** two-loop graph |
 
 The host only **gates which arms are reachable** — most now do both:
@@ -33,7 +48,7 @@ on every loop-capable host).
 
 ## Then
 
-Read the chosen arm's `SKILL.md` and run its interview → generation → delivery.
+Read the chosen author skill and run its interview → generation → delivery.
 Shared reference both arms rest on:
 - [`lib/host-dialects.md`](lib/host-dialects.md) — per-host `/loop` · goal · hook syntax, which primitive each host has, and wake/notify primitives.
 - [`lib/methodology.md`](lib/methodology.md) — why each discipline rule exists and the failure mode it prevents.

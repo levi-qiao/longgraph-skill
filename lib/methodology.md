@@ -1,4 +1,4 @@
-# The graphkit methodology
+# The octopus methodology
 
 Every rule here exists to prevent a specific, observed failure mode of long-running agent work. This document explains the *why* so you can adapt the rules without breaking them.
 
@@ -6,7 +6,7 @@ Every rule here exists to prevent a specific, observed failure mode of long-runn
 
 A single agent grinding a long task is a *loop*: the same context, growing round after round, judging its own output. The failure is structural — by round 30 the context is full of the shortcuts, half-truths, and quietly-lowered bars that got it there, and that polluted history is exactly what it reasons from. It cannot audit its own drift, because the audit runs in the drifted context.
 
-graphkit's answer is to make the run a small **graph of nodes that share no context** — only durable, inspectable state:
+The loop-graph arm makes the run a small **graph of nodes that share no context** — only durable, inspectable state:
 
 - the **executor node** advances the work, round by round;
 - the **supervisor node** boots fresh every tick, reads only the ledger and git tree, and judges the run from the outside;
@@ -69,7 +69,7 @@ And one way to stop hard: **any red-line violation halts the run immediately.**
 
 ## 9. One run, one directory
 
-**Rule:** every run generates its artifacts fresh into its own `.graphkit/<YYYY-MM-DD-slug>/` directory. A successor run never edits the previous run's prompts or ledger — it distills what still holds into its own starting snapshot, carries still-in-force STANDING directives forward, and leaves the old directory untouched as the archive.
+**Rule:** every run generates its artifacts fresh into its own `.octopus/<YYYY-MM-DD-slug>/` directory. A successor run never edits the previous run's prompts or ledger — it distills what still holds into its own starting snapshot, carries still-in-force STANDING directives forward, and leaves the old directory untouched as the archive.
 
 **Prevents:** *state bleed between runs.* Retargeting an old executor prompt or ledger means patching stale goals line by line — token-expensive, error-prone, and the leftover text quietly steers the new run toward the old goal. Fresh generation from templates plus a distilled snapshot carries exactly the learnings and none of the stale scaffolding; a fixed, predictable location means the supervisor cron and a fresh executor always find state in the same place.
 

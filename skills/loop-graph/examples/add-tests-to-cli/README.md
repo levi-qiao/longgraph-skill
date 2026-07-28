@@ -1,6 +1,6 @@
 # Example: harden a CLI's date parser
 
-A fully worked, **generic** example — no real project, no secrets. It shows what graphkit generates from an interview and what the ledger looks like a few rounds in.
+A fully worked, **generic** example — no real project, no secrets. It shows what loop-graph generates from an interview and what the ledger looks like a few rounds in.
 
 ## The scenario
 
@@ -19,7 +19,7 @@ Single goal, no milestones. The user authorized **local commits** (no push), and
 - **Commit auth:** executor implements + verifies; the supervisor node commits clean green rounds locally.
 - **Supervisor:** yes, every 30 min — a fresh clean context each tick.
 
-The generated `executor.md` and `ledger.md` are in this folder (in a real run they'd land in `.graphkit/<date-slug>/` at the repo root — they sit here for readability). The ledger shows three rounds already run — including a **register-then-defer** in Round 2 (a timezone bug found while writing a test, logged as `GAP-002` instead of fixed on the spot) and that gap being picked up in Round 3.
+The generated `executor.md` and `ledger.md` are in this folder (in a real run they'd land in `.octopus/<date-slug>/` at the repo root — they sit here for readability). The ledger shows three rounds already run — including a **register-then-defer** in Round 2 (a timezone bug found while writing a test, logged as `GAP-002` instead of fixed on the spot) and that gap being picked up in Round 3.
 
 ## The point
 

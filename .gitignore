@@ -6,6 +6,6 @@ Thumbs.db
 .vscode/
 
 # Local scratch — never commit a real project's generated run artifacts here
-/graphkit/
+/.octopus/
 /loop/
 *.local.md

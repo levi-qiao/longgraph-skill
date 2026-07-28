@@ -9,7 +9,7 @@ labels: enhancement
 What failure of a long-running agent run does this address?
 
 **Proposed change**
-What you'd add or tune. Remember graphkit's rule: tune the numbers, not the shape
+What you'd add or tune. Remember loop-graph's rule: tune the numbers, not the shape
 (single scoreboard, one-item rounds, forcing function, register-then-defer, hard
 stop conditions, red lines, clean-context supervisor separation).
 
