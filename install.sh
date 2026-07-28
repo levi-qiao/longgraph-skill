@@ -3,7 +3,7 @@
 # `/octopus` skill into the hosts whose loader FOLLOWS symlinks: Codex and Cursor.
 # Claude Code does NOT load symlinked skill dirs — install it there as a plugin:
 #   /plugin marketplace add levi-qiao/octopus-skill  &&  /plugin install octopus@octopus-skill
-# Existing `/graphkit` installs are left untouched. Usage:
+# Usage:
 #   curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/install.sh | sh
 set -eu
 

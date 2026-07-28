@@ -1,6 +1,6 @@
 ---
 name: quest
-description: Compile a long-horizon coding task into ONE objective prompt for a host that drives a goal to done with its own verifier (Grok `/goal`, a Codex task) — where the host's harness is the acceptance auditor, so no second supervisor loop is needed. Folds the octopus discipline (verified-not-written "done", no test theater, no speculative building, forced convergence, owner red lines) into the objective text. Use for a single self-contained goal on a goal-capable host; for multi-milestone / cross-host / owner-gated work, or a host that only loops (Claude Code, Cursor, shell), use the loop-graph arm instead.
+description: Author one compiled quest objective for a goal-capable host. Use when the user asks to interview, generate, revise, or deliver a single self-contained octopus quest for Grok `/goal` or a Codex task. This is an authoring skill only. Do not use to execute or resume an objective marked `octopus.quest-executor/v1`; use `quest-executor` for that. Use `loop-graph` authoring for gated milestones, split executor/supervisor runs, or loop-only hosts.
 ---
 
 # quest — one objective, riding the host's own verifier
@@ -14,11 +14,10 @@ criteria, works across rounds, and only marks the goal complete after an
 On such a host, generating a separate executor + supervisor + two loops is
 redundant — you'd pay tokens to re-describe what the harness enforces for free.
 
-The quest arm instead emits **one objective prompt** and lets the host drive it. Its
-whole value is that the objective carries the octopus discipline the host's generic
-harness doesn't know — verifiable acceptance criteria, no-test-theater, no
-speculative building, forced convergence, owner red lines — so the host's verifier
-has something real to check against.
+The quest arm emits **one task-specific objective** marked
+`octopus.quest-executor/v1`. The runtime skill carries the reusable execution
+discipline; the compiled objective carries only the goal, reproducible acceptance,
+run controls, concrete red lines, and owner boundary.
 
 ## When to use quest vs loop-graph
 
@@ -53,8 +52,10 @@ silently pick). Ask in order — skip only if context already answers:
    it work". This is the single most important step — Grok's verifier defaults to
    *refuted* on anything it can't reproduce, and a Codex task has no separate refuter
    at all, so the criteria are your only guardrail there.
-4. **Red lines** — the non-negotiables that halt the work (push/commit auth,
-   destructive ops, secrets/real data, frozen contracts, metrics-only-go-up).
+4. **Red lines and owner boundary** — the concrete non-negotiables that halt the
+   work (push/commit auth, destructive ops, secrets/real data, frozen contracts,
+   metrics-only-go-up), plus the genuinely case-by-case decisions only the owner
+   may make. Write `none` when no owner-only call remains.
 5. **Expensive-op guard** — is there a full-cohort eval / bulk sweep / migration? If
    so, it pilots first.
 
@@ -62,9 +63,11 @@ silently pick). Ask in order — skip only if context already answers:
 owner-only call on the critical path, say so and switch to the loop-graph arm — the
 quest arm deliberately has no gate and no owner-stop loop.
 
-**Step 2 — Fill the template.** Copy [`templates/quest.md`](templates/quest.md), replace every
-`{{PLACEHOLDER}}`, delete the guidance comments. Interview in the user's language and
-mirror it in the prose; keep structural headings as in the template.
+**Step 2 — Generate.** Copy [`templates/quest.md`](templates/quest.md), replace every
+`{{PLACEHOLDER}}`, and delete guidance comments. Keep the execution marker unchanged.
+Interview in the user's language and mirror it in the task-specific prose; keep
+structural headings unchanged. Do not inline the reusable discipline from
+[`quest-executor`](../quest-executor/SKILL.md).
 
 **Step 3 — Deliver.** Hand the filled objective to the host's goal command, and tell
 the user how **in the chat** (print it, don't assume this session is the host):
@@ -72,8 +75,8 @@ the user how **in the chat** (print it, don't assume this session is the host):
 - **Grok:** `/goal <the filled objective>` — optionally `--budget <tokens>`. Manage
   with `/goal status` · `pause` · `resume` · `clear`.
 - **Codex:** delegate a task with the filled objective as its brief; it self-drives
-  across rounds. Since there's no separate refuter, the objective's acceptance
-  criteria carry the whole verification burden — make them reproducible.
+  across rounds. The marker routes execution to `quest-executor`; the objective's
+  acceptance criteria remain the verification authority.
 
 Optional reliability upgrade on Grok (from [`host-dialects.md`](../../lib/host-dialects.md)): a `Stop`
 hook to hold the turn open until a gate passes; a `Notification` hook to ping the
@@ -88,5 +91,7 @@ probably be using the loop-graph arm outright.
 ## Files in this skill
 
 - [`templates/quest.md`](templates/quest.md) — the single objective prompt.
+- [`quest-executor`](../quest-executor/SKILL.md) — the runtime discipline loaded by
+  the compiled objective; it is not an authoring dependency during execution.
 - shared: [`host-dialects.md`](../../lib/host-dialects.md) (which primitive each host has + syntax),
   [`methodology.md`](../../lib/methodology.md) (why the discipline rules exist).

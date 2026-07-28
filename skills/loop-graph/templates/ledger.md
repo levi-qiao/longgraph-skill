@@ -1,5 +1,5 @@
 <!--
-graphkit template: ledger.md — THE SINGLE SCOREBOARD (shared state between nodes).
+loop-graph template: ledger.md — THE SINGLE SCOREBOARD (shared state between nodes).
 The executor node rewrites this every round; the supervisor node only reads it.
 Keep it COMPACT: on a fresh-context host it is re-read every round, so its size is a
 per-round token tax — an unbounded Rounds log makes each round cost more than the last
@@ -9,7 +9,7 @@ when a new round pushes past that, move the oldest into `rounds-archive.md`
 snapshot" below; update the durable sections in place, never by appending.
 -->
 
-# {{PROJECT}} — graphkit Ledger
+# {{PROJECT}} — Octopus Ledger
 
 > This ledger is the run's only scoreboard. Authority order: {{AUTHORITY_LAYERS}} > this ledger. Environment facts: `ops.md`. Corrections from the supervisor: `directives.md`.
 > Rounds log holds only the last {{KEEP_ROUNDS|5}} rounds; older rounds live in `rounds-archive.md` beside this file (append-only) — don't open it unless debugging. Everything a fresh round needs is the snapshot + durable sections below.

@@ -3,10 +3,14 @@ octopus quest arm: quest.md — the SINGLE objective prompt.
 Replace every {{PLACEHOLDER}}, delete guidance comments, then hand the result to
 the host's goal command (Grok `/goal <this>`; Codex: delegate a task with this brief).
 There is NO separate supervisor prompt and NO second loop: the host's own harness
-is the acceptance auditor. Your only job is to write an objective whose acceptance
-criteria that harness can actually check. If the host only loops and has no goal
-command (Claude Code, Cursor, shell), use the loop-graph arm instead — see ../../loop-graph.
+is the acceptance auditor. Reusable execution discipline lives in quest-executor;
+this file carries only task-specific authority.
 -->
+
+Execution contract: `octopus.quest-executor/v1`
+
+Load and follow the `quest-executor` skill. This is an already compiled runtime
+objective: do not invoke the `octopus`, `quest`, or `loop-graph` authoring skills.
 
 {{OBJECTIVE_ONE_SENTENCE}} — in {{PROJECT_OR_REPOS}}. Deliver everything below
 yourself; do not stop to ask permission for the obvious next step.
@@ -18,65 +22,28 @@ run without you. Example:
 | # | Goal | Verified by (command / artifact) |
 | G1 | … | `make test` green |
 | G2 | metric ≥ baseline | scorecard at <persistent path> shows ≥ X on the frozen eval set |
-The verifier defaults to "refuted" when it can't reproduce a check — so every row
-must be checkable from committed code + saved evidence, never from your prose.
-Each check reproduces with **zero manual correction** of outputs and traverses the
-**real end-to-end path** to the surface a human would check, not a unit shim. A
-prior run's green is **never inherited** — regenerate the evidence this run. When a
-check is a *measurement* (a rate, score, count), it runs on a **fixed, named set** —
-the same inputs every run — so the number is comparable and can't be moved by
-swapping the denominator.}}
+The verifier must be able to reproduce every row from the final tree and persistent
+evidence, with zero manual correction.}}
 
-## Discipline (these are what keep a long goal from drifting)
+## Run controls
 
-- **One item at a time, verified the same round.** Pick the smallest unclosed
-  item, implement it, verify it with the narrowest gate/test/smoke, then move on.
-  "Done" means "verified to closure", never "written".
-- **No test theater.** A passing test must prove the *shipped* code works on the
-  real path — no hard-coded expected values, no starting past the thing under
-  test, no re-implementing it inside the test. A test that passes while the
-  program is broken is worse than none. Commit the tests. Saved run output is
-  supplemental evidence only; the verifier must independently re-run the
-  acceptance command against the final tree and never treat saved output as
-  authoritative.
-- **No speculative building.** Before adding any endpoint / module / config /
-  pool, name its real consumer. No consumer → don't build it. No compat
-  double-paths, no v1/v2 coexistence, no parallel error systems.
-- **Output present ≠ correct; generalize past the fix.** A value returned, a page
-  rendered, a build that compiles proves nothing until it *matches the expected
-  result* — and until it also holds on a case that wasn't part of the fix. Never
-  hard-code the specific case's identity (id, filename, fixed index) to make a
-  check pass; that overfits the fix, and the verifier treats a self-serving pass
-  as refuted.
-- **Converge, don't only grow.** Periodically ({{CONVERGE_EVERY|~every 5 items}} or
-  once you've added {{NET_LINE_CAP|~400}} net lines) do a pass that adds zero
-  features — delete dead code, merge duplication, tighten interfaces (net lines
-  ≤ 0). Don't weaken or delete an acceptance criterion to make it pass — the
-  verifier treats a self-serving criterion change as grounds to refute.
-- **Found a gap? Register, don't fix-on-the-side, don't drop it.** Note it, give
-  it a priority, and queue it — don't let one item silently balloon into ten.
-- **Expensive runs pilot first.** Any full-cohort eval / bulk sweep / migration
-  runs a smallest-slice pilot first, then goes wide only once the pilot is clean.
+- Converge after {{CONVERGE_EVERY|5}} completed items or more than
+  {{NET_LINE_CAP|400}} net production lines, whichever comes first.
+- Expensive operation: {{EXPENSIVE_OP_POLICY — `pilot required: <smallest slice and
+  pass bar>` or `none`}}.
 
 ## Red lines (violate → stop immediately)
 
-{{RED_LINES — the non-negotiables. Typical set:
-- No reset/stash/clean of changes you didn't make.
-- No commit/push without authorization{{; no push at all if that's the rule}}.
-- No destructive ops against {{protected resource}}.
-- Real data / secrets / license content never enter code, fixtures, logs, or commits.
-- Frozen contracts: zero changes.
-- Metrics only go up: any change that regresses a metric is rolled back the same round.
-- Metrics measured ONLY on the declared real eval set; a number from synthetic or
-  cherry-picked inputs does not count and is never recorded as progress.}}
+{{RED_LINES — task-specific non-negotiables. Include concrete resources and
+authorizations; do not repeat the generic quest-executor discipline. Typical set:
+- Commit authorization: {{allowed scope or none}}.
+- Push authorization: {{allowed scope or none}}.
+- Protected resources: {{named DBs, branches, services, or data}}.
+- Data policy: {{task-specific restriction}}.
+- Frozen contracts: {{exact files/interfaces or none}}.
+- Metric floor: {{named metric and minimum, or none}}.}}
 
-## When to hand back
+## Owner boundary
 
-Finish the whole objective. Legitimately stop only for: a genuine external
-blocker (missing credentials, network down, a denied permission), or a decision
-that truly needs {{OWNER|the owner}} and cannot be settled by an evidence bar you
-were given above. Before parking, **re-verify the blocker is real** against
-current state — re-run the check, re-read the file — a blocker that dissolves on a
-second look is not a blocker, and a false one wastes an owner round. Then state the
-blocker and the exact evidence/action needed — {{OWNER|the owner}} resumes you
-afterward. Do not stop merely to announce progress.
+{{OWNER_BOUNDARY — name the owner and the genuinely case-by-case decisions that
+must return to them; `none` when all critical-path decisions are pre-authorized.}}

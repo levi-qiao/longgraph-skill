@@ -1,9 +1,9 @@
 # Contributing to octopus-skill
 
 Thanks for helping! octopus-skill is a small, opinionated prompt library — one
-umbrella router (`/octopus`), two arms (`loop-graph`, `quest`), and a shared brain
-in `lib/`. Contributions that keep it curated rather than comprehensive are the
-most welcome.
+authoring router (`/octopus`), two peer author arms (`loop-graph`, `quest`), the
+focused `quest-executor` runtime skill, and a shared brain in `lib/`. Contributions
+that keep it curated rather than comprehensive are the most welcome.
 
 ## Good contributions
 
@@ -43,6 +43,10 @@ The graph grows one node at a time — a node is **one Markdown prompt + one ins
   register-then-defer, hard stop conditions, absolute red lines, and — for
   `loop-graph` — a supervisor node whose context is separate from the executor's)
   are the product. Tune the numbers, not the shape.
+- **Don't mix phases.** Author skills interview and compile; runtime contracts
+  execute. A compiled quest selects `quest-executor`; a loop-graph tick follows its
+  self-contained node under `.octopus/<date-slug>/`. Runtime must not reload an
+  author skill.
 
 ## How to submit
 

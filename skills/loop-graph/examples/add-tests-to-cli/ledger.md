@@ -1,4 +1,4 @@
-# taskcat — graphkit Ledger
+# taskcat — Octopus Ledger
 
 > This ledger is the run's only scoreboard. Authority order: the task book in `executor.md` > this ledger. Supervisor corrections: `directives.md`.
 

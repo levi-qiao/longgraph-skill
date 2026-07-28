@@ -26,18 +26,30 @@ hoc — for repeatable, long-horizon, high-stakes work. (For a quick one-off, ju
 type the task; the library's ROI is in reuse.) The durable value isn't any one
 mechanism — it's the **discipline**: "done" means verified not written, no test
 theater, no speculative building, forced convergence against growth, and hard
-owner red lines. That discipline is host-agnostic. octopus is where it lives, once,
-and gets compiled down to each host.
+owner red lines. That discipline is host-agnostic. octopus owns it once and exposes
+it through focused runtime contracts for each arm.
 
 ## The arms
 
 | Arm | Use when | Ships |
 |-----|----------|-------|
 | **[`loop-graph`](skills/loop-graph)** | you'll drive it with `/loop` (Claude Code, Grok, Cursor, shell); multi-round work that scope-creeps or fakes "done"; multi-milestone phases; executor and supervisor split across hosts/models; owner-gated | an **executor node** (works a single-source-of-truth ledger) + a clean-context **supervisor node** that re-verifies from outside and corrects via a one-way directives file — two loops |
-| **[`quest`](skills/quest)** | you'll hand it to a goal command that self-drives to done (Grok `/goal`, a Codex task); a single self-contained goal, executor+reviewer in the same run | **one objective prompt** that folds the discipline in and rides the host's own verifier — no second loop |
+| **[`quest`](skills/quest)** | you'll hand it to a goal command that self-drives to done (Grok `/goal`, a Codex task); a single self-contained goal, executor+reviewer in the same run | **one task-specific objective** that loads the focused [`quest-executor`](skills/quest-executor/SKILL.md) runtime skill — no second loop |
 
 Not sure which? The decision rule lives at the top of each arm's `SKILL.md`, and
 the host capability matrix is in [`lib/host-dialects.md`](lib/host-dialects.md).
+
+## Architecture
+
+`octopus` is the authoring router. `quest` and `loop-graph` are peer author skills:
+both interview, generate, and deliver; neither executes the result. Runtime stays
+focused:
+
+- quest marks the objective `octopus.quest-executor/v1`, so execution loads only
+  [`quest-executor`](skills/quest-executor/SKILL.md);
+- loop-graph writes self-contained runtime nodes under
+  `.octopus/<date-slug>/`, so a scheduled tick follows the frozen run contract
+  without loading an authoring skill.
 
 ## Which host, which way
 
@@ -51,8 +63,8 @@ host wants. Most hosts now do both; the host only rules options out.
   supervisor is always a `/loop`, never a goal* — an auditor must wake from outside the
   executor's context on an interval; a goal races to "done".
 - **quest** — a **single self-contained goal** that drives to a real "done". One
-  objective prompt; the host's own harness drives it (and, on Grok, verifies it). No
-  second loop.
+  task-specific objective plus the reusable `quest-executor` runtime discipline;
+  the host's own harness drives it (and, on Grok, verifies it). No second loop.
 
 Authoritative syntax + matrix: [`lib/host-dialects.md`](lib/host-dialects.md).
 
@@ -94,9 +106,12 @@ can't quest (no goal). The **supervisor is always a `/loop`, never a goal**.
 curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/install.sh | sh
 ```
 
-Any existing `/graphkit` install is left untouched; to install from a local clone, run `./install.sh` from the repo root.
+To install from a local clone, run `./install.sh` from the repo root.
 
-**How it's invoked.** `/octopus` is **user-invoked** (type it) *and* **model-invoked** — your agent auto-triggers it on a long-horizon task from the skill description, then routes to the right arm. Both arms are self-contained, so `loop-graph` and `quest` can also be invoked directly.
+**How it's invoked.** Type `/octopus` to design a run, or invoke `quest` /
+`loop-graph` directly when the arm is already known. Runtime prompts deliberately
+do not re-enter those authoring skills: the quest marker selects `quest-executor`,
+while existing `.octopus/` node files execute themselves.
 
 ## Governance — keep it a library, not a junk drawer
 
@@ -106,9 +121,7 @@ opinionated beats comprehensive. Same bar the executor holds inside a run.
 
 ## Credits
 
-The `loop-graph` arm grew from real runs and community input — it began life as the
-standalone *graphkit* skill, and this repo is that project, evolved (the old
-`graphkit` URL redirects here). Special thanks to
+The `loop-graph` arm grew from real runs and community input. Special thanks to
 **[@BrightProgrammer7](https://github.com/BrightProgrammer7)** — the
 `migrate-blob-storage` worked example and the design discussions that sharpened
 the milestone-gate and node/edge vocabulary.
