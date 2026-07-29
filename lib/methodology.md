@@ -55,6 +55,8 @@ And one way to stop hard: **any red-line violation halts the run immediately.**
 
 **Prevents:** *spinning.* A run with no stop condition burns tokens re-touching the same untouchable items. Explicit stops turn "stuck" into a signal instead of silent churn.
 
+With a supervisor, `pending-audit` is a wait state, not permission to alter the boundary under review. The author may seed a **Gate-wait backlog** in the ledger: one-round tasks with real consumers, no dependency on the current verdict or next milestone, and exact write sets disjoint from the promotion audit surface, the planned next-milestone write set, shared/global surfaces, and each other. The executor may take one such item per wait round; discovered debt never enters this list. The supervisor audits milestone promotion and completed backlog rows as separate lanes, so an isolated backlog failure cannot delay a valid promotion. Contamination is the exception: the supervisor reopens the milestone before ordering restoration, avoiding a deadlock with the executor's `pending-audit` write prohibition. This converts otherwise empty ticks into useful work without making the thing being judged move under the auditor.
+
 ## 7. Red lines
 
 **Rule:** a short list of non-negotiables that halt the run: no push without authorization, no destructive git on others' work, no secrets/real data in code/logs/commits, frozen contracts stay frozen, metrics only go up (a regressing change is rolled back the same round).
