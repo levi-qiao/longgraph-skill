@@ -46,6 +46,7 @@ The nodes communicate only through inspectable state — a ledger, a git tree, a
 - **One item per round**, verified the same round, then logged. No batching, no deferred testing.
 - **Forced convergence, tracked in the ledger.** A convergence round — no new features, net lines ≤ 0 — fires on whichever comes first: every Nth round (default 5) or once accumulated net lines cross the cap (default 400). The trigger is an explicit flag in the scoreboard, not a modulo the stateless loop must recompute, so it can't be silently skipped — and the supervisor audits that it happened.
 - **Register-then-defer.** Gaps found mid-round are logged, not silently patched or ignored.
+- **Useful gate waits, frozen up front.** At generation, the author may seed one-round backlog items whose exact write sets and dependencies are provably disjoint from the milestone under audit, the next milestone, shared/global surfaces, and each other. The executor can do one while `pending-audit`; the supervisor audits it separately, so it cannot blur or delay milestone promotion.
 - **Red lines that halt the run.** No unauthorized push, no destructive git on others' work, no secrets in commits, frozen contracts stay frozen, metrics never regress.
 - **Independent acceptance audit.** The supervisor re-verifies claimed-done work from its clean context — re-running the gates and checking the real diff against the acceptance bar and the shared standards (`ops.md`, `AGENTS.md`/`CLAUDE.md`) — and corrects drift, fake-done, wasteful method, or a stale plan only through the directives file. It never edits the ledger and never shares the executor's context. It commits what passes and decides by default; only a short owner-only list escalates to you.
 - **Pre-adjudicated authority.** Owner-only decisions on the goal's critical path (e.g. dropping dead tables when the goal *is* slimming the schema) are settled up front in the interview into a **standing authorization** — an objective evidence bar the loop acts under autonomously — so the run executes its own work instead of stalling on "proposals awaiting sign-off". Only genuinely case-by-case calls escalate to you.
@@ -136,7 +137,7 @@ Each run gets a fresh `.octopus/<date-slug>/` in your repo:
 | File | Written by | Role |
 | --- | --- | --- |
 | `executor.md` | generated once | The executor prompt — the loop's thin pointer target. Encodes the loop's self-stop. |
-| `ledger.md` | the executor, every round | Single source of truth: goals, gates, round log, open gaps. Read this to follow the run. |
+| `ledger.md` | the executor, every round | Single source of truth: goals, gates, round log, open gaps, and any preplanned Gate-wait backlog. Read this to follow the run. |
 | `directives.md` | the supervisor, one-way | Corrections, read by the executor each round. You can append your own. |
 | `ops.md` | any node, append-only | Durable environment, build and data facts. |
 | `supervisor.md` | generated once | The supervisor prompt; scheduled automatically in Claude Code, and stops its own loop when the run ends. |

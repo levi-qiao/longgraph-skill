@@ -4,9 +4,10 @@
 
 ## Status header
 
-Current milestone: M3 cutover — owner-only DDL | Round: 8 | Last round net lines: +0/−0
+Current milestone: M3 cutover — owner-only DDL | Round: 9 | Last round net lines: +18/−4
 Smallest unclosed item: M3 (owner-only: drop the blob column)
-Convergence: fires at 5 rounds since last or +400 net lines, whichever first | since last: 3 rounds / +22 net | **next round converges: no**
+Last directive folded: D-003
+Convergence: fires at 5 rounds since last or +400 net lines, whichever first | since last: 4 rounds / +58 net | **next round converges: no**
 Milestone gate: `passed` (D-002 acceptance directive released M2→M3 boundary in Round 8)
 Run status: `owner-blocked`
 
@@ -28,7 +29,11 @@ Run status: `owner-blocked`
 | New uploads land in the object store, not the blob column | closed | `tests/test_storage.py` green since Round 1 |
 | Every legacy photo exists in the object store | closed | set diff empty (Round 6), checksum sample 48/48 |
 | `/photos/<id>` serves identical bytes for every id | closed | smoke green every round since Round 1 |
-| Full suite green | closed | `pytest -q` green as of Round 6 |
+| Full suite green | closed | `pytest -q` green as of Round 9 |
+
+## Pending promotion
+
+none (M2→M3 adjudicated by D-002 in Round 8)
 
 ## owner-blocked
 
@@ -38,7 +43,13 @@ Run status: `owner-blocked`
 
 | ID | Priority | One line |
 | --- | --- | --- |
-| GAP-001 | ~~P2~~ closed | 41 legacy rows have NULL `content_type`; serve-path sniffing added Round 7 — falls back to `application/octet-stream` for unrecognizable blobs |
+| GAP-001 | ~~P2~~ closed | 41 legacy rows have NULL `content_type`; serve-path sniffing added Round 9 — falls back to `application/octet-stream` for unrecognizable blobs |
+
+## Gate-wait backlog (fixed at generation)
+
+| ID | Boundary | Task + real consumer | Exact write set | Narrow verification | Status |
+| --- | --- | --- | --- | --- | --- |
+| GW-001 | M2→M3 | staging object-store access policy for the security reviewer | `docs/object-store-access-policy.md` | `markdownlint docs/object-store-access-policy.md` + required least-privilege/rotation headings | accepted (D-003, folded Round 8) |
 
 ## Rounds log
 
@@ -94,16 +105,16 @@ Run status: `owner-blocked`
 - **Verify**: re-run set diff → empty; checksum sample 48/48 match; smoke green
 - **Net lines**: +31/−9
 - **Open**: GAP-001 stays queued (serve-path fallback covers it). M2 gates closed on independent evidence.
-- **Next**: M2 promotion request — set Milestone gate to `pending-audit`; keep looping on debt while supervisor audits the boundary.
+- **Next**: M2 promotion request — set Milestone gate to `pending-audit`; while it is audited, only preplanned GW-001 may modify the tree.
 
 ### Round 7 — 2026-07-20
-- **Item**: M2 promotion request filed; gate set to `pending-audit`. Parked — cannot advance to M3 until the supervisor releases the gate. Working GAP-001 debt (serve-path content-type sniffing) while parked.
-- **Gate**: narrow → 12 passed; full suite + smoke green
-- **Change**: added `content_type_sniff()` fallback in the serve path for the 41 NULL-`content_type` rows — reads first 512 bytes, maps to MIME via `mimetypes`; returns `application/octet-stream` for truly unrecognizable blobs
-- **Verify**: smoke green; the 3 previously-truncated rows now serve as `application/octet-stream` (correct — no data to sniff)
-- **Net lines**: +18/−4
-- **Open**: Milestone gate still `pending-audit` — waiting on supervisor acceptance directive. GAP-001 **closed** (sniffing shipped).
-- **Next**: fold D-002 when it arrives (or continue debt work if more ticks pass)
+- **Item**: M2 promotion request filed; gate set to `pending-audit`. Promotion audit surface: `scripts/backfill.py`, `scripts/verify_backfill.py`, storage tests, object-store listing/checksum artifacts, full suite, and smoke gate. Took preplanned GW-001 while parked.
+- **Gate**: `markdownlint docs/object-store-access-policy.md` green; full suite + smoke green
+- **Change**: wrote the security reviewer's staging access policy at its sole declared path; no dependencies, config, runtime code, contracts, or M2/M3 surfaces changed
+- **Verify**: required least-privilege and rotation sections present; markdown lint green
+- **Net lines**: +22/−0
+- **Open**: Milestone gate still `pending-audit`; GW-001 is `done`, awaiting its own verdict. GAP-001 remains ordinary debt and was not touched.
+- **Next**: fold milestone and backlog directives when they arrive; otherwise cheap no-op
 
 <!-- ─── Supervisor tick between Round 7 and Round 8 ─── -->
 <!-- The supervisor fired its scheduled tick here. From its clean context it:
@@ -113,15 +124,26 @@ Run status: `owner-blocked`
         - `pytest -q` → 12 passed. `scripts/smoke_serve.sh` → 20/20 green.
         - Inspected `git diff main..HEAD --stat` for undisclosed shortcuts — none.
      3. Verdict: M2 boundary passes independent audit.
-     4. Appended D-002 (acceptance directive) to directives.md.
-     5. Checkpoint-committed the audited state (SHA `a7c3d12`).
+     4. Separately checked GW-001 stayed inside its declared docs-only write set and
+        passed its narrow gate.
+     5. Appended D-002 (milestone acceptance) and D-003 (GW-001 acceptance).
+     6. Checkpoint-committed the audited state (SHA `a7c3d12`).
      The executor never saw this reasoning — only the directive that landed. -->
 
 ### Round 8 — 2026-07-20
-- **Item**: D-002 arrived — M2 acceptance directive. Flipped Milestone gate from `pending-audit` → `passed`. Advanced to M3.
+- **Item**: D-002 and D-003 arrived. Flipped the M2 gate `pending-audit` → `passed`, marked GW-001 accepted, and advanced to M3.
 - **Gate**: full suite + smoke green (no code change this round)
 - **Change**: none — gate flip is a ledger-only state transition
 - **Verify**: re-confirmed all M2 evidence still holds (set diff empty, smoke green)
 - **Net lines**: +0/−0
-- **Open**: M3 is DDL (`DROP COLUMN data`) — owner-only. Logged under `owner-blocked`.
-- **Next**: run is `owner-blocked` on M3. Executor keeps looping only if debt remains; otherwise stalls cleanly.
+- **Open**: M3 is DDL (`DROP COLUMN data`) — owner-only. GAP-001 remains executable debt.
+- **Next**: GAP-001.
+
+### Round 9 — 2026-07-20
+- **Item**: GAP-001 — serve-path content-type sniffing
+- **Gate**: narrow → 12 passed; full suite + smoke green
+- **Change**: added `content_type_sniff()` fallback for the 41 NULL-`content_type` rows; unrecognizable blobs use `application/octet-stream`
+- **Verify**: smoke green; the 3 truncated rows serve with the safe fallback
+- **Net lines**: +18/−4
+- **Open**: M3 DDL only — owner-only.
+- **Next**: run is `owner-blocked` pending owner sign-off.

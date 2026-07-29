@@ -18,6 +18,7 @@ snapshot" below; update the durable sections in place, never by appending.
 
 Current milestone: {{M1 or "single goal"}} | Round: 0 (starts at 1) | Last round net lines: —
 Smallest unclosed item: {{FIRST_ITEM}}
+Last directive folded: none   <!-- highest numbered D-xxx fully applied; advance only after its action/state change is recorded -->
 Convergence: fires at {{CONVERGE_EVERY|5}} rounds since last **or** +{{NET_LINE_CAP|400}} net lines, whichever first | since last: 0 rounds / +0 net | **next round converges: no**
 Milestone gate: `open`   <!-- open | pending-audit | passed. Only meaningful for multi-milestone runs with a supervisor; single-goal / no-supervisor runs leave it `n/a`. The executor sets it `pending-audit` when it closes the current milestone's last exit condition (promotion requested, executor keeps looping — does NOT advance); the supervisor re-verifies the boundary and, on pass, appends an acceptance directive; the executor flips it `passed` only when that directive lands, and only then starts the next milestone. Advancing while this is `pending-audit` is a red line. -->
 Run status: `active`   <!-- active | paused | exit-ready | stalled | closed. A terminal status (exit-ready/stalled/closed) is the signal for both loops to stop themselves. Note: `pending-audit` on the Milestone gate is NOT a terminal Run status — the executor keeps looping. -->
@@ -42,6 +43,12 @@ Keep it tight.}}
 | --- | --- | --- |
 | {{exit condition 1}} | open / in-progress / closed / owner-blocked | {{...}} |
 
+## Pending promotion (durable while Milestone gate = `pending-audit`)
+
+Boundary: {{none or M1→M2}}
+Audit surface: {{exact paths, artifacts, gates, and gate inputs}}
+Evidence: {{terse exit-condition evidence}}
+
 ## Metric snapshot (if the goal is metric-driven)
 
 | Metric | Baseline | Current |
@@ -61,6 +68,22 @@ Keep it tight.}}
 | ID | Priority | Milestone | One line |
 | --- | --- | --- | --- |
 | GAP-001 | P? | {{M?}} | {{...}} |
+
+## Gate-wait backlog (optional; seed at generation, never add at runtime)
+
+<!-- Work here is allowed only while Milestone gate = pending-audit. List an item
+only when it has: no dependency on the current milestone verdict, next milestone,
+or another backlog item; an exact write set disjoint from the promotion audit
+surface, planned next-milestone write set, and every other backlog write set; no
+shared/global surfaces (dependencies, lockfiles, schemas, generated files, gate
+config, or public contracts); one-round scope; and a narrow verification that
+creates no tracked changes outside that write set. If any condition is uncertain,
+omit it. A gap discovered during execution stays in Debt & gap register and never
+moves here. -->
+
+| ID | Boundary | Task + real consumer | Exact write set | Narrow verification | Status |
+| --- | --- | --- | --- | --- | --- |
+| GW-001 | {{M1→M2}} | {{optional independent task + consumer}} | {{exact paths}} | {{command / check}} | ready / done / accepted / skipped |
 
 ## Rounds log — last {{KEEP_ROUNDS|5}} only (older → `rounds-archive.md`)
 

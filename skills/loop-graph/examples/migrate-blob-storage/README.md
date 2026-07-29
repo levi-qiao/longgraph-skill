@@ -1,6 +1,6 @@
 # Example: migrate blob storage out of the database
 
-A fully worked, **generic** example — no real project, no secrets. Where [`add-tests-to-cli`](../add-tests-to-cli/) shows the smallest possible run (single goal, three rounds, empty directives), this one shows the parts of the shape that only appear on a longer, riskier task: milestones, a pilot before a cohort-scale operation, a forced convergence round, an owner-only stop, a supervisor directive catching self-reported evidence — and **the non-skippable milestone gate** blocking advancement until the supervisor independently audits and releases the boundary.
+A fully worked, **generic** example — no real project, no secrets. Where [`add-tests-to-cli`](../add-tests-to-cli/) shows the smallest possible run (single goal, three rounds, empty directives), this one shows the parts of the shape that only appear on a longer, riskier task: milestones, a pilot before a cohort-scale operation, a forced convergence round, an owner-only stop, a supervisor directive catching self-reported evidence — and **the non-skippable milestone gate** with an audit-safe Gate-wait backlog.
 
 ## The scenario
 
@@ -18,17 +18,18 @@ The run works against a **staging dump** — production credentials are a red li
 - **Red lines:** no blob deleted before its object is checksum-verified; the `/photos/<id>` contract is frozen; staging only; no push; a change that reddens a previously-green test is reverted the same round.
 - **Owner-only list:** schema DDL (the column drop), anything touching production, lowering a gate.
 - **Supervisor:** every 30 min, clean context each tick.
+- **Gate-wait backlog:** GW-001, a docs-only staging access policy for the security reviewer. Its sole write path and narrow check are fixed before the run; it is independent of M2, M3, shared surfaces, and every other item.
 
 ## What happened in the run
 
-The ledger shows eight rounds. Two sequences are worth reading closely:
+The ledger shows nine rounds. Two sequences are worth reading closely:
 
 **The drift catch (Rounds 4–6).** The executor ran the full backfill and recorded M2 as verified — on the evidence of the migration script's **own** "4,812 processed" counter. Inside the executor's context that number looked like proof; the script had printed it, after all. The supervisor, reading the ledger cold, saw self-generated evidence where an independent proof belonged and wrote `D-001` (in `directives.md`): produce a primary-key set diff between the table and a fresh object-store listing, plus a checksum sample. The diff found 3 rows the script had silently dropped — a swallowed per-row exception had counted failures as processed. Round 6 fixes them and proves the diff empty.
 
-**The milestone gate (Rounds 7–8).** After Round 6 closes M2's exit conditions, the executor sets `Milestone gate: pending-audit` and **keeps looping** — it doesn't idle. Round 7 works GAP-001 debt (content-type sniffing for the 41 NULL rows) while parked at the boundary. Between rounds, the supervisor's scheduled tick fires: from clean context it re-runs `verify_backfill.py`, the full test suite, and the smoke script, inspects the diff for undisclosed shortcuts, and — satisfied — appends `D-002` (an acceptance directive releasing the gate). Round 8: the executor reads D-002, flips the gate to `passed`, advances to M3, and immediately hits the owner-only DDL → `owner-blocked`.
+**The milestone gate (Rounds 7–9).** After Round 6 closes M2, the executor records M2's audit surface, sets `Milestone gate: pending-audit`, and takes preplanned GW-001 — a docs-only security policy whose write set cannot affect M2 or M3. The supervisor audits two lanes: it independently re-runs M2 acceptance and separately checks GW-001's write set and narrow gate, then emits D-002 and D-003. Round 8 folds both verdicts and advances; only after the boundary clears does Round 9 work ordinary GAP-001 debt. The run then stops at the owner-only DDL.
 
 ## The points
 
 **Self-generated evidence.** The executor wasn't lying in Round 4; it was reasoning from a context that contained the script's cheerful output. A same-context loop would reason from the same evidence. A clean-context supervisor never saw the script run, so "the script says so" carries no weight — only an independent listing does.
 
-**The gate cannot be skipped.** Round 7 shows the executor productively parked: it cannot self-certify milestone completion, but it doesn't stall either — it burns down debt while the supervisor independently verifies the boundary. The gate is a **tracked ledger flag** (not prose the executor can reinterpret), and advancing while it reads `pending-audit` is a red line. This means a milestone boundary always gets a clean-context audit before the run crosses it — even when no human is watching.
+**The gate cannot be skipped or blurred.** Round 7 is productive without changing the thing under review: only a generation-time, dependency-free item with an exact disjoint write set may run. Ordinary debt waits. The supervisor reports separate milestone and backlog verdicts, so backlog failure cannot hold a valid promotion unless it contaminated the audit surface. Advancing or writing outside that contract while `pending-audit` is a red line.

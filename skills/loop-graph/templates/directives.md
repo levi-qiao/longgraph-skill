@@ -1,9 +1,10 @@
 <!--
 loop-graph template: directives.md — the ONE-WAY corrections edge.
 Seeded near-empty at generation time into the run directory. The supervisor node
-appends here; the executor node reads it each round and folds open items into the
-round — it never writes this file. History is append-only: entries are never
-edited or deleted, only superseded by a later entry.
+appends here; the executor node reads it each round and folds numbered items after
+its ledger watermark into the round — it never writes this file. History is append-only: entries are never
+edited or deleted, only superseded by a later entry. The executor's ledger stores
+the highest fully applied D-xxx as `Last directive folded`.
 On a successor run, copy still-in-force STANDING items into the new run's file.
 -->
 
