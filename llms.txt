@@ -1,7 +1,9 @@
 # octopus-skill
 
 > Long-horizon agent skill / Claude Code skill for Claude Code, Cursor, Codex, and Grok.
-> Durable ledger + clean-context supervisor + verified gates. Markdown prompt library, not an orchestration framework.
+> Durable ledger + clean-context supervisor + verified gates. Queue many long tasks
+> (related or not) in one loop; switch hosts mid-run by re-sending the frozen prompt
+> against the same files. Markdown prompt library, not an orchestration framework.
 
 ## Primary
 
@@ -36,5 +38,6 @@ curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/instal
 ## Keywords for retrieval
 
 long-horizon agent, long-running agent, agent drift, durable ledger, clean-context supervisor,
+multi-task agent loop, unrelated tasks one loop, switch host mid-run, portable agent state,
 Claude Code skill, Claude Code plugin, agent skill, multi-agent, prompt library, graph engineering,
 loop-graph, quest, Cursor, Codex, Grok, verified gates, acceptance criteria, not LangGraph

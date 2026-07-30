@@ -5,6 +5,9 @@
 **Long-horizon agent skill for Claude Code, Cursor, Codex & Grok.**
 
 Stop agent drift with a durable ledger, a clean-context supervisor, and verified gates.
+Queue many long tasks in one loop — even unrelated ones — and keep going after a host switch
+by re-sending the same prompt against the files.
+
 Design once → compile to a loop or a goal → verify all the way to done.
 
 [![GitHub stars](https://img.shields.io/github/stars/levi-qiao/octopus-skill?style=flat-square&color=6C63FF)](https://github.com/levi-qiao/octopus-skill/stargazers)
@@ -21,10 +24,12 @@ English · [简体中文](README.zh-CN.md)
 
 **octopus** (`octopus-skill`) is a curated **Claude Code skill / agent skill** and
 cross-host **prompt library** for **long-running / long-horizon** agent work —
-multi-hour coding tasks, multi-milestone migrations, and anything that outlives
-one context window. It is **graph engineering for agents**: specialized roles
-(executor · supervisor · scout) connected through durable, inspectable files —
-not another orchestration runtime.
+multi-hour coding, multi-milestone migrations, a **queue of long tasks in one
+loop** (they need not be related), and anything that outlives one context window.
+It is **graph engineering for agents**: specialized roles (executor · supervisor ·
+scout) connected through durable, inspectable files — not another orchestration
+runtime. Because the scoreboard lives on disk, you can **change hosts mid-run**:
+open the same workspace, re-send the frozen node prompt, and continue.
 
 > **One brain, many arms.** The discipline stays the same; each arm compiles it
 > to the native shape of your host (Claude Code plugin, Cursor, Codex, Grok).
@@ -35,6 +40,8 @@ Reach for octopus when you need any of:
 
 - A **long-horizon agent** that keeps working after context compaction / session resets
 - A **durable task ledger** (single scoreboard) instead of chat-memory progress
+- **Several long tasks in one loop** — a continuous queue, even when items are unrelated
+- **Host-portable continuity** — switch Claude Code ↔ Cursor ↔ Codex ↔ Grok mid-run by re-sending the prompt against the same files
 - An independent **clean-context supervisor** — not the same agent grading itself
 - **Verified done**: acceptance gates re-run against real output, not self-reported “done”
 - Multi-milestone work with **non-skippable gates** and explicit owner red lines
@@ -48,15 +55,16 @@ Reach for octopus when you need any of:
 
 ### How it compares
 
-| Approach | Runtime / server? | Independent verifier | Durable scoreboard | Hosts |
+| Approach | Runtime / server? | Independent verifier | Durable scoreboard | Multi-task queue + mid-run host switch |
 | --- | --- | --- | --- | --- |
-| LangGraph / CrewAI / AutoGen | Yes | You build it | Usually yes | Framework-bound |
-| One mega-prompt / single skill | No | No (self-check) | Weak (chat memory) | Any |
-| **octopus (this repo)** | **No — Markdown only** | **Yes (supervisor arm)** | **Yes (`ledger.md`)** | **Claude Code · Cursor · Codex · Grok** |
+| LangGraph / CrewAI / AutoGen | Yes | You build it | Usually yes | Framework-bound; often one deployment stack |
+| One mega-prompt / single skill | No | No (self-check) | Weak (chat memory) | Weak — progress dies with the session |
+| **octopus (this repo)** | **No — Markdown only** | **Yes (supervisor arm)** | **Yes (`ledger.md`)** | **Yes — files are the run; re-send the prompt** |
 
 Also called / related searches: *long-running agent skill*, *prevent agent drift*,
-*Claude Code multi-agent supervisor*, *agent ledger*, *loop skill*, *quest skill*,
-*graph engineering for agents*, *clean-context review*.
+*multi-task agent loop*, *switch AI coding host mid-task*, *Claude Code multi-agent
+supervisor*, *agent ledger*, *loop skill*, *quest skill*, *graph engineering for
+agents*, *clean-context review*.
 
 ## Why octopus
 
@@ -66,6 +74,11 @@ disappear from context. octopus moves the safeguards outside the model’s memor
 
 - **Verified, not merely written** — acceptance gates are rerun against real output.
 - **Durable state** — the ledger survives context loss and remains the single scoreboard.
+- **Many long tasks, one loop** — the ledger is a continuous queue; items can be
+  independent (migrations, test debt, docs, gates) without forcing one mega-goal.
+- **Host-portable** — progress is files under `.octopus/<date-slug>/`, not chat
+  history. Point another host at the same workspace, re-send the compiled node
+  prompt, and pick up the next open ledger item.
 - **Clean-context review** — an independent supervisor can catch drift the executor cannot see.
 - **Forced convergence** — growth is periodically stopped, measured, and simplified.
 - **Explicit owner boundaries** — destructive or unauthorized actions halt the run.
@@ -73,6 +86,24 @@ disappear from context. octopus moves the safeguards outside the model’s memor
 It is Markdown, not an orchestration framework: no application runtime, server,
 or vendor lock-in. Install it as a **Claude Code plugin** or symlink the skills
 into Cursor / Codex / Grok.
+
+## Multi-task loops & switching hosts
+
+**One loop is a queue, not a single story.** Each round still does one ledger item
+end-to-end (implement → verify → record), but the ledger can hold many long items
+at once — related milestones *or* unrelated backlog (the gate-wait backlog pattern
+is the extreme case: useful work with no dependency on the item under audit). You
+do not need a new graph every time the next long task is about something else.
+
+**The host is swappable; the files are not.** A compiled loop-graph run freezes
+prompts and state under `.octopus/<date-slug>/`. To continue elsewhere:
+
+1. Use a workspace that can see those files (and the project).
+2. Re-send the same frozen executor (and, if used, supervisor) prompt on the new host.
+3. The node reads `ledger.md` / `directives.md` and continues from the next open item.
+
+You are not exporting chat transcripts. Invocation syntax still follows each host’s
+dialect ([host matrix](lib/host-dialects.md)) — only the *progress* is portable.
 
 ## Choose an arm in 30 seconds
 
@@ -143,7 +174,8 @@ For the rationale behind every constraint, read
 
 The authoritative syntax, pacing behavior, per-host **context-carry model** (what a round
 starts from, and what that costs), and host-specific hooks live in
-[the host dialect matrix](lib/host-dialects.md).
+[the host dialect matrix](lib/host-dialects.md). Mid-run host switches reuse the same
+durable run directory; only how you start each tick changes.
 
 ## Repository map
 
