@@ -84,13 +84,13 @@ Four consequences the loop-graph arm is tuned against:
    **out** of the transcript (write it to a file, report the delta). Bounding the ledger
    (`KEEP_ROUNDS` rotation, archive to `rounds-archive.md`) still matters, but it caps
    only the *re-read*, not the accumulated prefix.
-2. **Reset at a boundary you choose, not where the host chops.** Grok's blind 10-fire
-   reset lands mid-item and keeps 600 chars — that is where a long run visibly loses its
-   thread. A deliberate reset at a **milestone boundary** (or straight after a
-   convergence round), when the ledger is current and gates are green, loses nothing:
-   the ledger is the memory. Corollary: end every round with a status whose **first few
-   hundred characters** carry the pointer (run dir + next item), because on a blind reset
-   that prefix is all that survives.
+2. **Reset at a boundary you choose, not where the host chops.** A blind reset lands
+   mid-item and keeps only its truncated carry-over — that is where a long run visibly
+   loses its thread. A deliberate reset at a **milestone boundary** (or straight after a
+   convergence round), ledger current and gates green, loses nothing: the ledger is the
+   memory. Corollary: put the pointer (run dir + next item) in the **first few hundred
+   characters** of every round's closing status — on a blind reset that prefix is all
+   that survives.
 3. **The supervisor's clean context is not free here.** On a chain-carrying host the
    supervisor's tick *N* resumes its own previous audits, so it stops being an outside
    reviewer — the one property the node exists for. Where a forced reset exists, the
@@ -101,13 +101,11 @@ Four consequences the loop-graph arm is tuned against:
    terminal status and the loop keeps firing on a dead run until it expires (Grok: 7
    days). Deleting the job is an owner action — `scheduler_delete` / pause the automation.
 
-Measured on one real Grok run (2026-07-28, executor + supervisor both on `/loop`):
-executor chains grew from 75 KB to ~1 MB of transcript over 10 fires and reset three
-times; a supervisor chain reached 662 KB by its 10th tick; 305 fires over two days
-carried ≈80 MB of transcript (**order of 10M+ input tokens**, ~90 % of it resume-chain
-prefix) and exhausted the account mid-run, after which ~90 further fires errored for
-seven hours. Numbers are transcript bytes from the session store, not billed counts —
-the shape is the point.
+Measured on one real Grok run (2026-07-28, both nodes on `/loop`): executor chains grew
+75 KB → ~1 MB of transcript over 10 fires; a supervisor chain reached 662 KB by its 10th
+tick; 305 fires over two days carried ≈80 MB, ~90 % of it resume-chain prefix, and
+exhausted the account mid-run — after which ~90 further fires errored for seven hours.
+Transcript bytes from the session store, not billed counts; the shape is the point.
 
 ## Goal primitive (a built-in executor+verifier — the quest arm rides this)
 

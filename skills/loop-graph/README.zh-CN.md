@@ -98,7 +98,7 @@ flowchart LR
 
 host 有两种节奏。**自适应**（Claude Code 自定步的 `/loop`）在上一轮返回后才再唤起，一轮永远不会被打断。**定间隔**（Grok、Cursor 固定模式、Codex 心跳、cron）要你设一个延时——`/octopus` 会按一轮大概多久来算出这个间隔、填进启动命令里（Cursor 的**云端后台 agent** 单次上限约 20m，超了会被杀；Codex 的 loop-graph 节点用 `/loop` 心跳，**绝不用 goal**——goal 会在停泊态活锁）。执行方和监督方跑在各自错开的排期上，谁都不会打断对方正在进行的一轮。
 
-host 还有一个差别决定了一个 run 到底烧多少 token：**下一轮从什么上下文开始**。多数 host 不是冷启动，而是接着上一轮的上下文往下跑（Grok 把每次 fire 串成一条 detached subagent 链，链用完就地截断；Codex 把心跳追加进同一个 thread；Cursor 和 Claude Code 留在同一会话里；只有 shell/cron 每 tick 真正全新）。所以**轮切得越细并不越省**——每一轮都要把之前每轮的输出再带一遍；监督方那一 tick 的"干净上下文"也得主动做出来，不是白送的。`/octopus` 会按你说的 host 来定轮的粒度、并规划上下文重置点；各 host 的具体机制见 [`host-dialects.md`](../../lib/host-dialects.md)。
+host 还有一个差别决定了一个 run 到底烧多少 token：**下一轮从什么上下文开始**。几乎没有 host 是冷启动，多数都接着上一轮往下跑——所以**轮切得越细并不越省**（每一轮都要把之前每轮的输出再带一遍），监督方那一 tick 的"干净上下文"也得主动做出来，不是白送的。`/octopus` 会按你说的 host 来定轮的粒度、并规划重置点；各 host 的具体机制见 [`host-dialects.md`](../../lib/host-dialects.md)。
 
 两个 loop 在跑完时都会**自己停下**——执行方在台账到达 `exit-ready`/`closed` 时停，监督方在没有东西可提交时停——所以跑完的 run 绝不会整夜空转烧 token。`/octopus` 会把启动命令直接打印在对话里；"一台廉价执行方 loop + 另一台强监督方 loop"是头等用法，不是什么特殊集成。
 
