@@ -5,6 +5,9 @@
 **面向 Claude Code / Cursor / Codex / Grok 的长周期智能体 skill。**
 
 用持久 ledger、清洁上下文监督者与可验证闸门，抑制 agent 漂移。
+同一 loop 可持续消化多个长任务（不必彼此相关）；中途换宿主时，
+对着同一批文件重发提示词即可继续。
+
 设计一次 → 编译成 loop 或 goal → 一路验证到真正完成。
 
 [![GitHub stars](https://img.shields.io/github/stars/levi-qiao/octopus-skill?style=flat-square&color=6C63FF)](https://github.com/levi-qiao/octopus-skill/stargazers)
@@ -21,9 +24,10 @@
 
 **octopus**（`octopus-skill`）是一套精选的 **Claude Code skill / 智能体 skill**
 与跨宿主 **提示词库**，面向 **长周期 / long-horizon** 智能体任务——多小时编码、
-多里程碑迁移，以及任何会撑破单次上下文窗口的工作。它是 **面向 agent 的图工程**：
-把执行者、监督者、侦察者等专门角色，用持久、可检查的文件连成小图——
-**不是**又一个编排运行时。
+多里程碑迁移、**同一 loop 里持续消化多个长任务**（彼此不必相关），以及任何会撑破
+单次上下文窗口的工作。它是 **面向 agent 的图工程**：把执行者、监督者、侦察者等
+专门角色，用持久、可检查的文件连成小图——**不是**又一个编排运行时。记分牌在磁盘上，
+因此可以 **中途换宿主**：打开同一工作区，重发已固化的节点提示词，即可继续。
 
 > **一个脑子，多条腕。** 方法纪律保持不变，每条腕把它编译成宿主原生形态
 > （Claude Code 插件、Cursor、Codex、Grok）。
@@ -34,6 +38,8 @@
 
 - **长周期 agent** 在上下文压缩 / 会话重置后仍能继续推进
 - 需要 **持久任务 ledger**（唯一记分牌），而不是靠聊天记忆记进度
+- **一个 loop 里连续做多个长任务**——队列式推进，任务之间可以不相关
+- **宿主可换、进度不断**——Claude Code ↔ Cursor ↔ Codex ↔ Grok 中途切换，对着同一批文件重发提示词即可
 - 需要 **独立的清洁上下文监督者**——而不是同一 agent 自评
 - **可验证的完成**：针对真实产物重跑验收门，而不是自我报告 “done”
 - 多里程碑、**不可跳过闸门**、明确的 owner 红线
@@ -47,14 +53,15 @@
 
 ### 和常见方案比
 
-| 方案 | 需要运行时/服务？ | 独立验证器 | 持久记分牌 | 宿主 |
+| 方案 | 需要运行时/服务？ | 独立验证器 | 持久记分牌 | 多任务队列 + 中途换宿主 |
 | --- | --- | --- | --- | --- |
-| LangGraph / CrewAI / AutoGen | 是 | 自己写 | 通常有 | 绑框架 |
-| 单条超长 prompt / 单个 skill | 否 | 无（自评） | 弱（聊天记忆） | 任意 |
-| **octopus（本仓库）** | **否——纯 Markdown** | **有（监督者腕）** | **有（`ledger.md`）** | **Claude Code · Cursor · Codex · Grok** |
+| LangGraph / CrewAI / AutoGen | 是 | 自己写 | 通常有 | 绑框架 / 部署栈 |
+| 单条超长 prompt / 单个 skill | 否 | 无（自评） | 弱（聊天记忆） | 弱——进度跟着会话死 |
+| **octopus（本仓库）** | **否——纯 Markdown** | **有（监督者腕）** | **有（`ledger.md`）** | **有——文件即 run，重发提示词即可** |
 
-相关搜索词：*长周期智能体 skill*、*防止 agent 漂移*、*Claude Code 多 agent 监督*、
-*agent ledger*、*loop skill*、*quest skill*、*agent 图工程*、*清洁上下文复审*。
+相关搜索词：*长周期智能体 skill*、*防止 agent 漂移*、*多任务 agent loop*、
+*中途切换 AI 编程宿主*、*Claude Code 多 agent 监督*、*agent ledger*、*loop skill*、
+*quest skill*、*agent 图工程*、*清洁上下文复审*。
 
 ## 为什么需要 octopus
 
@@ -63,12 +70,33 @@
 
 - **完成必须经过验证** —— 针对真实产物重新运行验收门。
 - **状态持久可查** —— ledger 跨越上下文丢失，并始终作为唯一记分牌。
+- **多长任务、一个 loop** —— ledger 是持续队列；条目可以彼此独立（迁移、测试债、
+  文档、闸门），不必硬塞进同一个「大目标」叙事。
+- **宿主可移植** —— 进度在 `.octopus/<日期-slug>/` 的文件里，不在聊天记录里。
+  换宿主打开同一工作区，重发已编译的节点提示词，即可从下一个未关闭条目继续。
 - **清洁上下文复审** —— 独立监督者能发现执行者身处同一历史时看不到的漂移。
 - **强制收敛** —— 定期停止增长、测量变化并做减法。
 - **明确 owner 边界** —— 破坏性或未授权操作会让 run 硬停。
 
 它是 Markdown 提示词，不是编排框架：无需应用运行时、服务端或厂商绑定。
 可作为 **Claude Code 插件**安装，或 symlink 到 Cursor / Codex / Grok。
+
+## 多任务 loop 与中途换宿主
+
+**一个 loop 是队列，不是单一故事。** 每轮仍只做完一个 ledger 条目（实现 → 验证 →
+记账），但 ledger 可以同时挂很多长条目——相关里程碑，或互不相关的 backlog
+（gate-wait backlog 是极端情形：与当前审计对象无依赖的有用工作）。下一个长任务换了
+主题，也不必重开一张图。
+
+**宿主可换，文件不可丢。** 编译后的 loop-graph run 把提示词与状态固化在
+`.octopus/<日期-slug>/`。要换地方继续：
+
+1. 使用能看到这些文件（以及项目本身）的工作区。
+2. 在新宿主上重发同一份已固化的执行者（若有监督者则一并）提示词。
+3. 节点读取 `ledger.md` / `directives.md`，从下一个未关闭条目继续。
+
+不需要导出聊天 transcript。启动语法仍遵循各宿主方言（见
+[宿主方言矩阵](lib/host-dialects.md)）——可移植的是 **进度**，不是会话气泡。
 
 ## 30 秒选腕
 
@@ -135,6 +163,7 @@ curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/instal
 
 权威语法、节奏行为、各宿主的**上下文携带模型**（下一轮从什么开始、代价多大）
 和宿主特有 hook 统一维护在 [宿主方言矩阵](lib/host-dialects.md)。
+中途换宿主时复用同一套持久 run 目录，变的只是每一 tick 如何启动。
 
 ## 仓库地图
 
