@@ -41,27 +41,71 @@ supervisor is the verifier.)
 | Host | Command | Interval | Adaptive? | Stop |
 |------|---------|----------|-----------|------|
 | **Claude Code** | `/loop [interval] <prompt>` | optional — omit to self-pace | **yes** (self-paced re-invokes when the round returns) | `ScheduleWakeup` `stop:true`; or `CronDelete` if scheduled via `CronCreate` |
-| **Grok** | `/loop [interval] <prompt>` | `Ns/Nm/Nh/Nd`, min 60s; recurring expires after **7 days** | no — interval-driven | `scheduler_delete <job-id>` (id printed when the loop is created) |
+| **Grok** | `/loop [interval] <prompt>` | `Ns/Nm/Nh/Nd`, min 60s; recurring expires after **7 days** | no — interval-driven, but a fire whose previous iteration is still running is **skipped**, so a long round is never doubled (no lock needed) | `scheduler_delete <job-id>` (id printed when the loop is created; also in each fire's own `<system-reminder>`) |
 | **Codex** | `/loop <interval> <prompt>` (in conversation) → **heartbeat automation** | **required** — e.g. `4m`; **no interval ⇒ no timer created** | no — interval heartbeat (the task self-drive is goal-mode, not for loop-graph nodes — see ¹) | pause/delete the automation, or have the prompt stop it on a terminal ledger status |
-| **Cursor** | client "loop"/repeat feature | interval-driven | no — and it **kills a run past ~20 min**, so each round must finish under the cap | stop the loop in-client |
+| **Cursor** | `/loop [interval] <prompt>` — a background shell sentinel wakes the agent **in the current session** | optional — omit for its dynamic (self-paced) mode | **yes** in dynamic mode; interval-driven otherwise | kill the tracked loop/sleeper PID in-client |
 | **shell/cron** | `while …; do …; sleep <interval>; done` / crontab | interval-driven | no | `break` on a terminal ledger status / `CronDelete` |
+
+Cursor's **cloud background agents** are a different feature from its in-session `/loop`
+(the `/loop` skill is disabled in cloud environments): that path is the one with a
+per-run wall-clock cap (~20 min), so a round driven by a background agent must finish
+under it.
 
 **Adaptive vs interval** is the load-bearing distinction for the loop-graph arm's
 gate-park: on the adaptive host (Claude Code self-paced) re-invocation is automatic,
 so a round never gets cut off and a parked executor resumes for free. On interval
-hosts (Grok `/loop`, Cursor, **Codex** heartbeat, shell/cron) **both loops must be
+hosts (Grok `/loop`, Cursor in fixed mode, **Codex** heartbeat, shell/cron) **both loops must be
 scheduled** and the executor keeps cheap-ticking until release — a loop that writes a
 terminal status and stops cannot restart itself. (A Codex loop-graph node therefore
 uses the interval heartbeat, never a goal — see ¹.)
 
-A fresh-context interval host (Codex heartbeat, Grok, shell) also **re-reads the run
-files every round** — executor + ledger + directives — a fixed per-round token tax.
-Two levers keep it affordable: **bound the ledger** (the ledger/executor templates'
-`KEEP_ROUNDS` rotation — keep the last few rounds hot, archive the rest to
-`rounds-archive.md`; an unbounded Rounds log makes each round cost more than the last,
-**O(n²)** over a run) and **size rounds coarser** (batch sibling items sharing one
-verification, so real work exceeds the tax). On the adaptive `/loop` host context
-persists between rounds, so this tax is near-zero.
+## Context carry across rounds — what a round actually costs
+
+A loop host does **not** hand each round a blank slate. Where the next fire's context
+comes from is the biggest lever on what a run costs, and — for the supervisor — on
+whether the clean-context invariant holds at all. Only shell/cron is genuinely
+fresh per tick.
+
+| Host | The next round starts from | Forced-reset control |
+|------|---------------------------|----------------------|
+| **Claude Code** `/loop` | the same conversation, auto-compacted as it grows | none per round |
+| **Grok** `/loop` (default `[scheduler] background_loops = true`) | a **detached subagent that resumes the previous fire's transcript**; every **10th** fire starts fresh carrying only the prior status **truncated to 600 chars** | **yes** — `scheduler_create` with the task's own `task_id` and *changed* prompt text; the next fire then starts a clean transcript with **no** carry-over |
+| **Grok** `/loop` where the task was created `foreground: true` | a turn in the owner's own conversation (shared context, not isolated) | none |
+| **Codex** `/loop` heartbeat | `<heartbeat>` turns appended to the **same target thread**, auto-compacted | `/compact` |
+| **Cursor** `/loop` | the same session — the sentinel wakes the agent in-place | none |
+| **shell/cron** | a new CLI process — genuinely fresh every tick | inherent |
+
+Four consequences the loop-graph arm is tuned against:
+
+1. **Per-round cost is quadratic in rounds-per-chain, not linear.** On an accumulating
+   host round *N* re-sends every earlier round's tool output. Splitting work into more,
+   finer rounds pays that prefix more times for the same result — so **size rounds
+   coarser** (batch sibling items that share one verification) and keep bulk output
+   **out** of the transcript (write it to a file, report the delta). Bounding the ledger
+   (`KEEP_ROUNDS` rotation, archive to `rounds-archive.md`) still matters, but it caps
+   only the *re-read*, not the accumulated prefix.
+2. **Reset at a boundary you choose, not where the host chops.** A blind reset lands
+   mid-item and keeps only its truncated carry-over — that is where a long run visibly
+   loses its thread. A deliberate reset at a **milestone boundary** (or straight after a
+   convergence round), ledger current and gates green, loses nothing: the ledger is the
+   memory. Corollary: put the pointer (run dir + next item) in the **first few hundred
+   characters** of every round's closing status — on a blind reset that prefix is all
+   that survives.
+3. **The supervisor's clean context is not free here.** On a chain-carrying host the
+   supervisor's tick *N* resumes its own previous audits, so it stops being an outside
+   reviewer — the one property the node exists for. Where a forced reset exists, the
+   supervisor must use it **every tick**; where it doesn't, prefer a host whose ticks are
+   fresh (shell/cron) for that node.
+4. **A host-level refusal never reaches the node.** If the account's balance or rate
+   limit is exhausted the fire errors before the model runs, so the node cannot write a
+   terminal status and the loop keeps firing on a dead run until it expires (Grok: 7
+   days). Deleting the job is an owner action — `scheduler_delete` / pause the automation.
+
+Measured on one real Grok run (2026-07-28, both nodes on `/loop`): executor chains grew
+75 KB → ~1 MB of transcript over 10 fires; a supervisor chain reached 662 KB by its 10th
+tick; 305 fires over two days carried ≈80 MB, ~90 % of it resume-chain prefix, and
+exhausted the account mid-run — after which ~90 further fires errored for seven hours.
+Transcript bytes from the session store, not billed counts; the shape is the point.
 
 ## Goal primitive (a built-in executor+verifier — the quest arm rides this)
 
