@@ -2,14 +2,16 @@
 
 # octopus 🐙
 
-**面向长周期智能体任务的图工程。**
+**面向 Claude Code / Cursor / Codex / Grok 的长周期智能体 skill。**
 
-设计一次，编译成 loop 或 goal，一路验证到真正完成。
+用持久 ledger、清洁上下文监督者与可验证闸门，抑制 agent 漂移。
+设计一次 → 编译成 loop 或 goal → 一路验证到真正完成。
 
 [![GitHub stars](https://img.shields.io/github/stars/levi-qiao/octopus-skill?style=flat-square&color=6C63FF)](https://github.com/levi-qiao/octopus-skill/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-14B8A6?style=flat-square)](LICENSE)
 [![欢迎 PR](https://img.shields.io/badge/PRs-welcome-22C55E?style=flat-square)](CONTRIBUTING.md)
 ![宿主：Claude Code · Grok · Cursor · Codex](https://img.shields.io/badge/Hosts-Claude%20Code%20·%20Grok%20·%20Cursor%20·%20Codex-111827?style=flat-square)
+![类型：Claude Code skill · 提示词库](https://img.shields.io/badge/Type-Claude%20Code%20skill%20·%20prompt%20library-0EA5E9?style=flat-square)
 
 [English](README.md) · 简体中文
 
@@ -17,10 +19,42 @@
 
 <img alt="执行者与清洁上下文监督者两个 loop 并排运行" src="assets/graph.png" width="100%" />
 
-octopus 是一个面向长周期智能体任务的精选提示词库。它不继续堆叠单个 loop 的复杂度，
-而是把执行者、监督者、侦察者等专门角色连接成一个小图，只通过持久、可检查的文件通信。
+**octopus**（`octopus-skill`）是一套精选的 **Claude Code skill / 智能体 skill**
+与跨宿主 **提示词库**，面向 **长周期 / long-horizon** 智能体任务——多小时编码、
+多里程碑迁移，以及任何会撑破单次上下文窗口的工作。它是 **面向 agent 的图工程**：
+把执行者、监督者、侦察者等专门角色，用持久、可检查的文件连成小图——
+**不是**又一个编排运行时。
 
-> **一个脑子，多条腕。** 方法纪律保持不变，每条腕把它编译成宿主原生的运行形态。
+> **一个脑子，多条腕。** 方法纪律保持不变，每条腕把它编译成宿主原生形态
+> （Claude Code 插件、Cursor、Codex、Grok）。
+
+## 什么时候用
+
+出现下面任一需求时，优先考虑 octopus：
+
+- **长周期 agent** 在上下文压缩 / 会话重置后仍能继续推进
+- 需要 **持久任务 ledger**（唯一记分牌），而不是靠聊天记忆记进度
+- 需要 **独立的清洁上下文监督者**——而不是同一 agent 自评
+- **可验证的完成**：针对真实产物重跑验收门，而不是自我报告 “done”
+- 多里程碑、**不可跳过闸门**、明确的 owner 红线
+- 需要跨 **Claude Code · Cursor · Codex · Grok** 的 **Markdown skill / 提示词库**
+
+### 什么时候*不要*用
+
+- 一次性小改动、PR 体量任务，或单次干净会话就能做完
+- 你要的是 **运行时框架**（LangGraph、CrewAI、AutoGen、自建 agent 服务）
+- 只需要一段短提示词，不需要 ledger、闸门或独立复审
+
+### 和常见方案比
+
+| 方案 | 需要运行时/服务？ | 独立验证器 | 持久记分牌 | 宿主 |
+| --- | --- | --- | --- | --- |
+| LangGraph / CrewAI / AutoGen | 是 | 自己写 | 通常有 | 绑框架 |
+| 单条超长 prompt / 单个 skill | 否 | 无（自评） | 弱（聊天记忆） | 任意 |
+| **octopus（本仓库）** | **否——纯 Markdown** | **有（监督者腕）** | **有（`ledger.md`）** | **Claude Code · Cursor · Codex · Grok** |
+
+相关搜索词：*长周期智能体 skill*、*防止 agent 漂移*、*Claude Code 多 agent 监督*、
+*agent ledger*、*loop skill*、*quest skill*、*agent 图工程*、*清洁上下文复审*。
 
 ## 为什么需要 octopus
 
@@ -34,6 +68,7 @@ octopus 是一个面向长周期智能体任务的精选提示词库。它不继
 - **明确 owner 边界** —— 破坏性或未授权操作会让 run 硬停。
 
 它是 Markdown 提示词，不是编排框架：无需应用运行时、服务端或厂商绑定。
+可作为 **Claude Code 插件**安装，或 symlink 到 Cursor / Codex / Grok。
 
 ## 30 秒选腕
 
