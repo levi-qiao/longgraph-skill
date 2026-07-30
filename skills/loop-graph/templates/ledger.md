@@ -1,9 +1,10 @@
 <!--
 loop-graph template: ledger.md — THE SINGLE SCOREBOARD (shared state between nodes).
 The executor node rewrites this every round; the supervisor node only reads it.
-Keep it COMPACT: on a fresh-context host it is re-read every round, so its size is a
-per-round token tax — an unbounded Rounds log makes each round cost more than the last
-(O(n²) over a run). Hard rule: keep only the last {{KEEP_ROUNDS|5}} round entries here;
+Keep it COMPACT: it is re-read every round, so its size is a per-round token tax — and on
+a host whose rounds resume the previous round, each re-read is also carried forward, so
+an unbounded Rounds log makes every round cost more than the last (O(n²) over a run).
+Hard rule: keep only the last {{KEEP_ROUNDS|5}} round entries here;
 when a new round pushes past that, move the oldest into `rounds-archive.md`
 (append-only, never re-read each round). Carry durable facts in the "Starting
 snapshot" below; update the durable sections in place, never by appending.
@@ -20,6 +21,8 @@ Current milestone: {{M1 or "single goal"}} | Round: 0 (starts at 1) | Last round
 Smallest unclosed item: {{FIRST_ITEM}}
 Last directive folded: none   <!-- highest numbered D-xxx fully applied; advance only after its action/state change is recorded -->
 Convergence: fires at {{CONVERGE_EVERY|5}} rounds since last **or** +{{NET_LINE_CAP|400}} net lines, whichever first | since last: 0 rounds / +0 net | **next round converges: no**
+Context chain: 0 of {{CHAIN_BUDGET|8}} rounds since last reset   <!-- Only on a host whose rounds resume the previous round's context (see lib/host-dialects.md); delete this line on a fresh-per-tick host. The executor +1s it each round and zeroes it after forcing a context reset — at a milestone boundary, after a convergence round, or on reaching the budget. Purpose: reset where the run chooses instead of where the host chops. -->
+
 Milestone gate: `open`   <!-- open | pending-audit | passed. Only meaningful for multi-milestone runs with a supervisor; single-goal / no-supervisor runs leave it `n/a`. The executor sets it `pending-audit` when it closes the current milestone's last exit condition (promotion requested, executor keeps looping — does NOT advance); the supervisor re-verifies the boundary and, on pass, appends an acceptance directive; the executor flips it `passed` only when that directive lands, and only then starts the next milestone. Advancing while this is `pending-audit` is a red line. -->
 Run status: `active`   <!-- active | paused | exit-ready | stalled | closed. A terminal status (exit-ready/stalled/closed) is the signal for both loops to stop themselves. Note: `pending-audit` on the Milestone gate is NOT a terminal Run status — the executor keeps looping. -->
 

@@ -101,13 +101,14 @@ For the rationale behind every constraint, read
 
 | Host | **quest** — one self-contained goal | **loop-graph** — gated or independently verified work |
 | --- | --- | --- |
-| **Grok** | ✅ `/goal <objective>` with a native adversarial verifier | ✅ executor `/loop` + supervisor `/loop` |
+| **Grok** | ✅ `/goal <objective>` with a native adversarial verifier | ✅ executor `/loop` + supervisor `/loop`; fires chain their context, so plan the resets |
 | **Codex** | ✅ `/goal`, or send the objective as a task | ✅ both nodes on interval `/loop` heartbeats; never use `/goal` for a parked node |
 | **Claude Code** | ⚠️ one self-paced `/loop`; no independent verifier | ✅ self-paced executor `/loop` + supervisor `/loop` |
-| **Cursor** | ❌ no goal primitive | ✅ executor `/loop` + supervisor `/loop`; keep each round under 20 minutes |
-| **shell / cron** | ❌ no goal primitive | ✅ schedule both loops; stop on a terminal ledger status |
+| **Cursor** | ❌ no goal primitive | ✅ executor `/loop` + supervisor `/loop`, in-session; a cloud background agent instead caps a round at ~20 minutes |
+| **shell / cron** | ❌ no goal primitive | ✅ schedule both loops; the only host that is genuinely fresh per tick |
 
-The authoritative syntax, pacing behavior, and host-specific hooks live in
+The authoritative syntax, pacing behavior, per-host **context-carry model** (what a round
+starts from, and what that costs), and host-specific hooks live in
 [the host dialect matrix](lib/host-dialects.md).
 
 ## Repository map
