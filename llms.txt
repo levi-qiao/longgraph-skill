@@ -1,0 +1,40 @@
+# octopus-skill
+
+> Long-horizon agent skill / Claude Code skill for Claude Code, Cursor, Codex, and Grok.
+> Durable ledger + clean-context supervisor + verified gates. Markdown prompt library, not an orchestration framework.
+
+## Primary
+
+- [README](https://github.com/levi-qiao/octopus-skill/blob/main/README.md): overview, when to use, install, host matrix
+- [README (简体中文)](https://github.com/levi-qiao/octopus-skill/blob/main/README.zh-CN.md)
+- [Methodology](https://github.com/levi-qiao/octopus-skill/blob/main/lib/methodology.md): why each constraint exists
+- [Host dialects](https://github.com/levi-qiao/octopus-skill/blob/main/lib/host-dialects.md): per-host loop/goal syntax and context-carry model
+
+## Skills (authoring → runtime)
+
+- [Root router `/octopus`](https://github.com/levi-qiao/octopus-skill/blob/main/SKILL.md): chooses arm; never executes generated work
+- [quest author](https://github.com/levi-qiao/octopus-skill/blob/main/skills/quest/SKILL.md): one self-contained goal objective
+- [quest-executor](https://github.com/levi-qiao/octopus-skill/blob/main/skills/quest-executor/SKILL.md): runtime discipline for compiled quests
+- [loop-graph author](https://github.com/levi-qiao/octopus-skill/blob/main/skills/loop-graph/SKILL.md): executor + supervisor + ledger
+- [loop-graph model](https://github.com/levi-qiao/octopus-skill/blob/main/skills/loop-graph/docs/model.md): node/edge invariants
+
+## Install
+
+Claude Code plugin:
+
+```text
+/plugin marketplace add levi-qiao/octopus-skill
+/plugin install octopus@octopus-skill
+```
+
+Codex / Cursor (and local clone):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/install.sh | sh
+```
+
+## Keywords for retrieval
+
+long-horizon agent, long-running agent, agent drift, durable ledger, clean-context supervisor,
+Claude Code skill, Claude Code plugin, agent skill, multi-agent, prompt library, graph engineering,
+loop-graph, quest, Cursor, Codex, Grok, verified gates, acceptance criteria, not LangGraph

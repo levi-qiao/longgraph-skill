@@ -2,14 +2,16 @@
 
 # octopus 🐙
 
-**Graph engineering for long-horizon agents.**
+**Long-horizon agent skill for Claude Code, Cursor, Codex & Grok.**
 
-Design once. Compile to a loop or a goal. Verify all the way to done.
+Stop agent drift with a durable ledger, a clean-context supervisor, and verified gates.
+Design once → compile to a loop or a goal → verify all the way to done.
 
 [![GitHub stars](https://img.shields.io/github/stars/levi-qiao/octopus-skill?style=flat-square&color=6C63FF)](https://github.com/levi-qiao/octopus-skill/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-14B8A6?style=flat-square)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-22C55E?style=flat-square)](CONTRIBUTING.md)
 ![Hosts: Claude Code · Grok · Cursor · Codex](https://img.shields.io/badge/Hosts-Claude%20Code%20·%20Grok%20·%20Cursor%20·%20Codex-111827?style=flat-square)
+![Type: Claude Code skill · prompt library](https://img.shields.io/badge/Type-Claude%20Code%20skill%20·%20prompt%20library-0EA5E9?style=flat-square)
 
 English · [简体中文](README.zh-CN.md)
 
@@ -17,13 +19,44 @@ English · [简体中文](README.zh-CN.md)
 
 <img alt="Executor and clean-context supervisor loops running side by side" src="assets/graph.png" width="100%" />
 
-octopus is a curated prompt library for agent work that lasts longer than one
-context window. Instead of making one loop increasingly complicated, it wires
-specialized roles — executor, supervisor, scout — into a small graph connected
-through durable, inspectable files.
+**octopus** (`octopus-skill`) is a curated **Claude Code skill / agent skill** and
+cross-host **prompt library** for **long-running / long-horizon** agent work —
+multi-hour coding tasks, multi-milestone migrations, and anything that outlives
+one context window. It is **graph engineering for agents**: specialized roles
+(executor · supervisor · scout) connected through durable, inspectable files —
+not another orchestration runtime.
 
 > **One brain, many arms.** The discipline stays the same; each arm compiles it
-> to the native shape of your host.
+> to the native shape of your host (Claude Code plugin, Cursor, Codex, Grok).
+
+## When to use this
+
+Reach for octopus when you need any of:
+
+- A **long-horizon agent** that keeps working after context compaction / session resets
+- A **durable task ledger** (single scoreboard) instead of chat-memory progress
+- An independent **clean-context supervisor** — not the same agent grading itself
+- **Verified done**: acceptance gates re-run against real output, not self-reported “done”
+- Multi-milestone work with **non-skippable gates** and explicit owner red lines
+- A **Markdown skill / prompt library** that works across **Claude Code · Cursor · Codex · Grok**
+
+### When *not* to use this
+
+- One-shot edits, small PR-sized tasks, or anything that fits a single clean session
+- You want a **runtime framework** (LangGraph, CrewAI, AutoGen, custom agent server)
+- You only need a single short prompt with no ledger, gates, or independent review
+
+### How it compares
+
+| Approach | Runtime / server? | Independent verifier | Durable scoreboard | Hosts |
+| --- | --- | --- | --- | --- |
+| LangGraph / CrewAI / AutoGen | Yes | You build it | Usually yes | Framework-bound |
+| One mega-prompt / single skill | No | No (self-check) | Weak (chat memory) | Any |
+| **octopus (this repo)** | **No — Markdown only** | **Yes (supervisor arm)** | **Yes (`ledger.md`)** | **Claude Code · Cursor · Codex · Grok** |
+
+Also called / related searches: *long-running agent skill*, *prevent agent drift*,
+*Claude Code multi-agent supervisor*, *agent ledger*, *loop skill*, *quest skill*,
+*graph engineering for agents*, *clean-context review*.
 
 ## Why octopus
 
@@ -38,7 +71,8 @@ disappear from context. octopus moves the safeguards outside the model’s memor
 - **Explicit owner boundaries** — destructive or unauthorized actions halt the run.
 
 It is Markdown, not an orchestration framework: no application runtime, server,
-or vendor lock-in.
+or vendor lock-in. Install it as a **Claude Code plugin** or symlink the skills
+into Cursor / Codex / Grok.
 
 ## Choose an arm in 30 seconds
 
