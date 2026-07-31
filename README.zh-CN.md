@@ -8,7 +8,7 @@
 同一 loop 可持续消化多个长任务（不必彼此相关）；中途换宿主时，
 对着同一批文件重发提示词即可继续。
 
-设计一次 → 编译成 loop 或 goal → 一路验证到真正完成。
+设计一次 → 编译成持久 loop-graph → 一路验证到真正完成。
 
 [![GitHub stars](https://img.shields.io/github/stars/levi-qiao/octopus-skill?style=flat-square&color=6C63FF)](https://github.com/levi-qiao/octopus-skill/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-14B8A6?style=flat-square)](LICENSE)
@@ -29,8 +29,8 @@
 专门角色，用持久、可检查的文件连成小图——**不是**又一个编排运行时。记分牌在磁盘上，
 因此可以 **中途换宿主**：打开同一工作区，重发已固化的节点提示词，即可继续。
 
-> **一个脑子，多条腕。** 方法纪律保持不变，每条腕把它编译成宿主原生形态
-> （Claude Code 插件、Cursor、Codex、Grok）。
+> **一张持久图，跨宿主运行。** 简单、自包含的目标直接交给宿主的普通 task
+> 或 goal；octopus 只在持久图结构真正有价值时出场。
 
 ## 什么时候用
 
@@ -57,11 +57,11 @@
 | --- | --- | --- | --- | --- |
 | LangGraph / CrewAI / AutoGen | 是 | 自己写 | 通常有 | 绑框架 / 部署栈 |
 | 单条超长 prompt / 单个 skill | 否 | 无（自评） | 弱（聊天记忆） | 弱——进度跟着会话死 |
-| **octopus（本仓库）** | **否——纯 Markdown** | **有（监督者腕）** | **有（`ledger.md`）** | **有——文件即 run，重发提示词即可** |
+| **octopus（本仓库）** | **否——纯 Markdown** | **有（监督者节点）** | **有（`ledger.md`）** | **有——文件即 run，重发提示词即可** |
 
 相关搜索词：*长周期智能体 skill*、*防止 agent 漂移*、*多任务 agent loop*、
 *中途切换 AI 编程宿主*、*Claude Code 多 agent 监督*、*agent ledger*、*loop skill*、
-*quest skill*、*agent 图工程*、*清洁上下文复审*。
+*agent 图工程*、*清洁上下文复审*。
 
 ## 为什么需要 octopus
 
@@ -76,7 +76,8 @@
   换宿主打开同一工作区，重发已编译的节点提示词，即可从下一个未关闭条目继续。
 - **清洁上下文复审** —— 独立监督者能发现执行者身处同一历史时看不到的漂移。
 - **强制收敛** —— 定期停止增长、测量变化并做减法。
-- **明确 owner 边界** —— 破坏性或未授权操作会让 run 硬停。
+- **低负担 owner 裁决** —— 真正需要 owner 的问题会变成简短、有推荐的 A/B/C
+  选择题，而不是一份技术作业。
 
 它是 Markdown 提示词，不是编排框架：无需应用运行时、服务端或厂商绑定。
 可作为 **Claude Code 插件**安装，或 symlink 到 Cursor / Codex / Grok。
@@ -96,16 +97,16 @@
 3. 节点读取 `ledger.md` / `directives.md`，从下一个未关闭条目继续。
 
 不需要导出聊天 transcript。启动语法仍遵循各宿主方言（见
-[宿主方言矩阵](lib/host-dialects.md)）——可移植的是 **进度**，不是会话气泡。
+[按宿主拆分的 reference](skills/loop-graph/references/)）——可移植的是 **进度**，不是会话气泡。
 
-## 30 秒选腕
+## 该不该用 octopus？
 
 | 你的任务形态 | 选择 | 得到什么 |
 | --- | --- | --- |
-| 一个能自驱到可验证完成的自包含目标 | [**quest**](skills/quest/SKILL.md) | 一段任务特有的 objective，运行时加载聚焦的 [**quest-executor**](skills/quest-executor/SKILL.md) 纪律 |
-| 多里程碑、不可跳过的闸门、owner 审批，或需要真正独立的验证器 | [**loop-graph**](skills/loop-graph/README.zh-CN.md) | 一个执行者 loop + 一个清洁上下文监督者 loop，通过持久文件协作 |
+| 一个普通 task / 单次会话能完成的自包含目标 | 直接用宿主的普通 task 或 goal | 不加 octopus 包装，不多一层 prompt |
+| 多轮、持久状态、不可跳过的闸门、owner 边界、中途换宿主或独立验证 | [**octopus / loop-graph**](skills/loop-graph/README.zh-CN.md) | 执行者 loop + 清洁上下文监督者，通过持久文件协作 |
 
-**一句话：**任务形态决定用哪条腕，宿主只排除不可用的选项。
+**一句话：**不需要这张图，就不要用 octopus。
 
 ## 快速开始
 
@@ -130,12 +131,12 @@ curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/instal
 
 ### 设计一次 run
 
-调用 `/octopus`。它会采访你的目标、验收证据、里程碑、红线和宿主，再编译出合适的腕。
-如果已经知道任务形态，也可以直接调用 `quest` 或 `loop-graph`。
+调用 `/octopus`。它会自动识别 Codex 或 Claude Code、先检查工作区，只询问无法推断的
+owner 决策，再编译 loop-graph run。选择“直接创建”后，它会在当前宿主启动两个运行节点；
+选择 prompts-only 才需要手动或跨宿主启动。也可以直接调用 `loop-graph`。
 
-生成期与运行期严格分离：author skill 只编译，不执行。编译后的 quest 只选择
-`quest-executor`；loop-graph 生成的节点则遵循 `.octopus/<日期-slug>/` 下已固化的
-本次 run 契约。
+生成期与运行期严格分离：author skill 只编译，不执行。生成的节点遵循
+`.octopus/<日期-slug>/` 下已固化的本次 run 契约。
 
 ## 这张图怎么运行
 
@@ -153,27 +154,26 @@ curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/instal
 
 ## 宿主兼容性
 
-| 宿主 | **quest** —— 单一自包含目标 | **loop-graph** —— 有闸门或独立验证 |
-| --- | --- | --- |
-| **Grok** | ✅ `/goal <objective>`，自带原生对抗式验证器 | ✅ 执行者 `/loop` + 监督者 `/loop`；每次 fire 会串接上下文，需规划重置点 |
-| **Codex** | ✅ `/goal`，或直接把 objective 作为 task 发出 | ✅ 长时间运行的 executor task；真实停泊后由监督者心跳恢复 |
-| **Claude Code** | ⚠️ 一个自定步 `/loop`；无独立验证器 | ✅ 自定步执行者 `/loop` + 监督者 `/loop` |
-| **Cursor** | ❌ 无 goal 原语 | ✅ 执行者 `/loop` + 监督者 `/loop`，在同一会话内；若改用云端后台 agent，则每轮上限约 20 分钟 |
-| **shell / cron** | ❌ 无 goal 原语 | ✅ 调度两个 loop；唯一每 tick 真正冷启动的宿主 |
+| 宿主 | loop-graph 运行方式 |
+| --- | --- |
+| [**Codex**](skills/loop-graph/references/codex.md) | ✅ 自动识别宿主并直接创建两个运行节点 |
+| [**Claude Code**](skills/loop-graph/references/claude-code.md) | ✅ 自动识别宿主；能力检查通过后直接创建两个后台运行会话 |
+| [**Grok**](skills/loop-graph/references/grok.md) | 仅作为 prompts-only 执行目标 |
+| [**Cursor**](skills/loop-graph/references/cursor.md) | 仅作为 prompts-only 执行目标 |
+| [**shell / cron**](skills/loop-graph/references/shell-cron.md) | 仅作为 prompts-only 执行目标 |
 
-权威语法、节奏行为、各宿主的**上下文携带模型**（下一轮从什么开始、代价多大）
-和宿主特有 hook 统一维护在 [宿主方言矩阵](lib/host-dialects.md)。
+权威语法、节奏行为、上下文携带模型和宿主 hook 分别维护在
+[按宿主拆分的 reference](skills/loop-graph/references/) 中；生成时只加载选中的宿主。
 中途换宿主时复用同一套持久 run 目录，变的只是每一 tick 如何启动。
 
 ## 仓库地图
 
 | 路径 | 用途 |
 | --- | --- |
-| [根 `SKILL.md`](SKILL.md) | `/octopus` 生成期路由，只选腕，绝不执行生成结果 |
-| [Quest author](skills/quest/SKILL.md) | 采访、编译并交付一段 goal objective |
-| [Quest executor](skills/quest-executor/SKILL.md) | 仅由编译后 quest 加载的聚焦运行纪律 |
+| [根 `SKILL.md`](SKILL.md) | `/octopus` 入口；检查是否适用，再交给 loop-graph 生成 |
 | [Loop-graph author](skills/loop-graph/SKILL.md) | 生成执行者、监督者、ledger 与 directive 产物 |
-| [`lib/`](lib) | 共享方法论与宿主特有事实的单一 owner |
+| [`lib/`](lib) | 共享方法论 |
+| [宿主 references](skills/loop-graph/references) | 每个宿主一份、按需加载的运行事实 owner |
 | [完整示例](skills/loop-graph/examples) | 展示 ledger 与闸门实际运行的具体 loop-graph run |
 
 ## 治理
@@ -185,7 +185,7 @@ octopus 把自己的 anti-bloat 规则用在库本身：**没有真实 run 证�
 
 ## 致谢
 
-loop-graph 腕来自真实运行与社区输入。特别感谢
+loop-graph skill 来自真实运行与社区输入。特别感谢
 [@BrightProgrammer7](https://github.com/BrightProgrammer7) 提供
 `migrate-blob-storage` 示例，并参与打磨里程碑闸门与节点/边词汇。
 

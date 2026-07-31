@@ -37,7 +37,13 @@ none (M2→M3 adjudicated by D-002 in Round 8)
 
 ## owner-blocked
 
-- M3 cutover: `ALTER TABLE attachments DROP COLUMN data` is schema DDL (owner-only). Promotion request written Round 8 — awaiting sign-off.
+| ID | Decision in plain language | Recommended choice | Other choice(s) | Why now |
+| --- | --- | --- | --- | --- |
+| OB-001 | Remove the old photo-data column now that every photo is verified in object storage? | A — remove it with a reversible migration | B — keep it for one release and remove later | M3 cannot finish while both storage copies remain |
+
+Owner card emitted: **A (Recommended)** removes the duplicate column now; all 4,812
+rows are present in object storage and checks pass. **B** keeps the duplicate for one
+release, using more storage but delaying the destructive step. Reply with `A` or `B`.
 
 ## Debt & gap register
 

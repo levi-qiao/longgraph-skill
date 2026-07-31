@@ -1,23 +1,23 @@
 # Contributing to octopus-skill
 
-Thanks for helping! octopus-skill is a small, opinionated prompt library — one
-authoring router (`/octopus`), two peer author arms (`loop-graph`, `quest`), the
-focused `quest-executor` runtime skill, and a shared brain in `lib/`. Contributions
-that keep it curated rather than comprehensive are the most welcome.
+Thanks for helping! octopus-skill is a small, opinionated prompt library: `/octopus`
+checks fit, `loop-graph` compiles durable runtime nodes, `lib/` holds shared
+methodology, and `skills/loop-graph/references/` isolates host facts. Contributions that keep it curated rather than
+comprehensive are the most welcome.
 
 ## Good contributions
 
 - **Real-world tunings** of the defaults (convergence interval, net-line cap, loop
   cadence) with a note on the project shape they suited.
-- **New worked examples** under an arm's `examples/` — must be fully generic and
+- **New worked examples** under the skill's `examples/` — must be fully generic and
   secret-free (see below).
-- **Clarity fixes** to the arm templates, `lib/methodology.md`, or the
-  `lib/host-dialects.md` matrix (corrections to what a host actually supports are
+- **Clarity fixes** to the skill templates, `lib/methodology.md`, or a per-host
+  reference (corrections to what a host actually supports are
   especially valued).
-- **Translations** — arm READMEs ship EN + 中文; more languages welcome, mirror the
+- **Translations** — skill READMEs ship EN + 中文; more languages welcome, mirror the
   existing structure.
-- **New host dialects** — if an agent runtime has a loop or goal primitive not yet
-  in `lib/host-dialects.md`, add it there (the single owner of host facts).
+- **New host dialects** — add one `skills/loop-graph/references/<host>.md`; do not
+  load it from the main skill until that host is selected.
 
 ## Adding a new node role (`loop-graph`)
 
@@ -27,7 +27,7 @@ The graph grows one node at a time — a node is **one Markdown prompt + one ins
 2. **Give it its own single-writer edge.** Never partition an existing edge — the ledger has exactly one writer. A new writer means a new file it alone writes; other nodes read it. Preserve the edge invariants in `model.md`.
 3. **Keep it off the hot path.** Only the ledger is read every round. A new edge is read *on-reference* (a one-line ledger pointer), so it never bloats the per-round token cost.
 4. **Wire both peers.** A node nobody dispatches or consumes is dead — add the handoff to `executor.md` / `supervisor.md`, kept optional (“delete if no *X* node”).
-5. **Ship a worked example** under the arm's `examples/` proving the full dispatch → consume flow, generic and secret-free.
+5. **Ship a worked example** under the skill's `examples/` proving the full dispatch → consume flow, generic and secret-free.
 
 ## Hard rules
 
@@ -44,9 +44,8 @@ The graph grows one node at a time — a node is **one Markdown prompt + one ins
   `loop-graph` — a supervisor node whose context is separate from the executor's)
   are the product. Tune the numbers, not the shape.
 - **Don't mix phases.** Author skills interview and compile; runtime contracts
-  execute. A compiled quest selects `quest-executor`; a loop-graph tick follows its
-  self-contained node under `.octopus/<date-slug>/`. Runtime must not reload an
-  author skill.
+  execute. A loop-graph tick follows its self-contained node under
+  `.octopus/<date-slug>/` and must not reload an author skill.
 
 ## How to submit
 
