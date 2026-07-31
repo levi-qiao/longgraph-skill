@@ -156,7 +156,7 @@ curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/instal
 | 宿主 | **quest** —— 单一自包含目标 | **loop-graph** —— 有闸门或独立验证 |
 | --- | --- | --- |
 | **Grok** | ✅ `/goal <objective>`，自带原生对抗式验证器 | ✅ 执行者 `/loop` + 监督者 `/loop`；每次 fire 会串接上下文，需规划重置点 |
-| **Codex** | ✅ `/goal`，或直接把 objective 作为 task 发出 | ✅ 两个节点都用定间隔 `/loop` 心跳；停泊节点绝不使用 `/goal` |
+| **Codex** | ✅ `/goal`，或直接把 objective 作为 task 发出 | ✅ 长时间运行的 executor task；真实停泊后由监督者心跳恢复 |
 | **Claude Code** | ⚠️ 一个自定步 `/loop`；无独立验证器 | ✅ 自定步执行者 `/loop` + 监督者 `/loop` |
 | **Cursor** | ❌ 无 goal 原语 | ✅ 执行者 `/loop` + 监督者 `/loop`，在同一会话内；若改用云端后台 agent，则每轮上限约 20 分钟 |
 | **shell / cron** | ❌ 无 goal 原语 | ✅ 调度两个 loop；唯一每 tick 真正冷启动的宿主 |

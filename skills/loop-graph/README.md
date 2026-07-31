@@ -96,11 +96,11 @@ A *node* is a role — executor, supervisor. A *host* is just a **loop that re-i
 - **The ledger is a live file, not host text.** Hand the loop a thin pointer at the run files; it re-reads them each round — never fold the ledger into the host's own prompt text, where it goes stale. A host's progress UI *mirrors* the ledger; it never replaces it, and the ledger wins every conflict.
 - **The supervisor is its own loop, in a fresh context** — a separate schedule or cron tick, never a subagent inside the executor's loop. That subagent would share the context the whole method keeps clean.
 
-Hosts pace two ways. The **adaptive** host (Claude Code self-paced `/loop`) re-invokes when the last round returns, so a round is never cut off. **Interval** hosts (Grok, Cursor in fixed mode, Codex heartbeat, cron) take a delay you set — `/octopus` sizes it from how long a round takes and prints it in the start command (a Cursor *cloud background agent* is capped at ~20m or the run is killed; a Codex loop-graph node uses its `/loop` heartbeat, **never** a goal — a goal livelocks at a park). The executor and supervisor run on separate, phase-offset schedules and never interrupt each other's in-flight round.
+Hosts pace two ways. The **adaptive** host (Claude Code self-paced `/loop`) re-invokes when the last round returns, so a round is never cut off. **Interval** hosts (Grok, Cursor in fixed mode, cron) take a delay you set — `/octopus` sizes it from how long a round takes and prints it in the start command (a Cursor *cloud background agent* is capped at ~20m or the run is killed). Supervised Codex uses a long-running executor task that reuses context across all ordinary rounds in one milestone and returns idle only at its gate or another real park; the cross-milestone supervisor heartbeat resumes its `ops.md` thread ID after adjudication.
 
 Hosts also differ in **what a round starts from**, and that drives what a run costs. Almost none boots a round cold — most resume the previous round — so finer rounds are *not* cheaper (each one carries every earlier round's output again), and a supervisor tick is only clean if the host is *made* to start clean. `/octopus` sizes rounds and plans the resets for the host you name; the per-host mechanics live in [`host-dialects.md`](../../lib/host-dialects.md).
 
-Both loops **stop themselves** when the run is done — the executor when the ledger reaches `exit-ready`/`closed`, the supervisor once there's nothing left to checkpoint — so a finished run never idles overnight burning tokens. A cheap executor loop on one host and a strong supervisor loop on another is a first-class setup, not a special integration.
+Scheduled loops **stop themselves** when the run is done. On supervised Codex the executor has no timer: it runs until a park or terminal state, and the supervisor stops its heartbeat once nothing remains. A cheap executor on one host and a strong supervisor on another is a first-class setup, not a special integration.
 
 ## Quickstart
 
@@ -114,9 +114,9 @@ Both loops **stop themselves** when the run is done — the executor when the le
 
 2. **Run `/octopus` in Claude Code** and answer the interview: repos and branches, the goal and how it is verified, milestones, gate commands, red lines, commit authorization, supervisor interval. The files land in a fresh `.octopus/<date-slug>/` directory in your repo — one directory per run; a new run never edits an old run's files. ([What each file does →](#files-generated-per-run))
 
-3. **Start the executor loop** with the command `/octopus` prints in the chat — a thin pointer at `executor.md` on your host's loop (Claude Code `/loop`, a Cursor agent, or an agent CLI in a shell). It resumes from the ledger if the session dies, and **ends the loop itself** when the run reaches `exit-ready` — no overnight idling, no nudging each turn.
+3. **Start the executor** with the thin-pointer prompt `/octopus` prints. On supervised Codex it is a persistent task that keeps doing rounds until a milestone gate or another real park. Put its returned task/thread ID in `ops.md` before starting the supervisor.
 
-4. **Start the supervisor loop** (optional, recommended): a second loop that runs `supervisor.md` at your interval in a fresh context — in Claude Code via cron, otherwise a fresh session each interval. It stops itself once the run is done, so it never idles overnight.
+4. **Start the supervisor loop** (optional, recommended). On Codex this is the only heartbeat: it audits across milestones and wakes the parked executor after a verdict. Elsewhere it is the second loop.
 
 Without Claude Code, fill in `templates/` by hand — the method does not depend on the runtime.
 

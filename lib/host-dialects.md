@@ -11,7 +11,7 @@ differences; skills point here instead of re-describing each host.
 |------|:---:|:---:|:---:|:---:|
 | **Grok** | ✅ `/loop` | ✅ `/goal` — native adversarial verifier | ✅ | ✅ |
 | **Claude Code** | ✅ `/loop` | ⚠️ no standalone command — the loop-graph **supervisor** is its verifier | ✅ | via loop-graph |
-| **Codex** | ✅ `/loop <interval>` → heartbeat automation¹ | ✅ task self-drives (adaptive) — **no** native refuter | ✅¹ | ✅ |
+| **Codex** | ✅ `/loop <interval>` heartbeat + cross-task wake¹ | ✅ task self-drives (adaptive) — **no** native refuter | ✅¹ | ✅ |
 | **Cursor** | ✅ loop/repeat (run capped ~20 min) | ❌ | ✅ | ❌ |
 | **shell / cron** | ✅ `while … sleep` / crontab | ❌ | ✅ | ❌ |
 
@@ -27,14 +27,20 @@ supervisor is the verifier.)
 - **quest** — a task / `/goal` **self-drives to done** (adaptive, auto-wakes each round,
   no command needed); "done" is a real terminus, so this is the quest arm's natural fit.
   No separate refuter — the acceptance criteria carry verification.
-- **loop-graph** — drive **both** nodes with a `/loop <interval>` typed in conversation,
-  which Codex compiles to a **heartbeat automation** (needs an *explicit* interval like
-  `4m`, or no timer is created). **Never drive a loop-graph node with a goal /
-  self-driving task:** a loop-graph node legitimately *parks* (`pending-audit`, `stalled`,
-  awaiting a supervisor directive), and a goal harness has no "parked, waiting" rest
-  state — it reads "not done" and re-fires the parked node forever (**livelock**,
-  burning tokens on "still stalled" turns). The interval heartbeat parks cleanly: it
-  ticks, cheap-no-ops while parked, and deletes its own automation on a terminal status.
+- **loop-graph with a supervisor** — only the **supervisor** uses `/loop <interval>`.
+  The executor is a long-running Codex task: it keeps doing ledger rounds in the same
+  task and reuses that context until it reaches a real park (`pending-audit`, unresolved
+  block, correctable `stalled`) or a terminal state. Record its thread ID in `ops.md`.
+  After resolving a park through `directives.md`, the supervisor wakes the idle task
+  with a thin pointer to `executor.md`. If it is active, do not queue another wake.
+- **loop-graph without a supervisor** — fall back to an executor `/loop <interval>`;
+  there is no other node to wake it.
+
+The executor task's runtime contract must treat a park as a legitimate pause: end the
+current drive and wait for the supervisor wake instead of spinning on "not done".
+Launch in this order: generate the run, start the executor task, write its returned
+task/thread ID into `ops.md`, then start the supervisor heartbeat. The supervisor must
+never run against a pending or stale ID.
 
 ## Loop primitive (drives the executor / a plain repeating task)
 
@@ -42,7 +48,7 @@ supervisor is the verifier.)
 |------|---------|----------|-----------|------|
 | **Claude Code** | `/loop [interval] <prompt>` | optional — omit to self-pace | **yes** (self-paced re-invokes when the round returns) | `ScheduleWakeup` `stop:true`; or `CronDelete` if scheduled via `CronCreate` |
 | **Grok** | `/loop [interval] <prompt>` | `Ns/Nm/Nh/Nd`, min 60s; recurring expires after **7 days** | no — interval-driven, but a fire whose previous iteration is still running is **skipped**, so a long round is never doubled (no lock needed) | `scheduler_delete <job-id>` (id printed when the loop is created; also in each fire's own `<system-reminder>`) |
-| **Codex** | `/loop <interval> <prompt>` (in conversation) → **heartbeat automation** | **required** — e.g. `4m`; **no interval ⇒ no timer created** | no — interval heartbeat (the task self-drive is goal-mode, not for loop-graph nodes — see ¹) | pause/delete the automation, or have the prompt stop it on a terminal ledger status |
+| **Codex** | supervised: long-running executor task, resumed with `send_message_to_thread` only after a park; unsupervised: `/loop <interval> <prompt>` | only the supervisor heartbeat needs an interval | adaptive between parks; event-driven resume | executor returns idle at a park; pause/delete the supervisor heartbeat on terminal status |
 | **Cursor** | `/loop [interval] <prompt>` — a background shell sentinel wakes the agent **in the current session** | optional — omit for its dynamic (self-paced) mode | **yes** in dynamic mode; interval-driven otherwise | kill the tracked loop/sleeper PID in-client |
 | **shell/cron** | `while …; do …; sleep <interval>; done` / crontab | interval-driven | no | `break` on a terminal ledger status / `CronDelete` |
 
@@ -54,10 +60,10 @@ under it.
 **Adaptive vs interval** is the load-bearing distinction for the loop-graph arm's
 gate-park: on the adaptive host (Claude Code self-paced) re-invocation is automatic,
 so a round never gets cut off and a parked executor resumes for free. On interval
-hosts (Grok `/loop`, Cursor in fixed mode, **Codex** heartbeat, shell/cron) **both loops must be
-scheduled** and the executor keeps cheap-ticking until release — a loop that writes a
-terminal status and stops cannot restart itself. (A Codex loop-graph node therefore
-uses the interval heartbeat, never a goal — see ¹.)
+hosts (Grok `/loop`, Cursor in fixed mode, shell/cron) both loops are scheduled and
+the executor cheap-ticks until release. Codex's supervised exception is hybrid: the
+executor self-drives across ordinary rounds, returns idle only at a real park, and the
+supervisor heartbeat wakes it after adjudication.
 
 ## Context carry across rounds — what a round actually costs
 
@@ -71,7 +77,7 @@ fresh per tick.
 | **Claude Code** `/loop` | the same conversation, auto-compacted as it grows | none per round |
 | **Grok** `/loop` (default `[scheduler] background_loops = true`) | a **detached subagent that resumes the previous fire's transcript**; every **10th** fire starts fresh carrying only the prior status **truncated to 600 chars** | **yes** — `scheduler_create` with the task's own `task_id` and *changed* prompt text; the next fire then starts a clean transcript with **no** carry-over |
 | **Grok** `/loop` where the task was created `foreground: true` | a turn in the owner's own conversation (shared context, not isolated) | none |
-| **Codex** `/loop` heartbeat | `<heartbeat>` turns appended to the **same target thread**, auto-compacted | `/compact` |
+| **Codex** supervisor heartbeat / executor task | the executor reuses one task transcript across ordinary rounds and resumed parks; the supervisor keeps its own heartbeat transcript | `/compact` |
 | **Cursor** `/loop` | the same session — the sentinel wakes the agent in-place | none |
 | **shell/cron** | a new CLI process — genuinely fresh every tick | inherent |
 
@@ -112,23 +118,23 @@ Transcript bytes from the session store, not billed counts; the shape is the poi
 | Host | Command | Built-in verifier? |
 |------|---------|--------------------|
 | **Grok** | `/goal <objective> [--budget <tokens>]` · `status`/`pause`/`resume`/`clear` | **yes** — plans acceptance criteria, works across rounds, and only marks complete after an **independent adversarial verifier** reproduces the evidence (defaults to *refuted* if it can't); anti-ratchet so it converges instead of re-litigating |
-| **Codex** | `/goal <objective>` or just send it as a task — self-drives (**quest only**) | **adaptive** — self-drives to done and auto-wakes each round; no separate clean-context refuter, so lean on the objective's acceptance criteria. **Do not use this to drive a loop-graph node — it livelocks at a park state (see ¹); use the interval `/loop` heartbeat there.** |
+| **Codex** | `/goal <objective>` or just send it as a task | **adaptive** — quest self-drives to done; a supervised loop-graph executor self-drives only until its runtime contract reaches a park, then waits for the supervisor to wake its recorded thread ID. |
 | **Claude Code** | *(no standalone `/goal`)* — use the loop-graph arm; its clean-context supervisor is the verifier | n/a |
 | **Cursor** | *(none — Cursor only loops)* — use the loop-graph arm | n/a |
 
 In the **quest arm** on a native-goal host (Grok, or Codex-as-quest), the
 host's own harness is the acceptance layer — don't bolt a second supervisor loop on
 top; that's the redundancy the quest arm exists to avoid. A Codex **loop-graph** run is
-different: there is no goal there — both nodes are interval `/loop` heartbeats and the
-supervisor loop is the verifier, exactly as on every loop host.
+different: the supervisor heartbeat is the verifier and the recovery driver for a
+long-running executor task when it parks.
 
 ## Wake / notify / keep-alive primitives
 
-| Need | Claude Code | Grok | Cursor |
-|------|-------------|------|--------|
-| **Keep the agent working until a condition holds** (tests green, gate passes) | loop re-invocation | **`Stop` hook** — blocks the turn from ending until the condition holds, feeds the reason back to the model | — |
-| **Ping the owner when a run parks / finishes** | — | **`Notification` hook** — HTTP/shell on task-finish or a surfaced notice | — |
-| **Guard a red line before a tool runs** | hooks / permissions | **`PreToolUse` hook** — deny a dangerous command before it runs | — |
+| Need | Claude Code | Grok | Codex | Cursor |
+|------|-------------|------|-------|--------|
+| **Keep the agent working until a condition holds** (tests green, gate passes) | loop re-invocation | **`Stop` hook** — blocks the turn from ending until the condition holds, feeds the reason back to the model | executor task self-drives; supervisor wakes its `ops.md` thread ID after resolving a park | — |
+| **Ping the owner when a run parks / finishes** | — | **`Notification` hook** — HTTP/shell on task-finish or a surfaced notice | task notification | — |
+| **Guard a red line before a tool runs** | hooks / permissions | **`PreToolUse` hook** — deny a dangerous command before it runs | permissions | — |
 
 For the loop-graph arm's "supervisor unresponsive at gate" backstop, a Grok
 `Notification` hook turns a silent stall into an owner ping; a `Stop` hook can hold
