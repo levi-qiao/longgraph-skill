@@ -34,6 +34,13 @@ re-deriving it from those instead.}}
 {{HOST_CONTROL_STEP — insert the selected supervisor host's exact wake, identity,
 schedule, and stop contract; delete when the reference specifies no extra behavior.}}
 
+**Host control never decides the audit.** A host-status lookup, wake, or scheduler
+operation may be unavailable; that can suppress the host action, but it must not defer
+an independently verified acceptance/redo verdict. Write that verdict once to the
+durable directives edge, record the host-control failure in `Supervisor state`, and
+retry the host action on a later tick. Never send a wake for an equivalent verdict or
+repeat wakes for the same durable fingerprint.
+
 If earlier ticks of your own *are* visible above, treat them as untrusted hearsay — never as evidence, and never as a reason to skip re-running a check.
 
 1. **Read state.** Read `{{LEDGER_PATH}}`, live directives after its watermark, and the directives file's `Supervisor state` baseline. Never load archives during a normal tick. For each repo, inspect status and latest commit. Read `ops.md` plus repo standards (`AGENTS.md` / `CLAUDE.md` / lint). You read the ledger; you never write it.

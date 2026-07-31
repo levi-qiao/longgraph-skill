@@ -14,7 +14,9 @@ delivery.
 - Executor: one persisted `/goal` in its own task. Its objective points to
   `executor.md`; it self-drives until a real park.
 - Supervisor: an independent Scheduled task in the same local project, not a
-  worktree or current-chat heartbeat. Each scheduled run starts fresh.
+  worktree or current-chat heartbeat. Each scheduled run starts fresh. Codex shows
+  those fresh runs as separate tasks in the task list; that is expected, not a
+  handoff away from the current authoring conversation.
 - Resume: after adjudicating a park, continue the idle executor task with exactly
   `继续。`. The persisted goal still owns the instructions; never put directives or a
   restated objective in the wake message.
@@ -28,11 +30,18 @@ delivery.
   re-read the durable files and continue the same persisted goal. Do not take
   Gate-wait work while parked.
 - Replace `HOST_CONTROL_STEP` with: read the executor task ID and schedule ID from
-  `ops.md`; after an audit, send exactly `继续。` to the same idle executor only when
-  the tick made progress possible. Never restate the goal or put corrections in the
-  wake message. Do not wake an active or owner-paused task. At terminal state, delete
-  or pause the recorded schedule. A pending schedule ID is allowed only during the
-  manual setup tick; unattended runs stop rather than guess an ID.
+  `ops.md`; task-status lookup is a **wake guard only**, never a prerequisite for an
+  audit verdict. If it times out or is unavailable, complete the durable acceptance
+  or redo decision, record the failed lookup in `Supervisor state`, and send no wake;
+  the next tick retries only the lookup. Do not defer a `pending-audit` adjudication
+  or emit a duplicate directive because host control failed. After an audit, send
+  exactly `继续。` to the same idle executor only when this tick appended a new verdict
+  that makes progress possible. Never wake for an equivalent existing verdict, and
+  permit at most one wake per durable gate/metric fingerprint. Never restate the goal
+  or put corrections in the wake message. Do not wake an active or owner-paused task.
+  At terminal state, delete or pause the recorded schedule. A pending schedule ID is
+  allowed only during the manual setup tick; unattended runs stop rather than guess an
+  ID.
 - Create `ops.md`; replace `HOST_CONTROL_FACTS` with executor task ID, supervisor
   schedule ID, and the fixed wake message `继续。`. Seed both IDs as pending and
   resolve them before unattended supervision.
@@ -52,11 +61,13 @@ these two scoped runtime creations; do not ask again.
    `EXECUTOR_LAUNCH`. Wait until its goal is attached and the first status arrives.
 3. Write the returned task/thread ID into `ops.md`. Stop if creation failed or the
    task is not uniquely identifiable.
-4. Create one **standalone Scheduled task** named
-   `Octopus supervisor — {{RUN_SLUG}}`, against the same local project, with the
-   filled supervisor prompt and `{{SUP_INTERVAL}}`. Each scheduled run must start a
-   new task from that saved prompt; never attach it to this authoring chat or the
-   executor chat.
+4. Before creating anything, read `ops.md` and look up the recorded supervisor
+   schedule ID (or the exact run-scoped name). If it exists, inspect and update that
+   one schedule in place; never create a second schedule for the same run. Otherwise
+   create one **standalone Scheduled task** named `Octopus supervisor — {{RUN_SLUG}}`,
+   against the same local project, with the filled supervisor prompt and
+   `{{SUP_INTERVAL}}`. Each scheduled run must start a new task from that saved
+   prompt; never attach it to this authoring chat or the executor chat.
 5. Write the returned schedule/automation ID into `ops.md`, then inspect both
    resources once. Report the executor task link/ID, schedule ID/cadence, and the
    stop instruction. Do not create a separate supervisor-setup task.
@@ -67,9 +78,11 @@ state it deletes or pauses its own recorded schedule.
 
 ## Fill the generic handoff
 
-- `SESSION_INSTRUCTION`: Open two new Codex tasks in the same local project. Paste
-  the executor first; after the goal appears and emits a first status, paste the
-  supervisor setup into Task 2.
+- `SESSION_INSTRUCTION`: Open one new Codex executor task in the same local project.
+  Paste the executor prompt there. After it emits a first status, paste the
+  supervisor setup prompt **in this current authoring task**. That setup creates or
+  updates the one independent Scheduled task; its later fresh ticks will appear as
+  separate Codex tasks by design.
 - `EXECUTOR_DESTINATION`: Task 1.
 - `EXECUTOR_LAUNCH`:
 
@@ -81,16 +94,17 @@ state it deletes or pauses its own recorded schedule.
   ```
 
 - `EXECUTOR_READY`: the goal is attached and the task has emitted its first status.
-- `SUPERVISOR_DESTINATION`: Task 2.
+- `SUPERVISOR_DESTINATION`: this current authoring task (not another setup task).
 - `SUPERVISOR_LAUNCH`: instruct Codex to:
   1. find the one non-archived task in this project whose persisted goal references
      `{{RUN_DIR}}/executor.md`, then record its ID in `ops.md`; stop with a recommended
      choice if the match is not unique;
   2. run one manual setup tick of `supervisor.md`; the schedule ID may be pending
      only for this tick; require no protocol error, no ledger edit, and a short brief;
-  3. if nonterminal, create an independent local-project Scheduled task named
-     `Octopus supervisor — {{RUN_SLUG}}` every `{{SUP_INTERVAL}}` whose prompt executes
-     one `supervisor.md` tick;
+  3. if nonterminal, first inspect the schedule ID recorded in `ops.md` (or the exact
+     run-scoped name): update it if it exists, otherwise create one independent
+     local-project Scheduled task named `Octopus supervisor — {{RUN_SLUG}}` every
+     `{{SUP_INTERVAL}}` whose prompt executes one `supervisor.md` tick;
   4. record the schedule ID in `ops.md` and report that supervision is active.
 - `RUNNING_STATE`: leave the executor goal and Scheduled task running. Scheduled
   ticks audit from fresh context and use only `继续。` to continue the executor.
