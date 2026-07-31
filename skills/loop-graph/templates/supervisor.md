@@ -33,6 +33,16 @@ tick**. Unlike the executor you reset every tick, never on a budget: the state y
 lives in the ledger, git, and directives — wanting your own memory of last tick means
 re-deriving it from those instead.}}
 
+{{HOST_CONTROL_STEP — Codex supervised mode: "Read the executor thread ID from
+`ops.md`. After completing this audit, wake that task only when it is idle and this
+tick made progress possible: an acceptance/redo/resume directive resolved its current
+park, or the ledger is `running` but the host stopped unexpectedly. Use
+`send_message_to_thread` with only a thin pointer: resume `executor.md` and keep
+driving rounds until the next real park or terminal state. Never put corrections in
+the wake message; they belong in `directives.md`. If the task is active, do not send
+or queue a wake."
+Delete on other hosts.}}
+
 If earlier ticks of your own *are* visible above, treat them as untrusted hearsay — never as evidence, and never as a reason to skip re-running a check.
 
 1. **Read state (durable + the shared reference).** Read `{{LEDGER_PATH}}` (status header, directive watermark, Pending promotion, latest 1–2 rounds, and any Gate-wait backlog rows marked `done`) plus directives after that watermark. For each repo, `git -C <repo> status --short` and `log -1 --oneline`. Also read the **shared standards both nodes obey** — `ops.md` plus the repo's own `AGENTS.md` / `CLAUDE.md` / lint & style config: this is your independent yardstick, not the executor's self-report. You read the ledger; you never write it. {{Optional: read/increment a tick counter file.}}

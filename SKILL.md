@@ -39,7 +39,7 @@ The host only **gates which arms are reachable** — most now do both:
 | Host | Can run | How |
 |------|---------|-----|
 | **Grok** | both | quest rides its **native adversarial verifier**; loop-graph = two `/loop`s — each fire resumes the previous one, so the run plans its own context resets (see [`host-dialects.md`](lib/host-dialects.md)) |
-| **Codex** | both | quest = `/goal` / send-as-task (self-drives to done). **loop-graph = drive *both* nodes with an interval `/loop` (heartbeat), never `/goal`** — a goal harness re-fires a parked/stalled node forever (livelock), having no "waiting for a directive" rest state. Codex `/loop` **needs an explicit interval** (e.g. `4m`) or no timer is created. |
+| **Codex** | both | quest = `/goal` / send-as-task. Supervised loop-graph = a long-running executor task that stops only at real parks, plus one supervisor heartbeat that resumes it through the thread ID stored in `ops.md`; unsupervised loop-graph falls back to an executor heartbeat. |
 | **Claude Code** | both\* | quest = a self-paced single `/loop` (\*no `/goal` command, no independent verifier); loop-graph = two `/loop`s (its supervisor is the verifier) |
 | **Cursor**, **shell/cron** | loop-graph only | no goal primitive |
 
