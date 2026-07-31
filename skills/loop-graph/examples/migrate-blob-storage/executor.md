@@ -11,7 +11,7 @@ Read `.octopus/2026-07-28-blob-storage/ledger.md` (the single scoreboard; it car
 
 ## Task book
 
-The ledger is the task book. Repo: `shutterlog`, branch `feature/object-storage`. Never touch `main`. The database is a **staging dump** — production credentials never enter this run. Milestones in order: M1 dual path → M2 backfill → M3 cutover (owner sign-off before M3 starts).
+The ledger is the task book. Repo: `shutterlog`, branch `feature/object-storage`. Never touch `main`. The database is a **staging dump** — production credentials never enter this run. Milestones in order: M1 dual path → M2 backfill → M3 cutover (supervisor audits promotion; owner decides only the destructive DDL).
 
 ## North Star
 
@@ -57,7 +57,7 @@ The supervisor returns separate milestone and Gate-wait verdicts; one never chan
 ## Stop & escalate
 
 - **Milestone exit**: milestone gates all green → file promotion request, set gate to `pending-audit`, keep looping on the preplanned Gate-wait backlog only.
-- **Blocked**: anything on the owner-only list (schema DDL, production access, lowering a gate) → log under `owner-blocked`, do another item.
+- **Blocked**: anything on the owner-only list (schema DDL, production access, lowering a gate) → log a plain-language recommended A/B choice under `owner-blocked`, then do another item. If no work remains, put that choice first in the stop report so the owner can reply with one letter.
 - **Stall guard**: two rounds with no scoreboard change → stop with a stall diagnosis.
 
 ## Red lines (violate → stop immediately)

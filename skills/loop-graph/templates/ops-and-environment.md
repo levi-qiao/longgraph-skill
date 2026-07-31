@@ -37,11 +37,6 @@ about them (where they come from, that they're env-injected, that they never get
 
 {{If the run's work changes the resource footprint, record the bounded analysis here so it's not re-litigated: what's the bottleneck, what extra memory/CPU/disk/network it needs, and why it's bounded.}}
 
-{{HOST_CONTROL_FACTS — Codex supervised mode only:
-## Host control
-- Executor task/thread ID (session ID): `PENDING-CODEX-LAUNCH`
-- The supervisor uses this address only to resume an idle executor after resolving a
-  real park. It carries no task state or authority; ledger/directives still do.
-Replace `PENDING-CODEX-LAUNCH` immediately after creating the executor task and before
-starting the supervisor heartbeat.
-Delete on other hosts.}}
+{{HOST_CONTROL_FACTS — insert only durable IDs and control facts required by the
+selected host reference. Never place instructions, secrets, or transient status here;
+delete this block when no host-control facts are required.}}

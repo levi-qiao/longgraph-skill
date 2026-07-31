@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "octopus",
   "displayName": "octopus 🐙",
-  "description": "Author focused long-horizon runs: loop-graph compiles durable executor/supervisor nodes; quest compiles a task-specific objective for the quest-executor runtime. Invoke /octopus to choose an arm.",
+  "description": "Author durable loop-graph runs with executor/supervisor nodes, verified gates, and low-friction owner decisions. Invoke /octopus to design a run.",
   "author": {
     "name": "levi-qiao",
     "url": "https://github.com/levi-qiao"

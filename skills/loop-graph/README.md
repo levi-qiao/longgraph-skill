@@ -4,7 +4,7 @@
 
 **Run a long coding task as a small graph of agent nodes, not one drifting loop.**
 
-A [Claude Code](https://claude.com/claude-code) skill that turns *"make this production-ready"* into an executor node that does the work and a supervisor node that watches from outside the executor's context and corrects drift before it compounds.
+A Codex / [Claude Code](https://claude.com/claude-code) skill that turns *"make this production-ready"* into an executor node that does the work and a supervisor node that watches from outside the executor's context and corrects drift before it compounds.
 
 loop-graph is **graph engineering** made concrete — the shift from tuning a single agent loop to wiring specialized agent roles into a graph. Two roles today; more planned.
 
@@ -33,7 +33,7 @@ The agent cannot catch this in itself: it reasons from the same history that pro
 
 Loop engineering tries to fix this inside the loop — better prompts, more reminders, a bigger context window. It plateaus, because the loop's own history is what corrupts its judgment.
 
-Graph engineering moves the structure outside the model: a small graph of specialized agent roles, each starting from a clean context, connected only by durable, inspectable state. loop-graph applies this to one scenario — long-horizon coding — with the smallest useful graph:
+Graph engineering moves the structure outside the model: a small graph of specialized agent roles with separate contexts, connected only by durable, inspectable state. loop-graph applies this to one scenario — long-horizon coding — with the smallest useful graph:
 
 - **Executor** — does the work, one item per round, against a single ledger.
 - **Supervisor** — starts from a clean context on every tick and audits the run like an outside reviewer at acceptance: it **re-runs the gates itself** and inspects the real diff against the acceptance criteria and the repo's own standards (`AGENTS.md`/`CLAUDE.md`, `ops.md`), so it catches the drift, fake-done, and undisclosed shortcuts the executor cannot see in the context where the corner was cut — then commits what passes, decides pending items, and adjusts the plan through the one-way directives edge.
@@ -51,6 +51,9 @@ The nodes communicate only through inspectable state — a ledger, a git tree, a
 - **Red lines that halt the run.** No unauthorized push, no destructive git on others' work, no secrets in commits, frozen contracts stay frozen, metrics never regress.
 - **Independent acceptance audit.** The supervisor re-verifies claimed-done work from its clean context — re-running the gates and checking the real diff against the acceptance bar and the shared standards (`ops.md`, `AGENTS.md`/`CLAUDE.md`) — and corrects drift, fake-done, wasteful method, or a stale plan only through the directives file. It never edits the ledger and never shares the executor's context. It commits what passes and decides by default; only a short owner-only list escalates to you.
 - **Pre-adjudicated authority.** Owner-only decisions on the goal's critical path (e.g. dropping dead tables when the goal *is* slimming the schema) are settled up front in the interview into a **standing authorization** — an objective evidence bar the loop acts under autonomously — so the run executes its own work instead of stalling on "proposals awaiting sign-off". Only genuinely case-by-case calls escalate to you.
+- **Owner choices, not owner homework.** A genuine escalation arrives in plain
+  language with a recommended option and at most three outcomes; the owner can
+  reply `A`, `B`, or `C` without reconstructing the implementation.
 
 No LangGraph, no Python runtime, no orchestration server: the nodes and edges are Markdown files any coding agent can follow.
 
@@ -92,20 +95,20 @@ The executor prompt is plain Markdown pointing at plain Markdown — paste it in
 
 ## Hosts and the loop
 
-A *node* is a role — executor, supervisor. A *host* is just a **loop that re-invokes a node and resumes it from the ledger**: Claude Code `/loop`, a Grok `/loop`, a Codex `/loop` heartbeat, a Cursor `/loop`, or any agent CLI in a shell `while`. A node never *relies* on memory between iterations — the ledger is the memory — so a dropped session resumes with nothing lost. Hosts are interchangeable; the graph doesn't change. Two rules keep a host from becoming a second scoreboard:
+A *node* is a role — executor, supervisor. A *host* repeatedly invokes it. A node never relies on chat memory between iterations — the ledger is the memory — so a dropped session resumes with nothing lost.
 
 - **The ledger is a live file, not host text.** Hand the loop a thin pointer at the run files; it re-reads them each round — never fold the ledger into the host's own prompt text, where it goes stale. A host's progress UI *mirrors* the ledger; it never replaces it, and the ledger wins every conflict.
-- **The supervisor is its own loop, in a fresh context** — a separate schedule or cron tick, never a subagent inside the executor's loop. That subagent would share the context the whole method keeps clean.
+- **The supervisor runs outside the executor's context.** A host may use a separate schedule, cron tick, or a fresh audit subagent created by an independent harness; it never audits from inside the executor's loop.
 
-Hosts pace two ways. The **adaptive** host (Claude Code self-paced `/loop`) re-invokes when the last round returns, so a round is never cut off. **Interval** hosts (Grok, Cursor in fixed mode, cron) take a delay you set — `/octopus` sizes it from how long a round takes and prints it in the start command (a Cursor *cloud background agent* is capped at ~20m or the run is killed). Supervised Codex uses a long-running executor task that reuses context across all ordinary rounds in one milestone and returns idle only at its gate or another real park; the cross-milestone supervisor heartbeat resumes its `ops.md` thread ID after adjudication.
+Hosts pace two ways. Adaptive hosts continue when a round returns; interval hosts use a delay sized from one round plus its gate.
 
-Hosts also differ in **what a round starts from**, and that drives what a run costs. Almost none boots a round cold — most resume the previous round — so finer rounds are *not* cheaper (each one carries every earlier round's output again), and a supervisor tick is only clean if the host is *made* to start clean. `/octopus` sizes rounds and plans the resets for the host you name; the per-host mechanics live in [`host-dialects.md`](../../lib/host-dialects.md).
+Hosts also differ in **what a round starts from**, and that drives what a run costs. Almost none boots a round cold — most resume the previous round — so finer rounds are *not* cheaper. `/octopus` reads only the selected file under [`references/`](references/) to size rounds and plan resets.
 
-Scheduled loops **stop themselves** when the run is done. On supervised Codex the executor has no timer: it runs until a park or terminal state, and the supervisor stops its heartbeat once nothing remains. A cheap executor on one host and a strong supervisor on another is a first-class setup, not a special integration.
+Scheduled loops **stop themselves** when the run is done. Exact launch, wake, and stop behavior comes from the selected host reference.
 
 ## Quickstart
 
-1. **Install** the octopus library (this arm ships inside it):
+1. **Install** the octopus library (this skill ships inside it):
 
    ```bash
    curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/install.sh | sh
@@ -113,13 +116,13 @@ Scheduled loops **stop themselves** when the run is done. On supervised Codex th
 
    <sub>Installs as a single `/octopus` skill for Claude Code and Codex.</sub>
 
-2. **Run `/octopus` in Claude Code** and answer the interview: repos and branches, the goal and how it is verified, milestones, gate commands, red lines, commit authorization, supervisor interval. The files land in a fresh `.octopus/<date-slug>/` directory in your repo — one directory per run; a new run never edits an old run's files. ([What each file does →](#files-generated-per-run))
+2. **Run `/octopus` in Codex or Claude Code.** It detects the current host and inspects the workspace first, then asks one short batch only for unresolved owner decisions. The files land in a fresh `.octopus/<date-slug>/` directory. ([What each file does →](#files-generated-per-run))
 
-3. **Start the executor** with the thin-pointer prompt `/octopus` prints. On supervised Codex it is a persistent task that keeps doing rounds until a milestone gate or another real park. Put its returned task/thread ID in `ops.md` before starting the supervisor.
+3. **Choose A to create both nodes here (recommended), or B for prompts only.** On A, Codex or Claude Code creates and verifies the executor and supervisor directly; it does not ask you to identify the current client or open the sessions yourself.
 
-4. **Start the supervisor loop** (optional, recommended). On Codex this is the only heartbeat: it audits across milestones and wakes the parked executor after a verdict. Elsewhere it is the second loop.
+4. **Leave the reported runtime nodes active.** They stop themselves at terminal state using the detected host's mechanism.
 
-Without Claude Code, fill in `templates/` by hand — the method does not depend on the runtime.
+On another host, choose prompts-only; the templates also remain usable by hand.
 
 ## Repository layout
 
@@ -143,7 +146,7 @@ Each run gets a fresh `.octopus/<date-slug>/` in your repo:
 | `ledger.md` | the executor, every round | Single source of truth: goals, gates, round log, open gaps, and any preplanned Gate-wait backlog. Read this to follow the run. |
 | `directives.md` | the supervisor; owner if unsupervised | Bounded one-way queue: current STANDING policy + unconsumed corrections. The designated writer rotates folded entries. |
 | `ops.md` | generated once; author/owner updates in place | Current environment, build and data facts; runtime nodes read it as ambient context. |
-| `supervisor.md` | generated once | The supervisor prompt; scheduled automatically in Claude Code, and stops its own loop when the run ends. |
+| `supervisor.md` | generated once | The supervisor prompt; the selected host reference defines scheduling and self-stop. |
 | `archive/*.md` | the writer of the corresponding live edge | Cold, 100-ID history shards for folded directives and old rounds; normal nodes never read them. |
 
 ## When to use it
@@ -154,7 +157,7 @@ Use it when the task spans many rounds, success is verifiable (tests, gates, met
 
 **Why a graph and not "a loop with a monitor"?** The load-bearing property is that the supervisor is a separate node with its own clean context, connected to the executor only by inspectable edges. That separation — not the schedule — is what lets it catch drift the executor can't. Multi-agent frameworks model runs as graphs for the same reason; loop-graph does it with Markdown instead of a runtime.
 
-**Does it require Claude Code?** The skill packaging and supervisor scheduling are Claude Code features, but the nodes and edges are plain Markdown — the method is agent-agnostic. The intended setup is mixed: author the graph once with a strong model, then run the executor on whatever agent is cheapest.
+**Does it require one particular host?** No. The nodes and edges are plain Markdown. Author the graph once, then use one isolated reference per selected host; mixed-host runs are supported.
 
 **Isn't a fixed 5th-round convergence arbitrary?** It's a default, and it isn't purely fixed: convergence fires on whichever comes first — N rounds *or* accumulated net lines over the cap — so a bloat-heavy stretch converges sooner and a quiet one doesn't waste a round. Both bounds are tuned to the plan at generation. It's also tracked as an explicit flag in the ledger (not a modulo the loop recomputes), so it actually triggers. What matters is that a forcing function exists and reliably fires, not the exact number.
 
@@ -162,7 +165,7 @@ Use it when the task spans many rounds, success is verifiable (tests, gates, met
 
 ## Roadmap: more node roles
 
-Executor plus supervisor is the smallest useful graph, not the whole idea. A role is one Markdown node plus an inspectable edge — no framework, no runtime — so the graph grows one file at a time. Planned roles: a red-team reviewer that probes "done" claims, a scout that researches options off the critical path and reports into the ledger, and a test oracle that owns the gates so the executor cannot grade its own work. These make good first contributions.
+Executor plus supervisor is the smallest useful graph, not the whole idea. The optional scout already handles bounded research off the critical path. Possible future roles include a red-team reviewer for "done" claims and a test oracle that owns the gates. Each role remains one Markdown node plus one inspectable edge.
 
 ## Contributing
 

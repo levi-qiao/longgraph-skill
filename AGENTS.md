@@ -7,14 +7,14 @@ The same rules apply in Claude Code — [`CLAUDE.md`](CLAUDE.md) imports this fi
 
 A **curated, opinionated prompt library** for long-horizon agent work, framed as
 **"graph engineering."** It ships **Markdown prompts, not application code** — there
-is no build step and no runtime. One umbrella (`/octopus`) routes to two arms:
+is no build step and no runtime. One umbrella (`/octopus`) checks whether the
+method fits, then delegates to one authoring skill:
 
 - **`skills/loop-graph/`** — an executor node + a clean-context supervisor node driven
   by two loops (for `/loop`-capable hosts).
-- **`skills/quest/`** — one task-specific objective for a goal-capable host (Grok
-  `/goal`, a Codex task).
-- **`skills/quest-executor/`** — the focused runtime discipline loaded only by a
-  compiled quest marked `octopus.quest-executor/v1`.
+
+Simple self-contained goals use the host's ordinary task/goal directly; octopus
+does not wrap them in a second objective.
 
 Deep context lives in [`lib/methodology.md`](lib/methodology.md) (the *why* behind each
 rule) and [`skills/loop-graph/docs/model.md`](skills/loop-graph/docs/model.md) (the
@@ -24,12 +24,11 @@ node/edge vocabulary + invariants). The contribution bar is in [`CONTRIBUTING.md
 
 | Path | What it is |
 |---|---|
-| `SKILL.md` | authoring router (`/octopus`) — picks the arm, never executes generated work |
-| `skills/quest/SKILL.md`, `skills/loop-graph/SKILL.md` | peer author skills: interview → generate → deliver |
-| `skills/quest-executor/SKILL.md` | quest runtime skill; no interview, routing, or prompt generation |
-| `skills/<arm>/templates/*.md` | compiled runtime prompts — not code; keep `{{PLACEHOLDER}}`s and structural headings intact |
+| `SKILL.md` | `/octopus` fit check and authoring entrypoint; may launch nodes but never acts as one |
+| `skills/loop-graph/SKILL.md` | author skill: interview → generate → deliver |
+| `skills/loop-graph/templates/*.md` | compiled runtime prompts — not code; keep `{{PLACEHOLDER}}`s and structural headings intact |
 | `skills/loop-graph/examples/` | concrete, fully worked runs (these *are* project-specific — that's correct) |
-| `lib/host-dialects.md` | the **single owner** of per-host facts (loop/goal syntax, hooks) — put host specifics here, don't scatter them |
+| `skills/loop-graph/references/*.md` | one independently loaded owner per host (invocation, context, hooks, handoff fields) |
 | `.claude-plugin/` | Claude Code plugin + marketplace manifests |
 
 ## Rules that are easy to get wrong (don't)
@@ -53,14 +52,13 @@ node/edge vocabulary + invariants). The contribution bar is in [`CONTRIBUTING.md
    keep it **off the hot path** (only the ledger is read every round; new edges are read
    *on-reference* via a one-line ledger pointer), wire both peers, ship a generic
    example. The scout (#17→#18→#19) is the reference. See `CONTRIBUTING.md`.
-5. **Keep authoring and runtime separate.** Router and arm skills may interview and
-   compile; they never execute their output. Quest runtime loads only
-   `quest-executor`. Loop-graph runtime follows the self-contained node files in
-   `.octopus/<date-slug>/` and never reloads an authoring skill.
+5. **Keep authoring and runtime separate.** Author skills may interview and compile;
+   they never execute their output. Loop-graph runtime follows the self-contained
+   node files in `.octopus/<date-slug>/` and never reloads an authoring skill.
 
 ## Editing conventions
 
-- **Bilingual.** Arm READMEs ship EN + 中文 — mirror any change into `README.zh-CN.md`.
+- **Bilingual.** Skill READMEs ship EN + 中文 — mirror any change into `README.zh-CN.md`.
   Interview in the user's language but keep template headings/field names/placeholders unchanged.
 - **Links, not bare paths, in human-facing docs.** Cross-file references are markdown
   links; runtime-artifact names (`ledger.md`, `ops.md` — generated per run, not repo
@@ -76,7 +74,7 @@ node/edge vocabulary + invariants). The contribution bar is in [`CONTRIBUTING.md
 
 ## Commits & PRs
 
-- **Conventional commits**: `feat(loop-graph): …`, `docs: …`, `fix(quest): …`.
+- **Conventional commits**: `feat(loop-graph): …`, `fix(loop-graph): …`, `docs: …`.
 - **Branch + PR**, don't push straight to `main` (this file is the exception the owner asked for). PR body states the failure mode the change addresses or the tuning it documents.
 - **Distribution**: installable via the curl script *and* the Claude Code plugin. The
   plugin `version` is **intentionally omitted** so Claude Code uses the git SHA

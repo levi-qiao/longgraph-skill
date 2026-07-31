@@ -6,7 +6,7 @@ Every rule here exists to prevent a specific, observed failure mode of long-runn
 
 A single agent grinding a long task is a *loop*: the same context, growing round after round, judging its own output. The failure is structural — by round 30 the context is full of the shortcuts, half-truths, and quietly-lowered bars that got it there, and that polluted history is exactly what it reasons from. It cannot audit its own drift, because the audit runs in the drifted context.
 
-The loop-graph arm makes the run a small **graph of nodes that share no context** — only durable, inspectable state:
+loop-graph makes the run a small **graph of nodes that share no context** — only durable, inspectable state:
 
 - the **executor node** advances the work, round by round;
 - the **supervisor node** boots fresh every tick, reads only the ledger and git tree, and judges the run from the outside;
@@ -18,11 +18,11 @@ Rules 1–7 keep the *executor* honest within a round. Rule 8 — clean-context 
 
 **Rule:** a single `ledger.md` is the only source of truth. When code, docs, and ledger disagree, the ledger is fixed first, then the code.
 
-**Prevents:** *state fragmentation and history-shaped token growth.* Without one canonical place, round 30 rediscovers a decision made in round 5, re-opens a closed question, or builds a thing that already exists. The ledger is small on purpose — it's read every round, so it must stay cheap. It retains current state, unresolved rows, and only the latest rounds; closed rows retire after their closure is recorded. The directives edge follows the same rule: fixed-at-generation STANDING subjects plus a capped queue of unconsumed corrections. Policy changes replace their subject instead of appending history, so a dead executor cannot accumulate an infinite queue. Old rounds and folded directives move into 100-ID shards under `archive/`, and normal nodes never read them. This bounds each live and cold file without hiding unresolved work.
+**Prevents:** *state fragmentation and history-shaped token growth.* Without one canonical place, round 30 rediscovers a decision made in round 5, re-opens a closed question, or builds a thing that already exists. The ledger is small on purpose — it's read every round, so it must stay cheap. It retains current state, unresolved rows, and only the latest rounds; closed rows retire after their closure is recorded. The directives edge follows the same rule: one supervisor comparison baseline, fixed-at-generation STANDING subjects, and a capped queue of unconsumed corrections. Policy changes replace their subject instead of appending history, so a dead executor cannot accumulate an infinite queue. Old rounds and folded directives move into 100-ID shards under `archive/`, and normal nodes never read them. This bounds each live and cold file without hiding unresolved work.
 
 ## 2. One item per round → verify same round → update ledger
 
-**Rule:** each round picks the single smallest unclosed item, implements it, verifies it with the narrowest test/gate/smoke, and records the result — all in one round. "Smallest" means the smallest **independently verifiable** increment, not the smallest possible edit: on a host whose rounds resume the previous round's context, each extra round re-carries every earlier round's output, so slicing past that point buys nothing and costs quadratically ([`host-dialects.md`](host-dialects.md)). Siblings that share one verification belong in one round.
+**Rule:** each round picks the single smallest unclosed item, implements it, verifies it with the narrowest test/gate/smoke, and records the result — all in one round. "Smallest" means the smallest **independently verifiable** increment, not the smallest possible edit: on a host whose rounds resume the previous round's context, each extra round re-carries every earlier round's output, so slicing past that point buys nothing and costs quadratically (see the selected [host reference](../skills/loop-graph/references/)). Siblings that share one verification belong in one round.
 
 **Prevents:** *batching debt and fake progress.* Batching hides which change broke a gate. "I'll test later" becomes "never". Verifying in the same round means "done" always means "verified to closure", not "written". The same instinct scales up: an expensive full-cohort operation (whole-set eval, bulk VLM/API sweep, migration) gets a **smallest-slice pilot first** — validate on a handful of items, then go wide; burning the full set to discover a config bug is the batch-debt failure at cohort scale.
 
@@ -47,11 +47,14 @@ Rules 1–7 keep the *executor* honest within a round. Rule 8 — clean-context 
 ## 6. Stop conditions
 
 **Rule:** three ways to stop cleanly —
-- **Milestone exit all-green** → write a promotion request, stop for human sign-off.
+- **Milestone exit all-green** → request promotion. A configured supervisor adjudicates it; otherwise stop for owner sign-off.
 - **All remaining items blocked** → stop with an escalation report.
 - **Two rounds with no ledger/metric change** → stop with a stall diagnosis.
 
-And one way to stop hard: **any red-line violation halts the run immediately.**
+And one way to stop hard: **any red-line violation halts the run immediately.** A
+stop that needs an owner decision is not complete until it presents a small,
+plain-language choice set with a recommendation; a technical problem dump is not
+an escalation.
 
 **Prevents:** *spinning.* A run with no stop condition burns tokens re-touching the same untouchable items. Explicit stops turn "stuck" into a signal instead of silent churn.
 
@@ -65,11 +68,24 @@ With a supervisor, `pending-audit` is a wait state, not permission to alter the 
 
 ## 8. Clean-context supervisor separation
 
-**Rule:** the supervisor is a **different node with a fresh context**, spun up each tick — and on most hosts that freshness is something the run has to *enforce*, not something the loop primitive gives it (see [`host-dialects.md`](host-dialects.md): a loop that resumes its previous tick hands the supervisor its own past audits, which is the very blindness it exists to catch). It reads only durable state (ledger + git) **plus the shared standards both nodes obey** (`ops.md`, the repo's `AGENTS.md`/`CLAUDE.md`/lint), and it is an **independent acceptance auditor, not just a watchdog**: it **re-verifies the executor's claimed-done work itself** — re-running the gates and inspecting the real diff/artifact against the acceptance bar and those standards — so it catches drift, fake-done, and undisclosed shortcuts the executor's own context hides. It checkpoint-commits **only what passes its audit**, and corrects drift, wasteful *method*, and a stale plan **only through the directives file the executor reads** — never by editing the ledger the executor is actively writing, never by joining the executor's context. It is also a **decider**: it adjudicates every call **off the owner-only list** itself — directive plus a one-line rationale the owner can retro-review — escalating only the short list of genuinely human calls.
+**Rule:** the supervisor is a **different node with a fresh context**, spun up each tick — and on most hosts that freshness is something the run has to *enforce*, not something the loop primitive gives it (see the selected [host reference](../skills/loop-graph/references/)). It reads only durable state (ledger + git) **plus the shared standards both nodes obey** (`ops.md`, the repo's `AGENTS.md`/`CLAUDE.md`/lint), and it is an **independent acceptance auditor, not just a watchdog**: it **re-verifies the executor's claimed-done work itself** — re-running the gates and inspecting the real diff/artifact against the acceptance bar and those standards — so it catches drift, fake-done, and undisclosed shortcuts the executor's own context hides. It checkpoint-commits **only what passes its audit**, and corrects drift, wasteful *method*, and a stale plan **only through the directives file the executor reads** — never by editing the ledger the executor is actively writing, never by joining the executor's context. It is also a **decider**: it adjudicates every call **off the owner-only list** itself — directive plus a one-line rationale the owner can retro-review — escalating only the short list of genuinely human calls.
 
 **Prevents:** *self-blind drift and concealment, write contention — and escalation stalls.* A same-context agent can't catch the drift its own context caused, and it will report its own shortcuts as "done"; a clean-context auditor that re-runs acceptance against the shared standards catches both, because it wasn't there when the corner was cut and it doesn't take the ledger's word for it. Two agents editing the same scoreboard corrupt it — so the directives file is a strict one-way edge: supervisor writes, executor reads. Checkpoint commits are the supervisor's job precisely because commit authorization is a red line for the executor. And a supervisor that only watches and escalates leaves the run idling for hours on calls a competent reviewer could make — delegated authority with a logged rationale keeps the run moving while keeping the owner able to overrule after the fact. The deeper stall is upstream: if an owner-only category sits on the goal's *own critical path* — the goal **is** dropping dead tables, so every round hits DDL — then no amount of supervisor delegation helps, because the decision genuinely belongs to the owner. The fix is to move it earlier: **pre-adjudicate it in the interview into a standing authorization** — an objective evidence bar (e.g. "drop once 0 rows + 0 consumers + 0 reads/writes, via reversible migration") the executor acts under autonomously and the owner retro-reviews. Without that, the loop can only emit "proposals awaiting sign-off" and stop — which is not a loop. Only a decision that truly can't be written as a bar in advance stays blocking. This node separation is the load-bearing difference between a graph and a loop.
 
-## 9. One run, one directory
+## 9. Owner decisions are choice cards, not homework
+
+**Rule:** investigate first, recommend one option, and ask the owner to choose from
+at most three mutually exclusive outcomes. State the decision and delay impact in
+plain language; label the recommendation; accept an `A` / `B` / `C` reply. Put
+paths, commands, and specialist detail in an optional technical note after the
+choices. If the owner does not answer, preserve the safe no-change state.
+
+**Prevents:** *decision dumping.* An owner who does not know the implementation
+should not have to reconstruct the run, understand internal symbols, or invent the
+solution. The agent owns analysis and recommendation; the owner supplies authority
+or preference.
+
+## 10. One run, one directory
 
 **Rule:** every run generates its artifacts fresh into its own `.octopus/<YYYY-MM-DD-slug>/` directory. A successor run never edits the previous run's prompts or ledger — it distills what still holds into its own starting snapshot, carries still-in-force STANDING directives forward, and leaves the old directory untouched as the archive.
 

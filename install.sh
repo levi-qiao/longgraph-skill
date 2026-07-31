@@ -24,7 +24,7 @@ fi
 
 # 2. Symlink the whole library into each symlink-following host's skills dir as
 #    `octopus` (Codex, Cursor — NOT Claude Code, which ignores symlinked skills).
-#    One entry; the root SKILL.md routes to skills/loop-graph or skills/quest, and
+#    One entry; the root SKILL.md delegates authoring to skills/loop-graph, and
 #    every ../../lib reference resolves because the whole repo sits under the link.
 link_octopus() {
   skills_dir="$1"

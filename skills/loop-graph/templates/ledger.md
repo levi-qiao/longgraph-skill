@@ -22,7 +22,7 @@ Current milestone: {{M1 or "single goal"}} | Round: 0 (starts at 1) | Last round
 Smallest unclosed item: {{FIRST_ITEM}}
 Last directive folded: none   <!-- highest numbered D-xxx fully applied; advance only after its action/state change is recorded -->
 Convergence: fires at {{CONVERGE_EVERY|5}} rounds since last **or** +{{NET_LINE_CAP|400}} net lines, whichever first | since last: 0 rounds / +0 net | **next round converges: no**
-Context chain: 0 of {{CHAIN_BUDGET|8}} rounds since last reset   <!-- Only on a host whose rounds resume the previous round's context (see lib/host-dialects.md); delete this line on a fresh-per-tick host. The executor +1s it each round and zeroes it after forcing a context reset — at a milestone boundary, after a convergence round, or on reaching the budget. Purpose: reset where the run chooses instead of where the host chops. -->
+Context chain: 0 of {{CHAIN_BUDGET|8}} rounds since last reset   <!-- Keep only when the selected host reference says rounds carry context. The executor +1s it each round and zeroes it after forcing a context reset — at a milestone boundary, after a convergence round, or on reaching the budget. Purpose: reset where the run chooses instead of where the host chops. -->
 
 Milestone gate: `open`   <!-- open | pending-audit | passed. Only meaningful for multi-milestone runs with a supervisor; single-goal / no-supervisor runs leave it `n/a`. The executor sets it `pending-audit` when it closes the current milestone's last exit condition (promotion requested, executor keeps looping — does NOT advance); the supervisor re-verifies the boundary and, on pass, appends an acceptance directive; the executor flips it `passed` only when that directive lands, and only then starts the next milestone. Advancing while this is `pending-audit` is a red line. -->
 Run status: `active`   <!-- active | paused | exit-ready | stalled | closed. A terminal status (exit-ready/stalled/closed) is the signal for both loops to stop themselves. Note: `pending-audit` on the Milestone gate is NOT a terminal Run status — the executor keeps looping. -->
@@ -59,13 +59,18 @@ Evidence: {{terse exit-condition evidence}}
 | --- | --- | --- |
 | {{metric}} | {{baseline}} | {{measured or "pending"}} |
 
-## owner-blocked (genuinely case-by-case human-decision items — log the one-line question, don't decide)
+## owner-blocked (genuinely case-by-case human decisions only)
 
 <!-- Only items with NO standing authorization. If a STANDING pre-authorization in
      directives.md covers the action and its evidence bar is met, execute it — it does
      not belong here. This list is for calls that truly need the owner case by case. -->
 
-{{none yet, or list}}
+<!-- Keep each row compact, but prepare enough structure for the supervisor to emit
+     a plain-language choice card without making the owner reconstruct the issue. -->
+
+| ID | Decision in plain language | Recommended choice | Other choice(s) | Why now |
+| --- | --- | --- | --- | --- |
+| OB-001 | {{one sentence}} | {{A — outcome}} | {{B/C — outcomes}} | {{blocked work + delay effect}} |
 
 ## Debt & gap register (log every gap here; never silently fix or ignore)
 

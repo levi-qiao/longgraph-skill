@@ -4,7 +4,7 @@ Seeded near-empty at generation time into the run directory. The supervisor node
 (or the designated owner when no supervisor exists) is its single writer; the
 executor node reads it each round and folds numbered items after
 its ledger watermark into the round — it never writes this file. This live queue
-contains only the fixed-at-generation STANDING subjects and at most
+contains one supervisor-owned comparison baseline, the fixed-at-generation STANDING subjects, and at most
 {{OPEN_DIRECTIVE_CAP|8}} not-yet-folded corrections. A policy change replaces
 its subject in place; it never grows STANDING with runtime history. Before adding signals, the designated writer moves
 folded corrections into 100-ID cold shards such as
@@ -13,10 +13,14 @@ The directives writer performs only a targeted ID check while rotating.
 The executor's ledger stores the highest fully applied D-xxx as
 `Last directive folded`; number the next correction from the greater of that
 watermark or the live IDs. Preserve ordering across rotation.
-On a successor run, copy still-in-force STANDING items into the new run's file.
+On a successor run, reset Supervisor state and copy still-in-force STANDING items.
 -->
 
 # {{PROJECT}} — Directives (supervisor → executor, one-way)
+
+## Supervisor state (updated in place; executor ignores)
+
+Last completed tick: none | observed round: 0 | gate/metric fingerprint: initial
 
 ## STANDING (always in force — carried across runs; treat like red lines)
 

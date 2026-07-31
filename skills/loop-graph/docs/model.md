@@ -2,7 +2,8 @@
 
 This document defines the shared vocabulary for designing loop-graph runs. Read it once when proposing a new node or edge; templates implement these concepts implicitly — running nodes never parse this file.
 
-**Scope:** loop-graph only. The quest arm externalizes state onto the host's own harness (Grok `/goal`, Codex task) rather than onto files; it satisfies the same law by different machinery.
+**Scope:** loop-graph only. Simple self-contained goals should use the host's
+ordinary task/goal directly; this model begins where durable graph state is useful.
 
 ---
 
@@ -14,7 +15,7 @@ This is the checkable definition of drift: **drift = load-bearing state that sta
 
 Code-review test for a new template: does this node derive X from its own prior rounds' context instead of reading it from the ledger? → bug.
 
-Runtime test for the same law: most loop hosts hand a round the *previous* round's context (see [`host-dialects.md`](../../../lib/host-dialects.md)), so a node can silently start leaning on it — and the violation only surfaces when the host truncates the chain mid-item. **Forcing a context reset at a boundary the run chooses is how the Law gets enforced instead of assumed**: if a deliberate reset loses anything, that thing was load-bearing state which never made it onto an edge. Cheaper rounds are the side effect, not the reason.
+Runtime test for the same law: most loop hosts hand a round the *previous* round's context (see the selected [host reference](../references/)), so a node can silently start leaning on it — and the violation only surfaces when the host truncates the chain mid-item. **Forcing a context reset at a boundary the run chooses is how the Law gets enforced instead of assumed**: if a deliberate reset loses anything, that thing was load-bearing state which never made it onto an edge. Cheaper rounds are the side effect, not the reason.
 
 The convergence tracker (#7) and the milestone gate (#11) both work because they moved a computed predicate — "should I converge?", "may I advance?" — from the executor's mental arithmetic onto the state edge where a stateless re-activation reads it cold.
 
