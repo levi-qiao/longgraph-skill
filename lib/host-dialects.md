@@ -88,7 +88,7 @@ Four consequences the loop-graph arm is tuned against:
    finer rounds pays that prefix more times for the same result — so **size rounds
    coarser** (batch sibling items that share one verification) and keep bulk output
    **out** of the transcript (write it to a file, report the delta). Bounding the ledger
-   (`KEEP_ROUNDS` rotation, archive to `rounds-archive.md`) still matters, but it caps
+   (`KEEP_ROUNDS` rotation into 100-round shards under `archive/`) still matters, but it caps
    only the *re-read*, not the accumulated prefix.
 2. **Reset at a boundary you choose, not where the host chops.** A blind reset lands
    mid-item and keeps only its truncated carry-over — that is where a long run visibly

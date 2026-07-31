@@ -57,7 +57,7 @@ An edge is a durable, typed channel between nodes. Two types:
 | Type | Discipline | Example |
 |------|------------|---------|
 | **State** (blackboard) | single-writer, overwrite | `ledger.md` — the scoreboard |
-| **Signal** (queue) | single-writer, append-only, one-way | `directives.md` — supervisor → executor |
+| **Signal** (queue) | single-writer, ordered, one-way; consume + cold-archive | `directives.md` — supervisor → executor |
 
 ### Findings edge (scout → executor)
 
@@ -79,7 +79,9 @@ Why state, not signal? The scout overwrites its findings file as it refines (par
 
 **Ambient context** — read-only files that exist before and after a run: `ops.md`, `AGENTS.md`/`CLAUDE.md`, lint config, the templates themselves. Nobody writes them *between* nodes at runtime; they don't carry information along a run's timeline. They're the repo, not the graph.
 
-The test: can you determine "reuse an existing edge vs create a new one" using only state + signal? Yes — #9 proved it. The proposed `gates.md` had signal discipline (append-only, supervisor → executor) but its content was a single flag (pass/fail per milestone) → that's a field on the state edge (`ledger.md`). Two types were enough.
+The live signal file is a bounded queue, not the audit archive: it holds current STANDING policy plus unconsumed directives. The consumer watermark acknowledges ordered signals; the single writer moves acknowledged entries into ID-sharded cold archives. This preserves the one-way edge and full history without charging every future tick for old corrections.
+
+The test: can you determine "reuse an existing edge vs create a new one" using only state + signal? Yes — #9 proved it. The proposed `gates.md` had signal discipline (ordered, supervisor → executor) but its content was a single flag (pass/fail per milestone) → that's a field on the state edge (`ledger.md`). Two types were enough.
 
 ---
 

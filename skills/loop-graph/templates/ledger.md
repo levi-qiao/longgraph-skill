@@ -5,15 +5,16 @@ Keep it COMPACT: it is re-read every round, so its size is a per-round token tax
 a host whose rounds resume the previous round, each re-read is also carried forward, so
 an unbounded Rounds log makes every round cost more than the last (O(n²) over a run).
 Hard rule: keep only the last {{KEEP_ROUNDS|5}} round entries here;
-when a new round pushes past that, move the oldest into `rounds-archive.md`
-(append-only, never re-read each round). Carry durable facts in the "Starting
-snapshot" below; update the durable sections in place, never by appending.
+when a new round pushes past that, move the oldest into a 100-round cold shard
+such as `archive/rounds-0001-0100.md` (never re-read each round). Carry durable
+facts in the "Starting snapshot" below; update the durable sections in place,
+never by appending.
 -->
 
 # {{PROJECT}} — Octopus Ledger
 
 > This ledger is the run's only scoreboard. Authority order: {{AUTHORITY_LAYERS}} > this ledger. Environment facts: `ops.md`. Corrections from the supervisor: `directives.md`.
-> Rounds log holds only the last {{KEEP_ROUNDS|5}} rounds; older rounds live in `rounds-archive.md` beside this file (append-only) — don't open it unless debugging. Everything a fresh round needs is the snapshot + durable sections below.
+> Rounds log holds only the last {{KEEP_ROUNDS|5}} rounds; older rounds live in 100-round shards under `archive/` — don't open them unless debugging. Everything a fresh round needs is the snapshot + durable sections below.
 
 ## Status header
 
@@ -68,6 +69,10 @@ Evidence: {{terse exit-condition evidence}}
 
 ## Debt & gap register (log every gap here; never silently fix or ignore)
 
+<!-- Active gaps only. When a gap closes, record its closure in the current round
+and remove its row; the round later rotates into the cold archive. Never hide an
+unresolved gap merely to shrink this table. -->
+
 | ID | Priority | Milestone | One line |
 | --- | --- | --- | --- |
 | GAP-001 | P? | {{M?}} | {{...}} |
@@ -88,11 +93,16 @@ moves here. -->
 | --- | --- | --- | --- | --- | --- |
 | GW-001 | {{M1→M2}} | {{optional independent task + consumer}} | {{exact paths}} | {{command / check}} | ready / done / accepted / skipped |
 
-## Rounds log — last {{KEEP_ROUNDS|5}} only (older → `rounds-archive.md`)
+<!-- After an accepted/skipped verdict is folded and recorded in the current
+round, remove that row. Future-boundary rows remain. -->
+
+## Rounds log — last {{KEEP_ROUNDS|5}} only (older → `archive/rounds-NNNN-NNNN.md`)
 
 <!-- ONE TERSE LINE per round — this section is re-read every round, so keep it small.
 When appending would exceed {{KEEP_ROUNDS|5}} lines, cut the oldest and append it
-verbatim to `rounds-archive.md`. Never let history pile up here. Line format: -->
+verbatim to the 100-round shard containing its round ID
+(`archive/rounds-0001-0100.md`, then `0101-0200.md`, ...). Never let history pile
+up here or in one unbounded archive file. Line format: -->
 <!-- - R<n> <date> | <item> | gate: <result> | net +x/-y | <VLM/metric delta, or —> | open: <what's left, or —> | next: <next item> -->
 
 <!-- You MAY keep only the CURRENT round as a short multi-line block when it carries

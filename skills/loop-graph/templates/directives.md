@@ -1,10 +1,18 @@
 <!--
 loop-graph template: directives.md — the ONE-WAY corrections edge.
 Seeded near-empty at generation time into the run directory. The supervisor node
-appends here; the executor node reads it each round and folds numbered items after
-its ledger watermark into the round — it never writes this file. History is append-only: entries are never
-edited or deleted, only superseded by a later entry. The executor's ledger stores
-the highest fully applied D-xxx as `Last directive folded`.
+(or the designated owner when no supervisor exists) is its single writer; the
+executor node reads it each round and folds numbered items after
+its ledger watermark into the round — it never writes this file. This live queue
+contains only the fixed-at-generation STANDING subjects and at most
+{{OPEN_DIRECTIVE_CAP|8}} not-yet-folded corrections. A policy change replaces
+its subject in place; it never grows STANDING with runtime history. Before adding signals, the designated writer moves
+folded corrections into 100-ID cold shards such as
+`archive/directives-0001-0100.md`; normal audit logic never loads those shards.
+The directives writer performs only a targeted ID check while rotating.
+The executor's ledger stores the highest fully applied D-xxx as
+`Last directive folded`; number the next correction from the greater of that
+watermark or the live IDs. Preserve ordering across rotation.
 On a successor run, copy still-in-force STANDING items into the new run's file.
 -->
 
@@ -20,7 +28,7 @@ On a successor run, copy still-in-force STANDING items into the new run's file.
 
 {{none yet, or items carried over from the previous run — including owner pre-authorizations from the interview}}
 
-## Corrections (numbered, append-only)
+## Corrections (numbered; live queue = not-yet-folded only)
 
 <!-- Format: D-001 · <date> — one-line problem → expected action -->
 

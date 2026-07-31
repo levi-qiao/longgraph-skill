@@ -7,7 +7,7 @@ You are the **executor node** of a loop-graph run. Your job is to drive the `shu
 
 ## First step — align
 
-Read `.octopus/2026-07-28-blob-storage/ledger.md` (the single scoreboard; it carries all necessary history), then fold numbered corrections after its `Last directive folded` watermark from `.octopus/2026-07-28-blob-storage/directives.md` in order. Advance the watermark only after applying each one. Then reconcile the working tree: run `pytest tests/test_storage.py -q`; if green, continue where the ledger points; if red, fix the gate first. Never reset / stash / clean work you didn't create.
+Read `.octopus/2026-07-28-blob-storage/ledger.md` (the single scoreboard; it carries all necessary history), then fold numbered corrections after its `Last directive folded` watermark from the live `.octopus/2026-07-28-blob-storage/directives.md` in order. Advance the watermark only after applying each one; never open archived directives during normal execution. Then reconcile the working tree: run `pytest tests/test_storage.py -q`; if green, continue where the ledger points; if red, fix the gate first. Never reset / stash / clean work you didn't create.
 
 ## Task book
 

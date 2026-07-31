@@ -43,6 +43,7 @@ The graph is designed to grow beyond these two roles — see the [roadmap](#road
 The nodes communicate only through inspectable state — a ledger, a git tree, a one-way directives file — so the discipline is enforced by the wiring:
 
 - **One scoreboard.** `ledger.md` is the single source of truth. When code, docs and ledger disagree, the ledger is fixed first.
+- **Bounded live files.** The ledger keeps current state and only the latest rounds; `directives.md` keeps fixed-at-generation policy subjects and a capped queue of unconsumed corrections. Folded directives and old rounds rotate into 100-ID shards under `archive/`, which normal nodes never read.
 - **One item per round**, verified the same round, then logged. No batching, no deferred testing.
 - **Forced convergence, tracked in the ledger.** A convergence round — no new features, net lines ≤ 0 — fires on whichever comes first: every Nth round (default 5) or once accumulated net lines cross the cap (default 400). The trigger is an explicit flag in the scoreboard, not a modulo the stateless loop must recompute, so it can't be silently skipped — and the supervisor audits that it happened.
 - **Register-then-defer.** Gaps found mid-round are logged, not silently patched or ignored.
@@ -140,9 +141,10 @@ Each run gets a fresh `.octopus/<date-slug>/` in your repo:
 | --- | --- | --- |
 | `executor.md` | generated once | The executor prompt — the loop's thin pointer target. Encodes the loop's self-stop. |
 | `ledger.md` | the executor, every round | Single source of truth: goals, gates, round log, open gaps, and any preplanned Gate-wait backlog. Read this to follow the run. |
-| `directives.md` | the supervisor, one-way | Corrections, read by the executor each round. You can append your own. |
-| `ops.md` | any node, append-only | Durable environment, build and data facts. |
+| `directives.md` | the supervisor; owner if unsupervised | Bounded one-way queue: current STANDING policy + unconsumed corrections. The designated writer rotates folded entries. |
+| `ops.md` | generated once; author/owner updates in place | Current environment, build and data facts; runtime nodes read it as ambient context. |
 | `supervisor.md` | generated once | The supervisor prompt; scheduled automatically in Claude Code, and stops its own loop when the run ends. |
+| `archive/*.md` | the writer of the corresponding live edge | Cold, 100-ID history shards for folded directives and old rounds; normal nodes never read them. |
 
 ## When to use it
 
