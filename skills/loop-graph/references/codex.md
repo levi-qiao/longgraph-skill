@@ -11,40 +11,33 @@ delivery.
 
 ## Runtime shape
 
-- Executor: one persisted `/goal` in its own task. Its objective points to
-  `executor.md`; it self-drives until a real park.
+- Executor: one persisted `/goal` in its own task, plus a chat-attached heartbeat
+  in that same task. The heartbeat re-reads the complete durable executor contract
+  and continues lawful work; it never redefines `/goal` or depends on another task
+  sending a wake message.
 - Supervisor: an independent Scheduled task in the same local project, not a
   worktree or current-chat heartbeat. Each scheduled run starts fresh. Codex shows
   those fresh runs as separate tasks in the task list; that is expected, not a
   handoff away from the current authoring conversation.
-- Resume: after adjudicating a park, continue the idle executor task with exactly
-  `继续。`. The persisted goal still owns the instructions; never put directives or a
-  restated objective in the wake message.
 - Stop: delete or pause the Scheduled task at terminal run state.
 
 ## Generate
 
 - Replace `HOST_DRIVE_STEP` with: keep closing ledger rounds in the same goal
   activation until a real park; at `pending-audit`, an unresolved owner block,
-  `stalled`, or terminal state, return idle. A later `继续。` is only a control signal:
-  re-read the durable files and continue the same persisted goal. Do not take
-  Gate-wait work while parked.
-- Replace `HOST_CONTROL_STEP` with: read the executor task ID and schedule ID from
-  `ops.md`; task-status lookup is a **wake guard only**, never a prerequisite for an
-  audit verdict. If it times out or is unavailable, complete the durable acceptance
-  or redo decision, record the failed lookup in `Supervisor state`, and send no wake;
-  the next tick retries only the lookup. Do not defer a `pending-audit` adjudication
-  or emit a duplicate directive because host control failed. After an audit, send
-  exactly `继续。` to the same idle executor only when this tick appended a new verdict
-  that makes progress possible. Never wake for an equivalent existing verdict, and
-  permit at most one wake per durable gate/metric fingerprint. Never restate the goal
-  or put corrections in the wake message. Do not wake an active or owner-paused task.
-  At terminal state, delete or pause the recorded schedule. A pending schedule ID is
-  allowed only during the manual setup tick; unattended runs stop rather than guess an
-  ID.
-- Create `ops.md`; replace `HOST_CONTROL_FACTS` with executor task ID, supervisor
-  schedule ID, and the fixed wake message `继续。`. Seed both IDs as pending and
-  resolve them before unattended supervision.
+  `stalled`, or terminal state, return idle. The executor's chat-attached heartbeat
+  re-enters this same task with the complete durable pointer; it never sends `/goal`
+  again or relies on another task to wake it. Do not take Gate-wait work while parked.
+- Replace `HOST_CONTROL_STEP` with: read only the recorded supervisor schedule ID
+  from `ops.md`. Host control never decides the audit: independently append one
+  acceptance/redo verdict to `directives.md` when warranted, even if any unrelated
+  host action is unavailable. Never query executor task status, send it a message,
+  create/alter its heartbeat, or defer a `pending-audit` verdict. At terminal state,
+  delete or pause the recorded supervisor schedule. A pending schedule ID is allowed
+  only during the manual setup tick; unattended runs stop rather than guess an ID.
+- Create `ops.md`; replace `HOST_CONTROL_FACTS` with executor task ID, executor
+  heartbeat ID, and supervisor schedule ID. Seed IDs as pending and resolve them
+  before unattended supervision.
 - Omit Gate-wait work; the executor returns idle at `pending-audit`.
 - The executor context carries across goal continuations. The standalone supervisor
   is fresh each run; delete its `CONTEXT_RESET_STEP`.
@@ -61,20 +54,24 @@ these two scoped runtime creations; do not ask again.
    `EXECUTOR_LAUNCH`. Wait until its goal is attached and the first status arrives.
 3. Write the returned task/thread ID into `ops.md`. Stop if creation failed or the
    task is not uniquely identifiable.
-4. Before creating anything, read `ops.md` and look up the recorded supervisor
+4. Create one chat-attached executor heartbeat in that executor task. Its saved prompt
+   repeats the complete durable executor pointer, never `/goal`; it runs often enough
+   to continue a parked run and stops at a terminal or genuine owner block. Write its
+   ID into `ops.md`.
+5. Before creating anything, read `ops.md` and look up the recorded supervisor
    schedule ID (or the exact run-scoped name). If it exists, inspect and update that
    one schedule in place; never create a second schedule for the same run. Otherwise
    create one **standalone Scheduled task** named `Octopus supervisor — {{RUN_SLUG}}`,
    against the same local project, with the filled supervisor prompt and
    `{{SUP_INTERVAL}}`. Each scheduled run must start a new task from that saved
    prompt; never attach it to this authoring chat or the executor chat.
-5. Write the returned schedule/automation ID into `ops.md`, then inspect both
-   resources once. Report the executor task link/ID, schedule ID/cadence, and the
-   stop instruction. Do not create a separate supervisor-setup task.
+6. Write the returned schedule/automation ID into `ops.md`, then inspect all three
+   resources once. Report the executor task link/ID, heartbeat ID, schedule ID/cadence,
+   and the stop instruction. Do not create a separate supervisor-setup task.
 
-The Scheduled prompt executes one `supervisor.md` tick. When that tick makes progress
-possible, it sends exactly `继续。` to the recorded idle executor task. At terminal
-state it deletes or pauses its own recorded schedule.
+The Scheduled prompt executes one `supervisor.md` tick and writes only directives.
+The executor heartbeat reads those directives in its own chat. At terminal state the
+supervisor deletes or pauses its own recorded schedule.
 
 ## Fill the generic handoff
 
@@ -99,15 +96,18 @@ state it deletes or pauses its own recorded schedule.
   1. find the one non-archived task in this project whose persisted goal references
      `{{RUN_DIR}}/executor.md`, then record its ID in `ops.md`; stop with a recommended
      choice if the match is not unique;
-  2. run one manual setup tick of `supervisor.md`; the schedule ID may be pending
+  2. create or update a chat-attached executor heartbeat in that task. Its saved prompt
+     must repeat the full durable executor pointer, never `/goal` and never `继续。`;
+  3. run one manual setup tick of `supervisor.md`; the schedule ID may be pending
      only for this tick; require no protocol error, no ledger edit, and a short brief;
-  3. if nonterminal, first inspect the schedule ID recorded in `ops.md` (or the exact
+  4. if nonterminal, first inspect the schedule ID recorded in `ops.md` (or the exact
      run-scoped name): update it if it exists, otherwise create one independent
      local-project Scheduled task named `Octopus supervisor — {{RUN_SLUG}}` every
      `{{SUP_INTERVAL}}` whose prompt executes one `supervisor.md` tick;
-  4. record the schedule ID in `ops.md` and report that supervision is active.
+  5. record both automation IDs in `ops.md` and report that supervision is active.
 - `RUNNING_STATE`: leave the executor goal and Scheduled task running. Scheduled
-  ticks audit from fresh context and use only `继续。` to continue the executor.
+  ticks audit from fresh context and write directives; the executor heartbeat continues
+  its own same-chat goal from the durable contract.
 - `RESET_INSTRUCTION`: no owner action during normal running; the persisted executor
   carries context and the Scheduled supervisor starts fresh each run.
 - `STOP_INSTRUCTION`: the supervisor deletes or pauses its recorded schedule.
