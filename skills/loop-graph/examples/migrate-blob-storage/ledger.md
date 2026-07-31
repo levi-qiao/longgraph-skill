@@ -15,9 +15,9 @@ Run status: `owner-blocked`
 
 ## Starting snapshot
 
-- Repo `shutterlog` @ `feature/object-storage`, tip `f4e5a6b` (local commits only, never pushed). Staging dump of 2026-07-18.
+- Repo `shutterlog` @ `feature/object-storage`, tip `a7c3d12` (local commits only, never pushed). Staging dump of 2026-07-18.
 - `attachments`: 4,812 rows, photo bytes in a blob column; 41 rows have NULL `content_type`.
-- Serving path: `/photos/<id>` reads the blob column directly. Frozen contract.
+- Serving path: `/photos/<id>` reads object storage first, falls back to the blob column, and safely sniffs missing content types. Frozen URL contract.
 - Baseline: full `pytest -q` green; `scripts/smoke_serve.sh` green on 20 known ids.
 
 ---
@@ -41,103 +41,18 @@ none (M2→M3 adjudicated by D-002 in Round 8)
 
 ## Debt & gap register
 
-| ID | Priority | One line |
-| --- | --- | --- |
-| GAP-001 | ~~P2~~ closed | 41 legacy rows have NULL `content_type`; serve-path sniffing added Round 9 — falls back to `application/octet-stream` for unrecognizable blobs |
+(none — GAP-001 closure is recorded in Round 9)
 
 ## Gate-wait backlog (fixed at generation)
 
-| ID | Boundary | Task + real consumer | Exact write set | Narrow verification | Status |
-| --- | --- | --- | --- | --- | --- |
-| GW-001 | M2→M3 | staging object-store access policy for the security reviewer | `docs/object-store-access-policy.md` | `markdownlint docs/object-store-access-policy.md` + required least-privilege/rotation headings | accepted (D-003, folded Round 8) |
+(none — GW-001 acceptance is recorded in Round 8)
 
-## Rounds log
+## Rounds log — last 5 only
 
-### Round 1 — 2026-07-20
-- **Item**: M1 — object-store client + write path for new uploads
-- **Gate**: `pytest tests/test_storage.py -q` → 6 passed; full suite + smoke green
-- **Change**: single `storage.py` wrapper (put/get/head with checksum); upload handler writes to store
-- **Verify**: new-upload tests pass; a manual upload lands in the store bucket
-- **Net lines**: +74/−3
-- **Open**: reads still hit the blob column
-- **Next**: read fall-through
-
-### Round 2 — 2026-07-20
-- **Item**: M1 — read fall-through: store first, blob column second
-- **Gate**: narrow → 9 passed; full suite + smoke green
-- **Change**: `/photos/<id>` tries the store, falls back to the blob; bytes byte-compared in tests
-- **Verify**: smoke green on all 20 ids (all still served from blobs — correct, backfill hasn't run)
-- **Net lines**: +58/−6
-- **Open**: noticed 41 rows with NULL `content_type` → **logged GAP-001, did not fix here**. M1 gates closed.
-- **Next**: M2 — pilot the backfill before any full run
-
-### Round 3 — 2026-07-20
-- **Item**: M2 — backfill pilot on 25 rows (smallest-slice before the cohort)
-- **Gate**: narrow → 11 passed; full suite + smoke green
-- **Change**: `scripts/backfill.py` — batched copy, per-object checksum verify after upload
-- **Verify**: 25/25 objects present, checksums match, smoke ids still byte-identical
-- **Net lines**: +49/−0
-- **Open**: pilot clean → authorized to go wide next round
-- **Next**: full backfill
-
-### Round 4 — 2026-07-20
-- **Item**: M2 — full backfill (4,812 rows)
-- **Gate**: narrow → 11 passed; full suite + smoke green
-- **Change**: extended `scripts/backfill.py` with `--all` (batch-offset paging over the pilot's logic), ran it against the full table; script reported `4,812 processed, 0 errors`
-- **Verify**: script counter matches table count (4,812 = 4,812) → recorded M2 as verified
-- **Net lines**: +12/−0
-- **Open**: none
-- **Next**: convergence round (5th), then M3 promotion request
-
-### Round 5 — 2026-07-20
-- **Item**: forced convergence (every 5th round — no new features)
-- **Gate**: narrow → 11 passed; full suite + smoke green
-- **Change**: deleted the now-dead blob-write path in the upload handler; collapsed two checksum helpers into one
-- **Verify**: full suite green after deletions
-- **Net lines**: +6/−47
-- **Open**: **D-001 arrived** — Round 4's evidence was the script's own counter, not an independent proof. M2 re-opened.
-- **Next**: execute D-001
-
-### Round 6 — 2026-07-20
-- **Item**: D-001 — independent completeness proof for the backfill
-- **Gate**: narrow → 12 passed; full suite + smoke green
-- **Change**: `scripts/verify_backfill.py` — set diff of `attachments` primary keys vs a fresh store listing, + 1% checksum sample. **Diff found 3 rows missing**: for NULL-`content_type` rows (GAP-001) the backfill sniffs the type from the file header, and 3 truncated legacy files made the sniffer raise — a per-row `except: continue` swallowed the failures and counted them processed. Removed the swallow, re-ran the 3 rows with an `application/octet-stream` fallback.
-- **Verify**: re-run set diff → empty; checksum sample 48/48 match; smoke green
-- **Net lines**: +31/−9
-- **Open**: GAP-001 stays queued (serve-path fallback covers it). M2 gates closed on independent evidence.
-- **Next**: M2 promotion request — set Milestone gate to `pending-audit`; while it is audited, only preplanned GW-001 may modify the tree.
-
-### Round 7 — 2026-07-20
-- **Item**: M2 promotion request filed; gate set to `pending-audit`. Promotion audit surface: `scripts/backfill.py`, `scripts/verify_backfill.py`, storage tests, object-store listing/checksum artifacts, full suite, and smoke gate. Took preplanned GW-001 while parked.
-- **Gate**: `markdownlint docs/object-store-access-policy.md` green; full suite + smoke green
-- **Change**: wrote the security reviewer's staging access policy at its sole declared path; no dependencies, config, runtime code, contracts, or M2/M3 surfaces changed
-- **Verify**: required least-privilege and rotation sections present; markdown lint green
-- **Net lines**: +22/−0
-- **Open**: Milestone gate still `pending-audit`; GW-001 is `done`, awaiting its own verdict. GAP-001 remains ordinary debt and was not touched.
-- **Next**: fold milestone and backlog directives when they arrive; otherwise cheap no-op
-
-<!-- ─── Supervisor tick between Round 7 and Round 8 ─── -->
-<!-- The supervisor fired its scheduled tick here. From its clean context it:
-     1. Read the ledger — saw `Milestone gate: pending-audit` (its trigger).
-     2. Re-ran the M2 exit conditions independently:
-        - `scripts/verify_backfill.py` → set diff empty, checksum sample 48/48.
-        - `pytest -q` → 12 passed. `scripts/smoke_serve.sh` → 20/20 green.
-        - Inspected `git diff main..HEAD --stat` for undisclosed shortcuts — none.
-     3. Verdict: M2 boundary passes independent audit.
-     4. Separately checked GW-001 stayed inside its declared docs-only write set and
-        passed its narrow gate.
-     5. Appended D-002 (milestone acceptance) and D-003 (GW-001 acceptance).
-     6. Checkpoint-committed the audited state (SHA `a7c3d12`).
-     The executor never saw this reasoning — only the directive that landed. -->
-
-### Round 8 — 2026-07-20
-- **Item**: D-002 and D-003 arrived. Flipped the M2 gate `pending-audit` → `passed`, marked GW-001 accepted, and advanced to M3.
-- **Gate**: full suite + smoke green (no code change this round)
-- **Change**: none — gate flip is a ledger-only state transition
-- **Verify**: re-confirmed all M2 evidence still holds (set diff empty, smoke green)
-- **Net lines**: +0/−0
-- **Open**: M3 is DDL (`DROP COLUMN data`) — owner-only. GAP-001 remains executable debt.
-- **Next**: GAP-001.
+- R5 2026-07-20 | forced convergence; D-001 reopens M2 self-reported proof | gate: green | net +6/−47 | open: D-001, GAP-001 | next: D-001
+- R6 2026-07-20 | D-001 independent set diff + checksum sample; repaired 3 swallowed rows | gate: green | net +31/−9 | open: GAP-001 | next: M2 promotion
+- R7 2026-07-20 | M2 pending-audit + GW-001 access policy | gate: green | net +22/−0 | open: M2/GW audits, GAP-001 | next: directives
+- R8 2026-07-20 | folded D-002/D-003; M2 passed, GW-001 accepted | gate: green | net +0/−0 | open: M3 owner DDL, GAP-001 | next: GAP-001
 
 ### Round 9 — 2026-07-20
 - **Item**: GAP-001 — serve-path content-type sniffing

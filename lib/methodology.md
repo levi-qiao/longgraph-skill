@@ -18,7 +18,7 @@ Rules 1–7 keep the *executor* honest within a round. Rule 8 — clean-context 
 
 **Rule:** a single `ledger.md` is the only source of truth. When code, docs, and ledger disagree, the ledger is fixed first, then the code.
 
-**Prevents:** *state fragmentation.* Without one canonical place, round 30 rediscovers a decision made in round 5, re-opens a closed question, or builds a thing that already exists. The ledger is small on purpose — it's read every round, so it must stay cheap. When it grows, archive old rounds and carry forward only load-bearing facts in a "starting snapshot". The ledger is also the edge the supervisor reads, so keeping it honest keeps the whole graph observable.
+**Prevents:** *state fragmentation and history-shaped token growth.* Without one canonical place, round 30 rediscovers a decision made in round 5, re-opens a closed question, or builds a thing that already exists. The ledger is small on purpose — it's read every round, so it must stay cheap. It retains current state, unresolved rows, and only the latest rounds; closed rows retire after their closure is recorded. The directives edge follows the same rule: fixed-at-generation STANDING subjects plus a capped queue of unconsumed corrections. Policy changes replace their subject instead of appending history, so a dead executor cannot accumulate an infinite queue. Old rounds and folded directives move into 100-ID shards under `archive/`, and normal nodes never read them. This bounds each live and cold file without hiding unresolved work.
 
 ## 2. One item per round → verify same round → update ledger
 

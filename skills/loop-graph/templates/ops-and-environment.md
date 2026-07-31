@@ -2,6 +2,8 @@
 loop-graph template: ops.md — durable environment facts.
 The executor node consults this instead of re-deriving build/env/data facts every round.
 Only create this file if there ARE non-trivial facts worth pinning. Keep it factual.
+It is ambient context, not a timeline: runtime nodes read it; the author/owner updates
+superseded facts in place rather than appending history. Git is the history.
 Red line: secrets / credentials / real data content NEVER go in this file — only policy
 about them (where they come from, that they're env-injected, that they never get logged).
 -->
