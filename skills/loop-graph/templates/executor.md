@@ -50,10 +50,26 @@ create another executor.
    a write set and verification.
 5. Keep working in the same host activation. A long *productive* activation is not a
    defect — you are steerable while it runs because rule 1 re-reads directives every
-   round. Park only on a real condition: promotion wait, unresolved owner block, stall,
-   terminal state, a stop directive, an exhausted declared budget, or a context reset
-   that is due. Never park merely because a turn feels long, and never create a
+   round. Park only when nothing legal is left to do — see "Blocked is not parked" —
+   or on a stop directive, an exhausted declared budget, a due context reset, a stall,
+   or a terminal state. Never park merely because a turn feels long, and never create a
    schedule/heartbeat or ask between ordinary rounds.
+
+**Blocked is not parked.** A blocked Current slice is the normal case in a long run —
+an owner decision outstanding, a missing external input, an unmet dependency, a
+promotion under audit — and it is not a reason to stop. Record the blocker in Debt &
+gap register, then take the next item already registered there that satisfies **all**
+of: existing authority (a STANDING pre-authorization or a live directive already covers
+it); no dependency on the blocked item's verdict; an exact write set disjoint from the
+blocked surface, from any promotion audit surface, and from every other item you take
+this way; no shared/global surfaces; one-round scope; and a narrow verification that
+creates no tracked changes outside that write set. Note which conditions it met, and
+keep taking such items while the block persists. Park only when nothing qualifies, and
+say in the round line which blocker stopped you and that the lane was empty.
+
+This is not licence to invent work — only already-registered items move, register-then-
+defer still holds. While Milestone gate = `pending-audit` the stricter Gate-wait rule
+below governs instead: the thing being judged must not move under the auditor.
 
 Gates: {{GATE_COMMANDS}}
 

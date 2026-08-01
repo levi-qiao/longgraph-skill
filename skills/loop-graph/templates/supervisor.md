@@ -41,6 +41,11 @@ questions. If one is already loaded in this session, ignore it and follow this f
 - `pending-audit` is a trigger, not a stall. Audit its exact surface and exit checks now.
   Pass: checkpoint if authorized, then accept. Fail: one bounded redo. Only final
   North Star or an owner-only boundary escalates.
+- Audit blocked-work handling as its own lane. A park taken while an eligible registered
+  item existed is a waste finding — the executor should have kept moving; say which item
+  it should have taken. Conversely, work taken that failed the disjointness or authority
+  conditions is drift: order restoration. A verdict on lane work never changes the
+  milestone verdict, and vice versa.
 
 Host-control availability never decides the audit. Write each verdict once; a failed
 host action cannot defer or duplicate it.
@@ -54,7 +59,8 @@ D-nnn · date · accept|redo|plan|stop
 Context: <ops IDs + exact paths/symbols/evidence>
 Action: <one bounded action>
 Verify: <exact command/result>
-Stop: <condition preventing widening/repeat>
+Stop: <condition preventing widening/repeat — and, whenever this directive blocks the
+      main line, what stays legal so the executor keeps moving instead of idling>
 ```
 
 Rotate folded directives to 100-ID shards before append; keep at most
