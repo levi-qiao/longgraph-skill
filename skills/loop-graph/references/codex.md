@@ -12,37 +12,52 @@ delivery.
 ## Runtime shape
 
 - Executor: one persisted `/goal` in one task. No executor schedule or heartbeat.
-  One activation closes as many verified rounds as practical, then parks only at a
-  real gate/block/terminal state.
+  One activation closes up to `{{ROUNDS_PER_ACTIVATION|2}}` verified rounds or one
+  milestone exit, then parks; it also parks early at a real gate/block/terminal state.
+  The bound matters here: Codex has no executor heartbeat, so a turn that never returns
+  is a turn the supervisor cannot steer.
 - Supervisor: an independent Scheduled task in the same local project, not a
   worktree or current-chat heartbeat. Each scheduled run starts fresh. Codex shows
   each run as a separate task; that is the expected cost of clean-context audit.
-- Resume: only after writing a new actionable directive, the supervisor sends the
-  executor task the same short pointer used at launch, without `/goal`:
-  `Execute {{RUN_DIR}}/executor.md.` No status lookup and no bare `继续。`.
+- Resume: the supervisor sends the executor task the same short pointer used at launch,
+  without `/goal`: `Execute {{RUN_DIR}}/executor.md.` At most once per tick, on either
+  trigger — (a) this tick wrote a new actionable directive, or (b) the run is
+  non-terminal and the executor has been idle since the previous tick with an open
+  Current slice. Trigger (b) is the liveness guarantee: the executor cannot restart
+  itself on Codex, so a clean audit with nothing to say must not be what ends the run.
+  No status lookup and no bare `继续。`.
 - Stop: delete or pause the Scheduled task at terminal run state.
 
 ## Generate
 
-- Replace `HOST_DRIVE_STEP` with: keep closing ledger rounds in the same goal
-  activation until a real park; at `pending-audit`, an unresolved owner block,
-  `stalled`, or terminal state, return idle. A later short pointer re-enters the same
-  persisted goal; re-read only the hot index/state and continue. Do not take Gate-wait
-  work while parked.
-- Replace `HOST_CONTROL_STEP` with: when the recorded IDs are pending, treat this
-  invocation as setup: resolve the unique executor task whose persisted goal points
-  to `executor.md`, create or update the one run-named standalone Scheduled task with
-  the exact supervisor pointer and cadence, record both IDs, then perform this tick.
-  With resolved IDs, never create another schedule. Read executor task ID, supervisor
-  schedule ID, resume prompt, and `last dispatched directive` from
-  `ops.md`/`Supervisor state`. Never query executor status. Audit first; only when
-  this tick adds a new directive that enables work, send the recorded short resume
-  prompt once and record its ID as dispatched. If send fails, record `unsent` and
-  retry once next tick; never duplicate the directive or dispatch. Host control never
-  decides the audit. At terminal state, pause/delete the supervisor schedule.
+- Replace `HOST_DRIVE_STEP` with: close up to `{{ROUNDS_PER_ACTIVATION|2}}` ledger
+  rounds or one milestone exit in this goal activation, then record the park and return
+  idle; park earlier at `pending-audit`, an unresolved owner block, `stalled`, or
+  terminal state. A later short pointer re-enters the same persisted goal; re-read only
+  the hot index/state and continue — and if the run is parked with nothing unfolded,
+  return immediately rather than inventing work. Do not take Gate-wait work while parked.
+  In the first round, write your own task/session ID into the `ops.md` host-control
+  block, replacing `pending`; if the host exposes no stable self-ID, record that instead
+  so the supervisor stops looking.
+- Replace `HOST_CONTROL_STEP` with: when the schedule ID is pending, treat this
+  invocation as setup: create or update the one run-named standalone Scheduled task with
+  the exact supervisor pointer and cadence, record the schedule ID, then perform this
+  tick. With a resolved ID, never create another schedule. Read executor task ID,
+  supervisor schedule ID, resume prompt, and `last dispatched directive` from
+  `ops.md`/`Supervisor state`. The executor writes its own task ID there in its first
+  round — never infer it, never guess it from goal text, never adopt a task you cannot
+  confirm; while it is `pending`, dispatch to the run-named pointer and pick the ID up
+  next tick rather than blocking setup. Never query executor status. Audit first, then
+  dispatch the recorded short resume prompt at most once per tick, when either this tick
+  adds a new directive that enables work or the run is non-terminal and the executor has
+  been idle since the previous tick with an open Current slice; record the dispatch. If
+  send fails, record `unsent` and retry next tick; never duplicate the directive or
+  dispatch, and escalate after three consecutive `unsent`. Host control never decides
+  the audit. At terminal state, pause/delete the supervisor schedule.
 - Create `ops.md`; replace `HOST_CONTROL_FACTS` with executor task ID, supervisor
-  schedule ID, and the exact short resume prompt. Seed IDs as pending; a first manual
-  tick may resolve the executor by a unique goal-path match.
+  schedule ID, and the exact short resume prompt. Seed both IDs as pending: the executor
+  fills its own in round one and the supervisor fills the schedule ID at setup. Do not
+  ask the owner to type either, and do not resolve the executor by goal-path guessing.
 - Omit Gate-wait work; the executor returns idle at `pending-audit`.
 - The executor context carries in one goal task; the standalone supervisor is fresh
   each run. Delete both template context-reset blocks.
@@ -57,8 +72,9 @@ these two scoped runtime creations; do not ask again.
    worktree for either node.
 2. Create one project task named `Octopus executor — {{RUN_SLUG}}` with the filled
    `EXECUTOR_LAUNCH`. Wait until its goal is attached and the first status arrives.
-3. Write the returned task/thread ID into `ops.md`. Stop if creation failed or the
-   task is not uniquely identifiable.
+3. Write the returned task/thread ID into `ops.md`. Stop if creation failed. If the
+   host returns no usable ID, leave it `pending` and continue — the executor writes its
+   own in round one; never ask the owner to supply it.
 4. Before creating anything, read `ops.md` and look up the recorded supervisor
    schedule ID (or the exact run-scoped name). If it exists, inspect and update that
    one schedule in place; never create a second schedule for the same run. Otherwise

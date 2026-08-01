@@ -11,7 +11,7 @@ This is NOT a loop. One activation → one findings file → done.
 Scout vs. plain subagent (for the graph author): reach for a scout node only when
 the research is OFF the critical path, load-bearing, must survive a dropped session,
 or must be auditable by the supervisor. For a quick, synchronous, throwaway lookup,
-an executor subagent is simpler (see executor.md "Subagents") — the findings edge +
+an executor subagent is simpler (see executor.md "Parallel fan-out") — the findings edge +
 dispatch earns its cost only when the answer must be durable and inspectable, not
 held in one context.
 -->
