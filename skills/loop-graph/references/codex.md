@@ -12,10 +12,10 @@ delivery.
 ## Runtime shape
 
 - Executor: one persisted `/goal` in one task. No executor schedule or heartbeat.
-  One activation closes up to `{{ROUNDS_PER_ACTIVATION|2}}` verified rounds or one
-  milestone exit, then parks; it also parks early at a real gate/block/terminal state.
-  The bound matters here: Codex has no executor heartbeat, so a turn that never returns
-  is a turn the supervisor cannot steer.
+  One activation closes as many verified rounds as it can and parks only at a real
+  gate/block/terminal state. Codex has no executor heartbeat, so parking costs a wait
+  for the next supervisor tick — park on a real condition, never on turn length.
+  Re-reading directives each round is what keeps a long activation steerable.
 - Supervisor: an independent Scheduled task in the same local project, not a
   worktree or current-chat heartbeat. Each scheduled run starts fresh. Codex shows
   each run as a separate task; that is the expected cost of clean-context audit.
@@ -30,12 +30,14 @@ delivery.
 
 ## Generate
 
-- Replace `HOST_DRIVE_STEP` with: close up to `{{ROUNDS_PER_ACTIVATION|2}}` ledger
-  rounds or one milestone exit in this goal activation, then record the park and return
-  idle; park earlier at `pending-audit`, an unresolved owner block, `stalled`, or
-  terminal state. A later short pointer re-enters the same persisted goal; re-read only
-  the hot index/state and continue — and if the run is parked with nothing unfolded,
-  return immediately rather than inventing work. Do not take Gate-wait work while parked.
+- Replace `HOST_DRIVE_STEP` with: keep closing ledger rounds in this goal activation;
+  a long productive turn is expected, and re-reading directives every round is what keeps
+  it steerable. Record the park and return idle only at `pending-audit`, an unresolved
+  owner block, `stalled`, terminal state, a stop directive, an exhausted declared budget,
+  or a due context reset — re-entry is how this host grants a fresh context. A later
+  short pointer re-enters the same persisted goal; re-read only the hot index/state and
+  continue — and if the run is parked with nothing unfolded, return immediately rather
+  than inventing work. Do not take Gate-wait work while parked.
   In the first round, write your own task/session ID into the `ops.md` host-control
   block, replacing `pending`; if the host exposes no stable self-ID, record that instead
   so the supervisor stops looking.

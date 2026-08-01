@@ -29,10 +29,12 @@ executor.
 
 ## One verified slice
 
-1. New directives come first. Otherwise take Current slice; if convergence is due,
-   take a convergence slice instead. Do not silently reprioritize. If the run is parked
-   and nothing is unfolded, return immediately — park is idempotent, and a re-entry with
-   no new input is never a reason to invent work.
+1. Re-read the directives file at the start of **every** round, not only at hot start —
+   this is what keeps a long activation steerable without ending it. New directives come
+   first. Otherwise take Current slice; if convergence is due, take a convergence slice
+   instead. Do not silently reprioritize. If the run is parked and nothing is unfolded,
+   return immediately — park is idempotent, and a re-entry with no new input is never a
+   reason to invent work.
 2. Implement inside the exact write set and verify in the same slice with its narrow
    gate. A test without a real consumer is not done.
 3. Rewrite durable ledger sections in place: gates/metrics/debt/convergence and the
@@ -40,11 +42,12 @@ executor.
    and next context IDs.
 4. Register side gaps; do not fix them on the side. Batch siblings only when they share
    a write set and verification.
-5. Keep working in the same host activation until the host rule reaches a real park or
-   terminal state, but bound one activation to {{ROUNDS_PER_ACTIVATION|2}} closed rounds
-   or one milestone exit, whichever comes first; then park and return. An activation that
-   runs to exhaustion cannot be steered — the supervisor only reaches you between
-   activations. Never create a schedule/heartbeat or ask between ordinary rounds.
+5. Keep working in the same host activation. A long *productive* activation is not a
+   defect — you are steerable while it runs because rule 1 re-reads directives every
+   round. Park only on a real condition: promotion wait, unresolved owner block, stall,
+   terminal state, a stop directive, an exhausted declared budget, or a context reset
+   that is due. Never park merely because a turn feels long, and never create a
+   schedule/heartbeat or ask between ordinary rounds.
 
 Gates: {{GATE_COMMANDS}}
 
@@ -54,6 +57,11 @@ lines, the next slice adds no feature, removes duplication/dead paths, has net l
 
 ## Context budget
 
+Warm context is the cheapest thing you have. Every exit from it — parking, resetting,
+or spawning a sub-task — pays for a cold re-derivation of what you already knew, so each
+needs a real reason: the park conditions in rule 5, the reset seams below, the bar in
+Parallel fan-out. Related work stays in one context.
+
 - Always hot: ledger hot sections and unconsumed directives. Everything else is
   on-reference through `ops.md`.
 - Do not reopen unchanged files or paste full logs, dumps, or authority documents.
@@ -61,6 +69,10 @@ lines, the next slice adds no feature, removes duplication/dead paths, has net l
   artifact.
 - Keep only {{KEEP_ROUNDS|5}} live round lines; rotate older lines to 100-round archive
   shards. Never read archives during normal execution.
+- Reset at a seam, not at a number: a milestone boundary or a convergence round, where
+  the next work is genuinely unrelated to what is loaded. {{CHAIN_BUDGET|8}} rounds is a
+  backstop for unbounded growth — when it comes due mid-topic, close the current item
+  first so the reset lands on a seam rather than cutting related work in half.
 
 {{CONTEXT_RESET_STEP}}
 
