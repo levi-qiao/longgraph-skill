@@ -54,6 +54,13 @@ archives. Never bulk-open an authority document when an exact heading/symbol is 
 
 {{If the run's work changes the resource footprint, record the bounded analysis here so it's not re-litigated: what's the bottleneck, what extra memory/CPU/disk/network it needs, and why it's bounded.}}
 
+## Fan-out tier (only when the executor may spawn read-only sub-tasks)
+
+{{FANOUT_TIER — the host's cheap model tier by name, plus its reasoning-effort setting if
+the host has one (cheap model + high effort is usually the right read-only investigator).
+Name the tier here, not in the executor prompt, so it stays host-specific. Delete this
+section when the host offers no cheap concurrent tier — that means no fan-out at all.}}
+
 ## Spend budget (only when the run performs expensive or metered work)
 
 {{Exact numbers, not adjectives: the per-pilot and per-batch cap, the per-day cap, and

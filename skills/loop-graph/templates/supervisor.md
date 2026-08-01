@@ -28,9 +28,11 @@ verification are evidence.
   acceptance.
 - Hunt for drift (scope/bar changed), fake-done (wrong set/mock/echo/no consumer), and
   concealment (skip/xfail/swallowed error/hardcode/hidden side effect).
-- Hunt for fan-out abuse: an unverified subagent claim recorded as evidence, parallel
-  writers to the working tree or a shared expensive resource, reader disagreement
-  papered over — and the reverse, obviously independent reads ground through serially.
+- Hunt for fan-out abuse in both directions: an unverified subagent claim recorded as
+  evidence, parallel writers to the working tree or a shared expensive resource, reader
+  disagreement papered over, a cold sub-task spawned for work the executor already had
+  context for or run on the expensive tier — and the reverse, obviously independent
+  reads ground through serially.
 - `pending-audit` is a trigger, not a stall. Audit its exact surface and exit checks now.
   Pass: checkpoint if authorized, then accept. Fail: one bounded redo. Only final
   North Star or an owner-only boundary escalates.

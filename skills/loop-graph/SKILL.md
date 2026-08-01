@@ -130,6 +130,7 @@ Decide from context what you reasonably can and state the assumption; anything g
   ledger Current slice and every directive cite those rows.
 - Tune convergence; otherwise use `CONVERGE_EVERY=5`, `NET_LINE_CAP=400`, `KEEP_ROUNDS=5`, `OPEN_DIRECTIVE_CAP=8`, `CHAIN_BUDGET=8` where context carries, and `ROUNDS_PER_ACTIVATION=2` on hosts where one activation closes several rounds. Raise the last one only when supervisor ticks are far apart; an unbounded activation is unsteerable.
 - Fill host-control placeholders from the selected reference; delete unused blocks. Host-specific facts belong in references, not in the generic templates.
+- Name the host's cheap model tier as `FANOUT_TIER` in `ops.md` when the executor may spawn read-only sub-tasks; delete the section when the host has no cheap concurrent tier. Read-only investigators run cheap; the executor itself does not.
 - Render [`templates/handoff.md`](templates/handoff.md) only as the chat response. It
   is a presentation template, not a runtime artifact: never save `handoff.md` in the
   run directory. Delete its supervisor section when no supervisor was selected.
