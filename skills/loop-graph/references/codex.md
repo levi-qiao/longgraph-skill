@@ -52,16 +52,19 @@ delivery.
   task, not attached to this authoring chat and not to the executor's task — whose saved
   prompt is exactly `Run one audit tick from {{RUN_DIR}}/supervisor.md.`, at
   `{{SUP_INTERVAL}}`; write the returned schedule ID into `ops.md`, then perform this
-  tick. If `ops.md` already records an ID or a run-named schedule already exists, inspect
-  and update that one in place — never create a second. Every later invocation skips
-  setup entirely and goes straight to Hot start. Vague placement wording is the failure
-  here: a supervisor that cannot tell "which thread" from "a new task" will improvise one
-  or duplicate the other. Read executor task ID,
+  tick. A recorded ID is never trusted on sight: confirm the schedule it names is live and
+  reachable from here before updating it in place, and when it is not — the usual case
+  after a restart, since the old one belongs to a session you are not in — treat it as
+  stale, create one here, and overwrite. Never create a second for the same run. Every
+  later invocation skips setup entirely and goes straight to Hot start. Vague placement
+  wording is the failure here: a supervisor that cannot tell "which thread" from "a new
+  task" will improvise one or duplicate the other. Read executor task ID,
   supervisor schedule ID, resume prompt, and `last dispatched directive` from
   `ops.md`/`Supervisor state`. The executor writes its own task ID there in its first
-  round — never infer it, never guess it from goal text, never adopt a task you cannot
-  confirm; while it is `pending`, dispatch to the run-named pointer and pick the ID up
-  next tick rather than blocking setup. Never query executor status — the ledger is the
+  round, overwriting any stale value — never infer it, never guess it from goal text,
+  never adopt a task you cannot reach; while it is `pending`, or while it names a task
+  that does not respond, dispatch to the run-named pointer and pick the ID up next tick
+  rather than blocking setup. Never query executor status — the ledger is the
   signal. Audit first, then dispatch the recorded short resume prompt at most once per
   tick and only when `Run status` is `parked` with work remaining; never while it is
   `active`, and treat `active` with no new round line across two consecutive ticks as dead
@@ -72,6 +75,9 @@ delivery.
   schedule ID, and the exact short resume prompt. Seed both IDs as pending: the executor
   fills its own in round one and the supervisor fills the schedule ID at setup. Do not
   ask the owner to type either, and do not resolve the executor by goal-path guessing.
+  State in the file that both fields are **self-healing**: each node overwrites its own
+  field whenever the recorded value is not itself, so relaunching a node into a fresh
+  thread repairs the pointers instead of stranding the run against a dead one.
 - Seed Gate-wait work whenever a genuinely disjoint one-round item exists; on this host
   a park costs a wait for the next supervisor tick, so idling at `pending-audit` is
   expensive. Omit it only when nothing qualifies — the blocked-work rule still applies
