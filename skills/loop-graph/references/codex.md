@@ -19,6 +19,10 @@ delivery.
 - Supervisor: an independent Scheduled task in the same local project, not a
   worktree or current-chat heartbeat. Each scheduled run starts fresh. Codex shows
   each run as a separate task; that is the expected cost of clean-context audit.
+  Fallback only when standalone scheduling is unavailable or unreliable on the account:
+  a recurring task in the current thread at the same cadence. It is no longer clean
+  context, so the prompt must say so — the supervisor leans on durable state and treats
+  its own earlier turns in that thread as hearsay, not as audit evidence.
 - Resume: the supervisor sends the executor task the same short pointer used at launch,
   without `/goal`: `Execute {{RUN_DIR}}/executor.md.` At most once per tick, on either
   trigger — (a) this tick wrote a new actionable directive, or (b) the run is
@@ -41,10 +45,17 @@ delivery.
   In the first round, write your own task/session ID into the `ops.md` host-control
   block, replacing `pending`; if the host exposes no stable self-ID, record that instead
   so the supervisor stops looking.
-- Replace `HOST_CONTROL_STEP` with: when the schedule ID is pending, treat this
-  invocation as setup: create or update the one run-named standalone Scheduled task with
-  the exact supervisor pointer and cadence, record the schedule ID, then perform this
-  tick. With a resolved ID, never create another schedule. Read executor task ID,
+- Replace `HOST_CONTROL_STEP` with a setup section that is explicit on all four points:
+  run setup **only on the first invocation**, when the schedule ID in `ops.md` is still
+  pending; create **one** run-named standalone Scheduled task — a separate scheduled
+  task, not attached to this authoring chat and not to the executor's task — whose saved
+  prompt is exactly `Run one audit tick from {{RUN_DIR}}/supervisor.md.`, at
+  `{{SUP_INTERVAL}}`; write the returned schedule ID into `ops.md`, then perform this
+  tick. If `ops.md` already records an ID or a run-named schedule already exists, inspect
+  and update that one in place — never create a second. Every later invocation skips
+  setup entirely and goes straight to Hot start. Vague placement wording is the failure
+  here: a supervisor that cannot tell "which thread" from "a new task" will improvise one
+  or duplicate the other. Read executor task ID,
   supervisor schedule ID, resume prompt, and `last dispatched directive` from
   `ops.md`/`Supervisor state`. The executor writes its own task ID there in its first
   round — never infer it, never guess it from goal text, never adopt a task you cannot
