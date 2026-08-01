@@ -71,5 +71,9 @@ budget makes that tripwire unenforceable, so declare it or delete this section.}
 {{HOST_CONTROL_FACTS — insert only durable IDs and control facts required by the
 selected host reference. Never place instructions, secrets, or transient status here;
 delete this block when no host-control facts are required. This block is the one part
-of this file a runtime node may write, and only to record its own control ID once
-(each node writes its own, never another's) — everything else stays author-owned.}}
+of this file a runtime node may write, and only its own control ID (each node writes its
+own, never another's) — everything else stays author-owned.
+The IDs are self-healing, not write-once: a node overwrites its own field whenever the
+recorded value is not itself, and never trusts a recorded value without confirming it is
+reachable from where it is running. Relaunching a node into a fresh session is normal, and
+a stale pointer left in place is what silently strands a run against a dead peer.}}
