@@ -41,7 +41,8 @@ delivery.
   or a due context reset — re-entry is how this host grants a fresh context. A later
   short pointer re-enters the same persisted goal; re-read only the hot index/state and
   continue — and if the run is parked with nothing unfolded, return immediately rather
-  than inventing work. Do not take Gate-wait work while parked.
+  than inventing work. A blocked slice is not a park: fall through to the executor's
+  blocked-work rule and keep closing rounds until nothing legal remains.
   In the first round, write your own task/session ID into the `ops.md` host-control
   block, replacing `pending`; if the host exposes no stable self-ID, record that instead
   so the supervisor stops looking.
@@ -71,7 +72,10 @@ delivery.
   schedule ID, and the exact short resume prompt. Seed both IDs as pending: the executor
   fills its own in round one and the supervisor fills the schedule ID at setup. Do not
   ask the owner to type either, and do not resolve the executor by goal-path guessing.
-- Omit Gate-wait work; the executor returns idle at `pending-audit`.
+- Seed Gate-wait work whenever a genuinely disjoint one-round item exists; on this host
+  a park costs a wait for the next supervisor tick, so idling at `pending-audit` is
+  expensive. Omit it only when nothing qualifies — the blocked-work rule still applies
+  to every other kind of block.
 - The executor context carries in one goal task; the standalone supervisor is fresh
   each run. Delete both template context-reset blocks.
 
