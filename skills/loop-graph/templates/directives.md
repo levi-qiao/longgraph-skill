@@ -22,9 +22,13 @@ On a successor run, reset Supervisor state and copy still-in-force STANDING item
 
 Last completed tick: none | audited through round: 0 | repo tips: pending | last dispatched directive: none
 
-## STANDING (always in force — carried across runs; treat like red lines)
+## STANDING — authority only (always in force; treat like red lines)
 
-<!-- Also the home for OWNER PRE-AUTHORIZATIONS decided at interview time: an
+<!-- AUTHORITY, NOT METHOD: what the executor may and may not do. HOW it works lives
+     in `executor.md`. Restating method here is the main way this file silently
+     doubles, and every entry is re-read every round. Cap {{STANDING_CAP|12}} live
+     entries; a superseded entry is rewritten in place, never appended.
+     Also the home for OWNER PRE-AUTHORIZATIONS decided at interview time: an
      owner-only action the executor MAY do autonomously once an objective evidence
      bar is met (owner retro-reviews). This is what keeps a loop whose own work is
      owner-only (e.g. dropping dead tables) from stalling on propose-and-wait.

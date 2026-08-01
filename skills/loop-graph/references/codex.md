@@ -11,26 +11,18 @@ delivery.
 
 ## Runtime shape
 
-- Executor: one persisted `/goal` in one task. No executor schedule or heartbeat.
-  One activation closes as many verified rounds as it can and parks only at a real
-  gate/block/terminal state. Codex has no executor heartbeat, so parking costs a wait
-  for the next supervisor tick — park on a real condition, never on turn length.
-  Re-reading directives each round is what keeps a long activation steerable.
-- Supervisor: an independent Scheduled task in the same local project, not a
-  worktree or current-chat heartbeat. Each scheduled run starts fresh. Codex shows
-  each run as a separate task; that is the expected cost of clean-context audit.
-  Fallback only when standalone scheduling is unavailable or unreliable on the account:
-  a recurring task in the current thread at the same cadence. It is no longer clean
-  context, so the prompt must say so — the supervisor leans on durable state and treats
-  its own earlier turns in that thread as hearsay, not as audit evidence.
-- Resume: the supervisor sends the executor task the same short pointer used at launch,
-  without `/goal`: `Execute {{RUN_DIR}}/executor.md.` **Only when the ledger `Run status`
-  is `parked`** and work remains, at most once per tick — whether or not this tick wrote a
-  directive. An `active` executor re-reads directives at the start of every round, so it
-  needs no prompt and a prompt would only interrupt it. The ledger is the signal: no status
-  lookup, and no bare `继续。`. Treat `active` with no new round line across two consecutive
-  ticks as dead — resume once and record it.
+- Executor: one persisted `/goal` in one task; no schedule or heartbeat of its own.
+- Supervisor: an independent Scheduled task in the same local project — never the
+  authoring chat, the executor's task, or a worktree. Each run starts fresh; Codex shows
+  each as its own task, the cost of clean-context audit. Fallback where standalone
+  scheduling is unreliable on the account: a recurring task in the current thread at the
+  same cadence — no longer clean context, so the generated prompt must say so and lean on
+  durable state.
+- Resume: the supervisor is the executor's only way back, so a park costs a tick.
+  Its pointer is the launch prompt without `/goal`; never a bare `继续。`.
 - Stop: delete or pause the Scheduled task at terminal run state.
+
+Exact behavior ships in the `Generate` fills below — do not restate it here.
 
 ## Generate
 

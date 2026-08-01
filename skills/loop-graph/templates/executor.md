@@ -61,17 +61,10 @@ going while the block persists. Park only when nothing qualifies, naming the blo
 and the empty lane. Only registered items move — never invent work. Under
 `pending-audit` the stricter Gate-wait rule below governs instead.
 
-**Working the lane and asking the owner are different actions — do both.** The moment a
-blocker on the milestone-critical path is owner-only (a missing input, an approval, a
-decision), raise its decision card in the same round you register it, then continue on
-the lane. Continuing is never a substitute for asking; a run that quietly works around
-the thing it needs will do so forever.
-
-**The lane must converge, not just continue.** Lane work is a stopgap. Read-only
-inventory that ends in another inventory is spinning, however well written. When two
-consecutive rounds close with no change outside the ledger — no production, test, gate,
-metric or commit movement — the lane is exhausted: say so, restate the outstanding
-owner-only asks, and park. Do not open a third inventory.
+Two guards on that rule. **Continuing is not asking:** an owner-only blocker on the
+critical path gets its decision card in the round you register it *and* you move to the
+lane — never one instead of the other. **The lane must converge:** inventory that ends in
+more inventory is spinning, so the stall rule below applies to lane rounds too.
 
 Gates: {{GATE_COMMANDS}}
 

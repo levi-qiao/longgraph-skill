@@ -132,7 +132,8 @@ Decide from context what you reasonably can and state the assumption; anything g
 - Compile an `ops.md` Context index before writing the first ledger slice. Each row
   names when to read it, exact source pointers, and exact verification. Make the
   ledger Current slice and every directive cite those rows.
-- Tune convergence; otherwise use `CONVERGE_EVERY=5`, `NET_LINE_CAP=400`, `KEEP_ROUNDS=5`, `OPEN_DIRECTIVE_CAP=8`, and `CHAIN_BUDGET=8` where context carries.
+- Tune convergence; otherwise use `CONVERGE_EVERY=5`, `NET_LINE_CAP=400`, `KEEP_ROUNDS=5`, `OPEN_DIRECTIVE_CAP=8`, `STANDING_CAP=12`, `GAP_CAP=12`, and `CHAIN_BUDGET=8` where context carries.
+- **Every durable section is bounded and rotates.** Rounds shard, corrections shard, STANDING and the gap register are capped and rewritten in place. Anything re-read every round that can only grow is a compounding tax — if a section has no cap, that is a defect, not a style choice.
 - Do not bound an activation by round count. Long productive turns are the goal on hosts that carry context; steerability comes from re-reading directives every round, and every park costs a cold restart. Park conditions belong in the host reference, not a counter.
 - Fill host-control placeholders from the selected reference; delete unused blocks. Host-specific facts belong in references, not in the generic templates.
 - A node's one-time setup step must be unambiguous on four points, or the node improvises: **where** the recurring task is created (this same thread/session, or a separate standalone one — say which, and say what not to do), the **exact saved prompt** it runs, the **exact cadence**, and that **later invocations skip setup entirely**. Also say where the returned ID is recorded and that an existing one is updated in place, never duplicated.

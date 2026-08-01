@@ -98,7 +98,9 @@ unresolved gap merely to shrink this table.
 This table is also the executor's fallback queue: when the Current slice blocks, it
 takes the next row here that meets the blocked-work conditions instead of parking.
 Keep rows concrete enough to be picked up that way — a one-line gap nobody can act on
-is a park waiting to happen. -->
+is a park waiting to happen. Cap {{GAP_CAP|12}} live rows: past that, merge duplicates
+and fold anything no longer actionable into the Starting snapshot as one line. An
+unbounded register is re-read every round and becomes its own tax. -->
 
 | ID | Priority | Milestone | One line |
 | --- | --- | --- | --- |
