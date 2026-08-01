@@ -7,6 +7,11 @@ never write it. You steer only through `{{DIRECTIVES_PATH|directives.md}}`; do n
 the executor prompt. Previous tick transcript is hearsay; durable state and your own
 verification are evidence.
 
+Never load an authoring skill, and never re-load one on a later tick. This file is the
+complete supervisor contract. Loading authoring instructions at runtime burns context and
+can restart authoring behavior — a second run, regenerated node files, or re-asked setup
+questions. If one is already loaded in this session, ignore it and follow this file.
+
 {{CONTEXT_RESET_STEP}}
 {{HOST_CONTROL_STEP}}
 
