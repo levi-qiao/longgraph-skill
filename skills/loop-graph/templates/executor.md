@@ -66,10 +66,20 @@ lines, the next slice adds no feature, removes duplication/dead paths, has net l
 
 ## Parallel fan-out
 
-One writer, many readers. Read-only work — investigation, tracing, inventory, per-item
-scoring — fans out concurrently; serial grinding through independent reads is waste, not
-diligence. Use whatever concurrent sub-task mechanism the host provides; with none,
-batch independent reads into one pass instead of interleaving them with edits.
+One writer, many readers — but **staying in your own context is the default**. A
+sub-task starts cold and re-derives what you already hold; that is the expensive path,
+and a long unattended run pays for it every time. Do not fan out to look busy.
+
+Fan out only when all four hold: three or more reads are genuinely independent, none
+feeds another, each is substantial enough that a cold start pays for itself, and no
+intermediate result is needed to choose the next step. Two reads, or reads answerable
+from context you already have, stay inline. When in doubt, stay inline — but do not
+grind serially through reads that plainly qualify.
+
+Readers run on the cheap model tier ({{FANOUT_TIER}}); a read-only investigator never
+runs on the expensive one. With no cheap concurrent tier available, do not fan out at
+all: batch the independent reads into one in-context pass instead of interleaving them
+with edits.
 
 Never fan out: ledger or directive writes, working-tree edits (two writers conflict
 invisibly), expensive/irreversible operations that share a budget or environment, and
