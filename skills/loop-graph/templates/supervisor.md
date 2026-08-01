@@ -46,6 +46,13 @@ directory, or a second schedule.** You audit and write directives; you do not au
   it should have taken. Conversely, work taken that failed the disjointness or authority
   conditions is drift: order restoration. A verdict on lane work never changes the
   milestone verdict, and vice versa.
+- Watch the lane for a productive-looking loop. Rounds that close with evidence but no
+  change outside the ledger are spinning, not progress — inventory ending in more
+  inventory is the usual shape. Two in a row means the lane is exhausted: direct the
+  executor to stop and restate its outstanding asks. Equally, verify that every
+  owner-only blocker on the critical path actually reached the owner as a decision card.
+  A run that silently works around the thing it needs will do so forever — surface those
+  asks yourself, every tick, until they are answered.
 
 Host-control availability never decides the audit. Write each verdict once; a failed
 host action cannot defer or duplicate it.
