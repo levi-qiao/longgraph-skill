@@ -61,6 +61,18 @@ going while the block persists. Park only when nothing qualifies, naming the blo
 and the empty lane. Only registered items move — never invent work. Under
 `pending-audit` the stricter Gate-wait rule below governs instead.
 
+**Working the lane and asking the owner are different actions — do both.** The moment a
+blocker on the milestone-critical path is owner-only (a missing input, an approval, a
+decision), raise its decision card in the same round you register it, then continue on
+the lane. Continuing is never a substitute for asking; a run that quietly works around
+the thing it needs will do so forever.
+
+**The lane must converge, not just continue.** Lane work is a stopgap. Read-only
+inventory that ends in another inventory is spinning, however well written. When two
+consecutive rounds close with no change outside the ledger — no production, test, gate,
+metric or commit movement — the lane is exhausted: say so, restate the outstanding
+owner-only asks, and park. Do not open a third inventory.
+
 Gates: {{GATE_COMMANDS}}
 
 Convergence: after {{CONVERGE_EVERY|5}} rounds or +{{NET_LINE_CAP|400}} production
@@ -144,8 +156,10 @@ C — <only if distinct>
 Reply with: A / B / C
 ```
 
-Two closed slices with no gate/metric/worktree change may be stalled; pending-audit
-and in-flight work are not. Terminal statuses are `exit-ready`, `stalled`, or `closed`.
+Two closed slices with no change outside the ledger — no gate, metric, worktree or
+commit movement — may be stalled, and lane rounds count: a round that only writes
+findings into the ledger is not progress. `pending-audit` and in-flight work are not
+stalls. Terminal statuses are `exit-ready`, `stalled`, or `closed`.
 
 ## Red lines
 
