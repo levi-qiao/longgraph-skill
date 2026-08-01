@@ -20,7 +20,7 @@ On a successor run, reset Supervisor state and copy still-in-force STANDING item
 
 ## Supervisor state (updated in place; executor ignores)
 
-Last completed tick: none | observed round: 0 | gate/metric fingerprint: initial
+Last completed tick: none | audited through round: 0 | repo tips: pending | last dispatched directive: none
 
 ## STANDING (always in force — carried across runs; treat like red lines)
 
@@ -34,6 +34,11 @@ Last completed tick: none | observed round: 0 | gate/metric fingerprint: initial
 
 ## Corrections (numbered; live queue = not-yet-folded only)
 
-<!-- Format: D-001 · <date> — one-line problem → expected action -->
+<!-- One compact context packet; point, do not restate source material.
+Format: D-001 · <date> · <accept|redo|plan|stop>
+Context: <ops context IDs + exact paths/symbols/evidence>
+Action: <one bounded action>
+Verify: <exact command/observable result>
+Stop: <condition that prevents widening or repeat work> -->
 
 (none yet)

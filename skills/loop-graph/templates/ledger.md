@@ -29,6 +29,19 @@ Run status: `active`   <!-- active | paused | exit-ready | stalled | closed. A t
 
 ---
 
+## Current slice (the next activation starts here)
+
+Item: {{FIRST_ITEM}}
+Write set: {{exact paths or "read-only"}}
+Context: {{ops.md context IDs plus exact local pointers}}
+Verify: {{one narrow command}}
+Done when: {{one observable condition}}
+
+<!-- Rewrite this block in place whenever the next item changes. It replaces broad
+workspace rediscovery and must stay under six lines. -->
+
+---
+
 ## Starting snapshot (carried-forward — replaces bulk history)
 
 {{SNAPSHOT — everything a fresh executor needs and nothing it doesn't:
@@ -108,7 +121,7 @@ When appending would exceed {{KEEP_ROUNDS|5}} lines, cut the oldest and append i
 verbatim to the 100-round shard containing its round ID
 (`archive/rounds-0001-0100.md`, then `0101-0200.md`, ...). Never let history pile
 up here or in one unbounded archive file. Line format: -->
-<!-- - R<n> <date> | <item> | gate: <result> | net +x/-y | <VLM/metric delta, or —> | open: <what's left, or —> | next: <next item> -->
+<!-- - R<n> <date> | <item> | changed: <exact paths> | verify: <result/evidence pointer> | net +x/-y | next: <item + context IDs> -->
 
 <!-- You MAY keep only the CURRENT round as a short multi-line block when it carries
 detail the supervisor must see this tick (e.g. a promotion request's evidence);

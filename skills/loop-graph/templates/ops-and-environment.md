@@ -10,8 +10,23 @@ about them (where they come from, that they're env-injected, that they never get
 
 # {{PROJECT}} — Environment & Ops Facts
 
-> The executor consults this only when it touches builds / credentials / data / performance. It is not re-read every round.
+> Read the index first, then only the row needed by the current ledger item. Do not
+> re-read this whole file every round.
 > Red line: license / keys / real data content never enter the repo, logs, or commits — only the policy for handling them lives here.
+
+## Context index
+
+<!-- Compile this at authoring time. Prefer exact files, symbols, headings, and gate
+commands over prose. Every live ledger item and supervisor correction points to one
+or more IDs here; nodes follow those pointers instead of searching the workspace. -->
+
+| ID | Use when | Read | Verify |
+| --- | --- | --- | --- |
+| C-01 | {{task/surface}} | {{exact file#heading, symbol, or narrow glob}} | {{exact command}} |
+
+Always-hot: `ledger.md` status/current slice + directives above the watermark.
+On-reference only: the indexed rows above, repo standards, evidence artifacts, and
+archives. Never bulk-open an authority document when an exact heading/symbol is known.
 
 ## Build / test
 
