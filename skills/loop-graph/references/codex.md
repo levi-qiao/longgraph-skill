@@ -24,12 +24,12 @@ delivery.
   context, so the prompt must say so — the supervisor leans on durable state and treats
   its own earlier turns in that thread as hearsay, not as audit evidence.
 - Resume: the supervisor sends the executor task the same short pointer used at launch,
-  without `/goal`: `Execute {{RUN_DIR}}/executor.md.` At most once per tick, on either
-  trigger — (a) this tick wrote a new actionable directive, or (b) the run is
-  non-terminal and the executor has been idle since the previous tick with an open
-  Current slice. Trigger (b) is the liveness guarantee: the executor cannot restart
-  itself on Codex, so a clean audit with nothing to say must not be what ends the run.
-  No status lookup and no bare `继续。`.
+  without `/goal`: `Execute {{RUN_DIR}}/executor.md.` **Only when the ledger `Run status`
+  is `parked`** and work remains, at most once per tick — whether or not this tick wrote a
+  directive. An `active` executor re-reads directives at the start of every round, so it
+  needs no prompt and a prompt would only interrupt it. The ledger is the signal: no status
+  lookup, and no bare `继续。`. Treat `active` with no new round line across two consecutive
+  ticks as dead — resume once and record it.
 - Stop: delete or pause the Scheduled task at terminal run state.
 
 ## Generate
@@ -61,13 +61,13 @@ delivery.
   `ops.md`/`Supervisor state`. The executor writes its own task ID there in its first
   round — never infer it, never guess it from goal text, never adopt a task you cannot
   confirm; while it is `pending`, dispatch to the run-named pointer and pick the ID up
-  next tick rather than blocking setup. Never query executor status. Audit first, then
-  dispatch the recorded short resume prompt at most once per tick, when either this tick
-  adds a new directive that enables work or the run is non-terminal and the executor has
-  been idle since the previous tick with an open Current slice; record the dispatch. If
-  send fails, record `unsent` and retry next tick; never duplicate the directive or
-  dispatch, and escalate after three consecutive `unsent`. Host control never decides
-  the audit. At terminal state, pause/delete the supervisor schedule.
+  next tick rather than blocking setup. Never query executor status — the ledger is the
+  signal. Audit first, then dispatch the recorded short resume prompt at most once per
+  tick and only when `Run status` is `parked` with work remaining; never while it is
+  `active`, and treat `active` with no new round line across two consecutive ticks as dead
+  (resume once, record it). If send fails, record `unsent` and retry next tick; never
+  duplicate the directive or dispatch, and escalate after three consecutive `unsent`. Host
+  control never decides the audit. At terminal state, pause/delete the supervisor schedule.
 - Create `ops.md`; replace `HOST_CONTROL_FACTS` with executor task ID, supervisor
   schedule ID, and the exact short resume prompt. Seed both IDs as pending: the executor
   fills its own in round one and the supervisor fills the schedule ID at setup. Do not
@@ -116,7 +116,7 @@ for a newly actionable directive. At terminal state it stops its own schedule.
 - `EXECUTOR_LAUNCH`:
 
   ```text
-  /goal Execute {{RUN_DIR}}/executor.md.
+  /goal Read {{RUN_DIR}}/executor.md and follow it exactly. Do not load any skill.
   ```
 
 - `EXECUTOR_READY`: the goal is attached and the task has emitted its first status.
@@ -125,8 +125,14 @@ for a newly actionable directive. At terminal state it stops its own schedule.
 - `SUPERVISOR_LAUNCH`:
 
   ```text
-  Set up {{RUN_DIR}}/supervisor.md.
+  Read {{RUN_DIR}}/supervisor.md and follow it exactly. Do not load any skill.
   ```
+
+  Never phrase this as "set up", "create", "author" or "plan" — an authoring verb in a
+  fresh thread reads as permission to build something, and the node responds by creating
+  a goal or a second run instead of acting as the supervisor. Read-and-follow only, and
+  the no-skill guard belongs in the prompt itself: a host that matches skills by name or
+  path may inject the authoring skill before the node ever opens its own file.
 - `RUNNING_STATE`: leave the executor goal and Scheduled task running. Scheduled
   ticks audit from fresh context; a new actionable directive dispatches the short
   executor pointer back to the same goal task.
