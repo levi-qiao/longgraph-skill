@@ -124,7 +124,11 @@ Decide from context what you reasonably can and state the assumption; anything g
 - Replace every placeholder and delete guidance comments. Keep paths inside the run directory.
 - Keep host launch prompts to a pointer plus the host primitive (`/goal`, schedule,
   process). Put behavior in `executor.md`/`supervisor.md`, never duplicate it in the
-  handoff prompt.
+  handoff prompt. Two words matter in every launch prompt: **read-and-follow, never an
+  authoring verb** ("set up", "create", "author", "plan" read as permission to build
+  something, and a fresh node answers by creating a goal or a second run) — and **"do not
+  load any skill"**, because a host that matches skills by name or path can inject the
+  authoring skill before the node opens its own file.
 - Compile an `ops.md` Context index before writing the first ledger slice. Each row
   names when to read it, exact source pointers, and exact verification. Make the
   ledger Current slice and every directive cite those rows.
