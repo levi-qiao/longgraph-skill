@@ -3,7 +3,9 @@ loop-graph template: ops.md — durable environment facts.
 The executor node consults this instead of re-deriving build/env/data facts every round.
 Only create this file if there ARE non-trivial facts worth pinning. Keep it factual.
 It is ambient context, not a timeline: runtime nodes read it; the author/owner updates
-superseded facts in place rather than appending history. Git is the history.
+superseded facts in place rather than appending history. Git is the history. The single
+exception is the host-control block at the bottom, where each node records its own
+control ID once so the peers can find each other.
 Red line: secrets / credentials / real data content NEVER go in this file — only policy
 about them (where they come from, that they're env-injected, that they never get logged).
 -->
@@ -52,6 +54,15 @@ archives. Never bulk-open an authority document when an exact heading/symbol is 
 
 {{If the run's work changes the resource footprint, record the bounded analysis here so it's not re-litigated: what's the bottleneck, what extra memory/CPU/disk/network it needs, and why it's bounded.}}
 
+## Spend budget (only when the run performs expensive or metered work)
+
+{{Exact numbers, not adjectives: the per-pilot and per-batch cap, the per-day cap, and
+the unit they are counted in (items, calls, currency). State that diagnostic reruns
+count too. "Spend beyond budget" is typically an owner-only decision — an undeclared
+budget makes that tripwire unenforceable, so declare it or delete this section.}}
+
 {{HOST_CONTROL_FACTS — insert only durable IDs and control facts required by the
 selected host reference. Never place instructions, secrets, or transient status here;
-delete this block when no host-control facts are required.}}
+delete this block when no host-control facts are required. This block is the one part
+of this file a runtime node may write, and only to record its own control ID once
+(each node writes its own, never another's) — everything else stays author-owned.}}

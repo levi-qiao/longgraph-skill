@@ -61,7 +61,7 @@ Interview in the user's language and mirror it in the prose inside the artifacts
 
 ## How to run it
 
-**Step 1 — Discover, then interview.** Before asking anything, inspect the workspace and current system/tool context. Infer the current authoring host, project root, repos, branches, dirty state, repo instructions, likely gates, and any explicit goal/constraints. **Never ask the user which client or host this is when the system context already identifies it.**
+**Step 1 — Discover, then interview.** Before asking anything, inspect the workspace and current system/tool context. Infer the current authoring host, project root, repos, branches, dirty state, repo instructions, likely gates, and any explicit goal/constraints. **Never ask the user which client or host this is when the system context already identifies it.** Capture the dirty-state baseline before this session changes anything — whatever you go on to move, archive, generate, or delete becomes indistinguishable from the owner's uncommitted work unless your own paths are enumerated in the ledger's starting snapshot.
 
 Ask one short batch of at most three questions containing only unresolved owner
 decisions. Propose the answer; do not ask the owner to design it. If more than three
@@ -70,8 +70,8 @@ defer the rest. Ask a follow-up only when the run would otherwise be unsafe or
 unverifiable:
 
 1. **North Star and proof**, only when the request does not already imply a checkable outcome. Offer one concise recommended wording.
-2. **Authority**, only where not already stated. Recommended default: local edits and verification allowed; no push, destructive git, production/remote mutation, secret or real-data exposure, unbounded spend, or lowering an acceptance bar. Ask whether commits are allowed only when the run needs them.
-3. **Milestones**, only when two materially different decompositions exist. Present the recommended phase split and exit checks as A; offer B only when it changes the outcome or risk. Single goal means no milestone question.
+2. **Authority**, only where not already stated. Recommended default: local edits and verification allowed; no push, destructive git, production/remote mutation, secret or real-data exposure, unbounded spend, or lowering an acceptance bar. Ask whether commits are allowed only when the run needs them. When the run performs metered or expensive work, put the actual numbers in `ops.md` — "spend beyond budget" is an owner-only tripwire, and an undeclared budget makes it unenforceable.
+3. **Milestones**, only when two materially different decompositions exist. Present the recommended phase split and exit checks as A; offer B only when it changes the outcome or risk. Single goal means no milestone question. Sequence so the smallest slice that unblocks the main line comes first: a large enabling refactor placed ahead of the delivery milestone concentrates risk and delays every proof behind it. Split such a milestone into the narrow unblocking part and a remainder that runs alongside the main line instead of in front of it.
 4. **Launch mode**, unless the user already chose it: **A (Recommended) — create both runtime nodes here on the detected Codex or Claude Code host**; **B — print copy-ready prompts only**. Ask target hosts only for B or when the user explicitly requests a cross-host run.
 
 Do not ask for repo paths, branches, host, test commands, red lines, or supervisor interval when they are discoverable. If a gate is missing or ambiguous after inspection, propose the narrowest credible command and ask one A/B choice. Long-horizon loop-graph runs include the clean-context supervisor by default; ask whether to omit it only when its value is genuinely doubtful.
@@ -128,7 +128,7 @@ Decide from context what you reasonably can and state the assumption; anything g
 - Compile an `ops.md` Context index before writing the first ledger slice. Each row
   names when to read it, exact source pointers, and exact verification. Make the
   ledger Current slice and every directive cite those rows.
-- Tune convergence; otherwise use `CONVERGE_EVERY=5`, `NET_LINE_CAP=400`, `KEEP_ROUNDS=5`, `OPEN_DIRECTIVE_CAP=8`, and `CHAIN_BUDGET=8` where context carries.
+- Tune convergence; otherwise use `CONVERGE_EVERY=5`, `NET_LINE_CAP=400`, `KEEP_ROUNDS=5`, `OPEN_DIRECTIVE_CAP=8`, `CHAIN_BUDGET=8` where context carries, and `ROUNDS_PER_ACTIVATION=2` on hosts where one activation closes several rounds. Raise the last one only when supervisor ticks are far apart; an unbounded activation is unsteerable.
 - Fill host-control placeholders from the selected reference; delete unused blocks. Host-specific facts belong in references, not in the generic templates.
 - Render [`templates/handoff.md`](templates/handoff.md) only as the chat response. It
   is a presentation template, not a runtime artifact: never save `handoff.md` in the
