@@ -1,18 +1,18 @@
 <!--
 loop-graph template: directives.md — the ONE-WAY corrections edge.
-Seeded near-empty at generation time into the run directory. The supervisor node
-(or the designated owner when no supervisor exists) is its single writer; the
-executor node reads it each round and folds numbered items after
-its ledger watermark into the round — it never writes this file. This live queue
-contains one supervisor-owned comparison baseline, the fixed-at-generation STANDING subjects, and at most
-{{OPEN_DIRECTIVE_CAP|8}} not-yet-folded corrections. A policy change replaces
-its subject in place; it never grows STANDING with runtime history. Before adding signals, the designated writer moves
-folded corrections into 100-ID cold shards such as
-`archive/directives-0001-0100.md`; normal audit logic never loads those shards.
-The directives writer performs only a targeted ID check while rotating.
-The executor's ledger stores the highest fully applied D-xxx as
-`Last directive folded`; number the next correction from the greater of that
-watermark or the live IDs. Preserve ordering across rotation.
+Seeded near-empty at generation time into the run directory. The supervisor node (or the
+designated owner when no supervisor exists) is its single writer; the executor node reads
+it whole every round and folds numbered items above its ledger watermark — it never
+writes this file.
+
+This is a LIVE QUEUE, not a log. It holds the supervisor's state line, the STANDING
+authority block, and at most {{OPEN_DIRECTIVE_CAP|8}} not-yet-folded corrections —
+nothing else, and never more than {{FILE_LINE_CAP|200}} lines. Before appending, the
+writer moves every correction at or below the ledger's `Last directive folded` watermark
+verbatim into `archive/directives.md` and deletes it here; normal audit logic never loads
+that archive. Number the next correction from the greater of the watermark and the
+highest live ID, so a rotated ID is never reused. A policy change rewrites its STANDING
+subject in place; STANDING never accumulates runtime history.
 On a successor run, reset Supervisor state and copy still-in-force STANDING items.
 -->
 
@@ -20,7 +20,7 @@ On a successor run, reset Supervisor state and copy still-in-force STANDING item
 
 ## Supervisor state (updated in place; executor ignores)
 
-Last completed tick: none | audited through round: 0 | repo tips: pending | last dispatched directive: none
+Last completed tick: none | audited through round: 0 | repo tips: pending
 
 ## STANDING — authority only (always in force; treat like red lines)
 
@@ -38,7 +38,7 @@ Last completed tick: none | audited through round: 0 | repo tips: pending | last
 
 ## Corrections (numbered; live queue = not-yet-folded only)
 
-<!-- One compact context packet; point, do not restate source material.
+<!-- One compact packet, at most eight lines; point, do not restate source material.
 Format: D-001 · <date> · <accept|redo|plan|stop>
 Context: <ops context IDs + exact paths/symbols/evidence>
 Action: <one bounded action>

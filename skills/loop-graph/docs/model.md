@@ -15,7 +15,7 @@ This is the checkable definition of drift: **drift = load-bearing state that sta
 
 Code-review test for a new template: does this node derive X from its own prior rounds' context instead of reading it from the ledger? → bug.
 
-Runtime test for the same law: most loop hosts hand a round the *previous* round's context (see the selected [host reference](../references/)), so a node can silently start leaning on it — and the violation only surfaces when the host truncates the chain mid-item. **Forcing a context reset at a boundary the run chooses is how the Law gets enforced instead of assumed**: if a deliberate reset loses anything, that thing was load-bearing state which never made it onto an edge. Cheaper rounds are the side effect, not the reason.
+Runtime test for the same law: most loop hosts hand a round the *previous* round's context (see the selected [host reference](../references/)), so a node can silently start leaning on it — and the violation only surfaces when the host truncates the chain mid-item. **The fire boundary is where the Law gets tested**: a node ends its turn, its timer brings it back, and whatever it can no longer reconstruct from the ledger, the directives file and `ops.md` was load-bearing state that never made it onto an edge. Warm context is a cache, never a store.
 
 The convergence tracker (#7) and the milestone gate (#11) both work because they moved a computed predicate — "should I converge?", "may I advance?" — from the executor's mental arithmetic onto the state edge where a stateless re-activation reads it cold.
 
@@ -43,8 +43,8 @@ A node is a specialized agent role. Each node is described by a tuple:
 
 | Role | Model | Activation | Reads | Writes | Authority | Stops when |
 |------|-------|------------|-------|--------|-----------|------------|
-| **Executor** | cheap/fast | per-round (adaptive or interval) | ledger, directives, ambient | ledger | implementation decisions | ledger reaches `exit-ready` or `closed` |
-| **Supervisor** | strong | cadence (e.g. 30min) | ledger, git diff, ambient | directives | drift corrections, acceptance, plan adjustments | nothing left to commit |
+| **Executor** | cheap/fast | own timer; N verified rounds per fire | ledger, directives, ambient | ledger | implementation decisions | ledger reaches `exit-ready`, `stalled`, or `closed` |
+| **Supervisor** | strong | own timer, 3–4× the executor's | ledger, git diff, ambient | directives | drift corrections, acceptance, plan adjustments | ledger terminal after a final audit |
 | **Scout** | cheap/fast | on-demand (research brief in directives) | ledger (read-only), ambient, external | findings | advisory — options + tradeoffs, no plan/impl changes | brief answered, cap hit, or blocked |
 
 `authority` is the field #9 exposed as missing: "who decides X without escalating?" The executor decides *how* to implement; the supervisor decides *whether* the work meets acceptance criteria; the owner decides DDL, credentials, red-line exceptions.
@@ -80,7 +80,7 @@ Why state, not signal? The scout overwrites its findings file as it refines (par
 
 **Ambient context** — read-only files that exist before and after a run: `ops.md`, `AGENTS.md`/`CLAUDE.md`, lint config, the templates themselves. Nobody writes them *between* nodes at runtime; they don't carry information along a run's timeline. They're the repo, not the graph.
 
-The live signal file is a bounded queue, not the audit archive: it holds current STANDING policy plus unconsumed directives. The consumer watermark acknowledges ordered signals; the single writer moves acknowledged entries into ID-sharded cold archives. This preserves the one-way edge and full history without charging every future tick for old corrections.
+The live signal file is a bounded queue, not the audit archive: it holds current STANDING policy plus unconsumed directives. The consumer watermark acknowledges ordered signals; before each append the single writer moves every acknowledged entry into the cold archive. Rotating against the watermark — a condition that arrives on its own — is what keeps this bounded; rotating at a fixed shard size is a rule that can wait forever while the live queue grows past the point where a reader still reads all of it.
 
 The test: can you determine "reuse an existing edge vs create a new one" using only state + signal? Yes — #9 proved it. The proposed `gates.md` had signal discipline (ordered, supervisor → executor) but its content was a single flag (pass/fail per milestone) → that's a field on the state edge (`ledger.md`). Two types were enough.
 

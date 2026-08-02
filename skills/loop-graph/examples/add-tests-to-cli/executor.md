@@ -43,7 +43,7 @@ Any bug found while writing a test goes into the ledger's debt register with a p
 
 ## Stop & escalate
 
-- **Normal stop**: all documented forms tested and green, full suite green → write a promotion request and ask: **A (Recommended)** accept the verified result, or **B** keep the run parked. The owner can reply `A` or `B`.
+- **Normal stop**: all documented forms tested and green, full suite green → write a promotion request and ask: **A (Recommended)** accept the verified result, or **B** keep the run open for more edge cases. The owner can reply `A` or `B`.
 - **Blocked**: an ambiguous spec in `docs/date-formats.md` (what should `"next fri"` mean on a Friday?) → log under `owner-blocked`, do another item.
 - **Stall guard**: two rounds with no scoreboard change → stop with a stall diagnosis.
 

@@ -1,35 +1,38 @@
 <!--
 loop-graph template: ledger.md — THE SINGLE SCOREBOARD (shared state between nodes).
 The executor node rewrites this every round; the supervisor node only reads it.
-Keep it COMPACT: it is re-read every round, so its size is a per-round token tax — and on
-a host whose rounds resume the previous round, each re-read is also carried forward, so
-an unbounded Rounds log makes every round cost more than the last (O(n²) over a run).
-Hard rule: keep only the last {{KEEP_ROUNDS|5}} round entries here;
-when a new round pushes past that, move the oldest into a 100-round cold shard
-such as `archive/rounds-0001-0100.md` (never re-read each round). Carry durable
-facts in the "Starting snapshot" below; update the durable sections in place,
-never by appending.
+Keep it COMPACT: it is re-read every round, so its size is a per-round token tax — and
+because the executor's context carries across rounds and fires, each re-read is also
+carried forward, so an unbounded log makes every round cost more than the last.
+Hard rules: the whole file stays under {{FILE_LINE_CAP|200}} lines; the Rounds log keeps
+only the last {{KEEP_ROUNDS|5}} entries and the excess is appended verbatim to
+`archive/rounds.md` (never re-read). Carry durable facts in the "Starting snapshot"
+below; update durable sections in place, never by appending.
 -->
 
 # {{PROJECT}} — Octopus Ledger
 
 > This ledger is the run's only scoreboard. Authority order: {{AUTHORITY_LAYERS}} > this ledger. Environment facts: `ops.md`. Corrections from the supervisor: `directives.md`.
-> Rounds log holds only the last {{KEEP_ROUNDS|5}} rounds; older rounds live in 100-round shards under `archive/` — don't open them unless debugging. Everything a fresh round needs is the snapshot + durable sections below.
+> Older rounds live in `archive/rounds.md` — don't open it unless debugging. Everything a fresh round needs is the snapshot + durable sections below.
 
 ## Status header
 
 Current milestone: {{M1 or "single goal"}} | Round: 0 (starts at 1) | Last round net lines: —
 Smallest unclosed item: {{FIRST_ITEM}}
 Last directive folded: none   <!-- highest numbered D-xxx fully applied; advance only after its action/state change is recorded -->
-Convergence: fires at {{CONVERGE_EVERY|5}} rounds since last **or** +{{NET_LINE_CAP|400}} net lines, whichever first | since last: 0 rounds / +0 net | **next round converges: no**
-Context chain: 0 of {{CHAIN_BUDGET|8}} rounds since last reset   <!-- Keep only when the selected host reference says rounds carry context. The executor +1s it each round and zeroes it after forcing a context reset — at a milestone boundary, after a convergence round, or on reaching the budget. Purpose: reset where the run chooses instead of where the host chops. -->
 
-Milestone gate: `open`   <!-- open | pending-audit | passed. Only meaningful for multi-milestone runs with a supervisor; single-goal / no-supervisor runs leave it `n/a`. The executor sets it `pending-audit` when it closes the current milestone's last exit condition (promotion requested, executor keeps looping — does NOT advance); the supervisor re-verifies the boundary and, on pass, appends an acceptance directive; the executor flips it `passed` only when that directive lands, and only then starts the next milestone. Advancing while this is `pending-audit` is a red line. -->
-Run status: `active`   <!-- active | parked | paused | exit-ready | stalled | closed. A terminal status (exit-ready/stalled/closed) is the signal for both loops to stop themselves. `parked` means the executor ended an activation lawfully and is waiting to be re-entered: NOT terminal, and on a host that cannot self-resume it is the supervisor's cue to dispatch even with nothing to correct. The executor sets it when it parks and back to `active` when it takes real work. Note: `pending-audit` on the Milestone gate is NOT a Run status — the executor parks, the run stays live. -->
+Convergence tracker: rounds since last {{CONVERGE_EVERY|5}}: **0** | net lines since last +{{NET_LINE_CAP|400}}: **+0** | **next round converges: no**
+<!-- Durable state, not arithmetic the executor redoes. It updates all three fields every
+round and flips the flag to `yes` when either counter is reached; the next round is then
+the convergence round, after which both counters and the flag reset. A `yes` carried past
+one round is a defect the supervisor orders repaid. -->
+
+Milestone gate: `open`   <!-- open | pending-audit | passed. Only meaningful for multi-milestone runs with a supervisor; single-goal / no-supervisor runs leave it `n/a`. The executor sets it `pending-audit` when it closes the current milestone's last exit condition (promotion requested — it does NOT advance, but the rest of the run keeps moving under the blocked-work rule); the supervisor re-verifies the boundary and, on pass, appends an acceptance directive; the executor flips it `passed` only when that directive lands, and only then starts the next milestone. Advancing while this is `pending-audit` is a red line. -->
+Run status: `active`   <!-- active | exit-ready | stalled | closed. A terminal status (exit-ready/stalled/closed) is the signal for both nodes to stop their own timers. There is no waiting state: each node runs on its own timer, so an activation that finds nothing legal to do simply ends and the next fire looks again. -->
 
 ---
 
-## Current slice (the next activation starts here)
+## Current slice (the next round starts here)
 
 Item: {{FIRST_ITEM}}
 Write set: {{exact paths or "read-only"}}
@@ -81,10 +84,8 @@ Evidence: {{terse exit-condition evidence}}
 
 <!-- Only items with NO standing authorization. If a STANDING pre-authorization in
      directives.md covers the action and its evidence bar is met, execute it — it does
-     not belong here. This list is for calls that truly need the owner case by case. -->
-
-<!-- Keep each row compact, but prepare enough structure for the supervisor to emit
-     a plain-language choice card without making the owner reconstruct the issue. -->
+     not belong here. Keep each row compact, but structured enough that the supervisor
+     can emit a plain-language choice card without the owner reconstructing the issue. -->
 
 | ID | Decision in plain language | Recommended choice | Other choice(s) | Why now |
 | --- | --- | --- | --- | --- |
@@ -92,47 +93,26 @@ Evidence: {{terse exit-condition evidence}}
 
 ## Debt & gap register (log every gap here; never silently fix or ignore)
 
-<!-- Active gaps only. When a gap closes, record its closure in the current round
-and remove its row; the round later rotates into the cold archive. Never hide an
-unresolved gap merely to shrink this table.
-This table is also the executor's fallback queue: when the Current slice blocks, it
-takes the next row here that meets the blocked-work conditions instead of parking.
-Keep rows concrete enough to be picked up that way — a one-line gap nobody can act on
-is a park waiting to happen. Cap {{GAP_CAP|12}} live rows: past that, merge duplicates
-and fold anything no longer actionable into the Starting snapshot as one line. An
-unbounded register is re-read every round and becomes its own tax. -->
+<!-- Active gaps only. When a gap closes, record its closure in the current round and
+remove its row. This table is also the executor's fallback queue: when the Current slice
+blocks, it takes the next row here that meets the blocked-work conditions instead of
+ending the fire. Keep rows concrete enough to be picked up that way — a one-line gap
+nobody can act on is dead air waiting to happen. Cap {{GAP_CAP|12}} live rows: past that,
+merge duplicates and fold anything no longer actionable into the Starting snapshot as one
+line. Seed this register at generation with enough real, independent work that the
+executor always has a legal next item. -->
 
 | ID | Priority | Milestone | One line |
 | --- | --- | --- | --- |
 | GAP-001 | P? | {{M?}} | {{...}} |
 
-## Gate-wait backlog (optional; seed at generation, never add at runtime)
-
-<!-- Work here is allowed only while Milestone gate = pending-audit. List an item
-only when it has: no dependency on the current milestone verdict, next milestone,
-or another backlog item; an exact write set disjoint from the promotion audit
-surface, planned next-milestone write set, and every other backlog write set; no
-shared/global surfaces (dependencies, lockfiles, schemas, generated files, gate
-config, or public contracts); one-round scope; and a narrow verification that
-creates no tracked changes outside that write set. If any condition is uncertain,
-omit it. A gap discovered during execution stays in Debt & gap register and never
-moves here. -->
-
-| ID | Boundary | Task + real consumer | Exact write set | Narrow verification | Status |
-| --- | --- | --- | --- | --- | --- |
-| GW-001 | {{M1→M2}} | {{optional independent task + consumer}} | {{exact paths}} | {{command / check}} | ready / done / accepted / skipped |
-
-<!-- After an accepted/skipped verdict is folded and recorded in the current
-round, remove that row. Future-boundary rows remain. -->
-
-## Rounds log — last {{KEEP_ROUNDS|5}} only (older → `archive/rounds-NNNN-NNNN.md`)
+## Rounds log — last {{KEEP_ROUNDS|5}} only (older → `archive/rounds.md`)
 
 <!-- ONE TERSE LINE per round — this section is re-read every round, so keep it small.
 When appending would exceed {{KEEP_ROUNDS|5}} lines, cut the oldest and append it
-verbatim to the 100-round shard containing its round ID
-(`archive/rounds-0001-0100.md`, then `0101-0200.md`, ...). Never let history pile
-up here or in one unbounded archive file. Line format: -->
+verbatim to `archive/rounds.md`. Line format: -->
 <!-- - R<n> <date> | <item> | changed: <exact paths> | verify: <result/evidence pointer> | net +x/-y | next: <item + context IDs> -->
+<!-- Tag a convergence round `CONVERGE` so the supervisor can confirm it fired. -->
 
 <!-- You MAY keep only the CURRENT round as a short multi-line block when it carries
 detail the supervisor must see this tick (e.g. a promotion request's evidence);

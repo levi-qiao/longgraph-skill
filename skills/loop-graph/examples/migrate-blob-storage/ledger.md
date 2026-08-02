@@ -7,9 +7,9 @@
 Current milestone: M3 cutover — owner-only DDL | Round: 9 | Last round net lines: +18/−4
 Smallest unclosed item: M3 (owner-only: drop the blob column)
 Last directive folded: D-003
-Convergence: fires at 5 rounds since last or +400 net lines, whichever first | since last: 4 rounds / +58 net | **next round converges: no**
+Convergence tracker: rounds since last 5: **4** | net lines since last +400: **+58** | **next round converges: no**
 Milestone gate: `passed` (D-002 acceptance directive released M2→M3 boundary in Round 8)
-Run status: `owner-blocked`
+Run status: `active` (OB-001 outstanding; the fire ended with no legal item left, the next one re-checks)
 
 ---
 
@@ -47,18 +47,14 @@ release, using more storage but delaying the destructive step. Reply with `A` or
 
 ## Debt & gap register
 
-(none — GAP-001 closure is recorded in Round 9)
+(none — GAP-001 closure is recorded in Round 9; GAP-002 closure in Round 8)
 
-## Gate-wait backlog (fixed at generation)
+## Rounds log — last 5 only (older → `archive/rounds.md`)
 
-(none — GW-001 acceptance is recorded in Round 8)
-
-## Rounds log — last 5 only
-
-- R5 2026-07-20 | forced convergence; D-001 reopens M2 self-reported proof | gate: green | net +6/−47 | open: D-001, GAP-001 | next: D-001
+- R5 2026-07-20 | CONVERGE; D-001 reopens M2 self-reported proof | gate: green | net +6/−47 | open: D-001, GAP-001 | next: D-001
 - R6 2026-07-20 | D-001 independent set diff + checksum sample; repaired 3 swallowed rows | gate: green | net +31/−9 | open: GAP-001 | next: M2 promotion
-- R7 2026-07-20 | M2 pending-audit + GW-001 access policy | gate: green | net +22/−0 | open: M2/GW audits, GAP-001 | next: directives
-- R8 2026-07-20 | folded D-002/D-003; M2 passed, GW-001 accepted | gate: green | net +0/−0 | open: M3 owner DDL, GAP-001 | next: GAP-001
+- R7 2026-07-20 | M2 pending-audit; lane: GAP-002 staging access policy (docs-only, disjoint from the audit surface) | gate: green | net +22/−0 | open: M2 audit, GAP-001 | next: directives
+- R8 2026-07-20 | folded D-002/D-003; M2 passed, GAP-002 accepted | gate: green | net +0/−0 | open: M3 owner DDL, GAP-001 | next: GAP-001
 
 ### Round 9 — 2026-07-20
 - **Item**: GAP-001 — serve-path content-type sniffing
@@ -67,4 +63,4 @@ release, using more storage but delaying the destructive step. Reply with `A` or
 - **Verify**: smoke green; the 3 truncated rows serve with the safe fallback
 - **Net lines**: +18/−4
 - **Open**: M3 DDL only — owner-only.
-- **Next**: run is `owner-blocked` pending owner sign-off.
+- **Next**: nothing legal left in the lane — fire ended with OB-001 awaiting the owner's `A`/`B`.
