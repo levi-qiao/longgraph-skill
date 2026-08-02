@@ -8,4 +8,4 @@
 
 <!-- Format: D-001 · <date> — one-line problem → expected action -->
 
-(none — folded through D-003; history is in `archive/directives-0001-0100.md`)
+(none — folded through D-003; history is in `archive/directives.md`)

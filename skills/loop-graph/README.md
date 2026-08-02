@@ -43,11 +43,11 @@ The graph is designed to grow beyond these two roles — see the [roadmap](#road
 The nodes communicate only through inspectable state — a ledger, a git tree, a one-way directives file — so the discipline is enforced by the wiring:
 
 - **One scoreboard.** `ledger.md` is the single source of truth. When code, docs and ledger disagree, the ledger is fixed first.
-- **Bounded live files.** The ledger keeps current state and only the latest rounds; `directives.md` keeps fixed-at-generation policy subjects and a capped queue of unconsumed corrections. Folded directives and old rounds rotate into 100-ID shards under `archive/`, which normal nodes never read.
+- **Bounded live files.** The ledger keeps current state and only the latest rounds; `directives.md` keeps fixed-at-generation policy subjects and a capped queue of unconsumed corrections. Rotation is keyed to a cap that is always reached — rounds past the keep-window, corrections at or below the folded watermark — and every live file has a hard line cap, so no edge can grow until a node truncates its read and misses the newest entry. Cold history lands in `archive/`, which normal nodes never read.
 - **One item per round**, verified the same round, then logged. No batching, no deferred testing.
 - **Forced convergence, tracked in the ledger.** A convergence round — no new features, net lines ≤ 0 — fires on whichever comes first: every Nth round (default 5) or once accumulated net lines cross the cap (default 400). The trigger is an explicit flag in the scoreboard, not a modulo the stateless loop must recompute, so it can't be silently skipped — and the supervisor audits that it happened.
 - **Register-then-defer.** Gaps found mid-round are logged, not silently patched or ignored.
-- **Useful gate waits, frozen up front.** At generation, the author may seed one-round backlog items whose exact write sets and dependencies are provably disjoint from the milestone under audit, the next milestone, shared/global surfaces, and each other. The executor can do one while `pending-audit`; the supervisor audits it separately, so it cannot blur or delay milestone promotion.
+- **Blocked is not stopped.** An owner decision, a missing input, a milestone under audit — none of them ends the activation. The executor records the blocker and takes the next *already-registered* item whose write set is disjoint from the blocked surface, the audit surface, and every other item taken this way; the supervisor audits that lane separately, so it can neither blur nor delay milestone promotion.
 - **Red lines that halt the run.** No unauthorized push, no destructive git on others' work, no secrets in commits, frozen contracts stay frozen, metrics never regress.
 - **Independent acceptance audit.** The supervisor re-verifies claimed-done work from its clean context — re-running the gates and checking the real diff against the acceptance bar and the shared standards (`ops.md`, `AGENTS.md`/`CLAUDE.md`) — and corrects drift, fake-done, wasteful method, or a stale plan only through the directives file. It never edits the ledger and never shares the executor's context. It commits what passes and decides by default; only a short owner-only list escalates to you.
 - **Pre-adjudicated authority.** Owner-only decisions on the goal's critical path (e.g. dropping dead tables when the goal *is* slimming the schema) are settled up front in the interview into a **standing authorization** — an objective evidence bar the loop acts under autonomously — so the run executes its own work instead of stalling on "proposals awaiting sign-off". Only genuinely case-by-case calls escalate to you.
@@ -100,11 +100,11 @@ A *node* is a role — executor, supervisor. A *host* repeatedly invokes it. A n
 - **The ledger is a live file, not host text.** Hand the loop a thin pointer at the run files; it re-reads them each round — never fold the ledger into the host's own prompt text, where it goes stale. A host's progress UI *mirrors* the ledger; it never replaces it, and the ledger wins every conflict.
 - **The supervisor runs outside the executor's context.** A host may use a separate schedule, cron tick, or a fresh audit subagent created by an independent harness; it never audits from inside the executor's loop.
 
-Hosts pace two ways. Adaptive hosts continue when a round returns; interval hosts use a delay sized from one round plus its gate.
+**Each node runs on its own timer and never wakes the other.** The executor fires, closes several verified rounds on warm context, ends; the supervisor fires on a slower cadence, audits, appends corrections, ends. A correction is folded on the executor's next fire. There is no dispatch, no resume prompt and no liveness protocol — so a tick with nothing to say is a complete tick, not a missed heartbeat, and an unreachable peer costs one interval rather than the run.
 
-Hosts also differ in **what a round starts from**, and that drives what a run costs. Almost none boots a round cold — most resume the previous round — so finer rounds are *not* cheaper. `/octopus` reads only the selected file under [`references/`](references/) to size rounds and plan resets.
+Hosts also differ in **what a fire starts from**, and that drives what a run costs. Almost none boots cold — most resume the previous fire — so finer rounds are *not* cheaper, and batching several rounds into one warm fire is. `/octopus` reads only the selected file under [`references/`](references/) to size the cadence and the rounds-per-fire batch.
 
-Scheduled loops **stop themselves** when the run is done. Exact launch, wake, and stop behavior comes from the selected host reference.
+Each loop **stops its own timer** when the run is done. Exact launch and stop behavior comes from the selected host reference.
 
 ## Quickstart
 
@@ -143,11 +143,11 @@ Each run gets a fresh `.octopus/<date-slug>/` in your repo:
 | File | Written by | Role |
 | --- | --- | --- |
 | `executor.md` | generated once | The executor prompt — the loop's thin pointer target. Encodes the loop's self-stop. |
-| `ledger.md` | the executor, every round | Single source of truth: goals, gates, round log, open gaps, and any preplanned Gate-wait backlog. Read this to follow the run. |
+| `ledger.md` | the executor, every round | Single source of truth: goals, gates, convergence tracker, round log, open gaps. Read this to follow the run. |
 | `directives.md` | the supervisor; owner if unsupervised | Bounded one-way queue: current STANDING policy + unconsumed corrections. The designated writer rotates folded entries. |
 | `ops.md` | generated once; author/owner updates in place | Current environment, build and data facts; runtime nodes read it as ambient context. |
 | `supervisor.md` | generated once | The supervisor prompt; the selected host reference defines scheduling and self-stop. |
-| `archive/*.md` | the writer of the corresponding live edge | Cold, 100-ID history shards for folded directives and old rounds; normal nodes never read them. |
+| `archive/*.md` | the writer of the corresponding live edge | Cold history for folded directives and old rounds; normal nodes never read them. |
 
 ## When to use it
 

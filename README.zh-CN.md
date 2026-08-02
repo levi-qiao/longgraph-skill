@@ -143,7 +143,7 @@ owner 决策，再编译 loop-graph run。选择“直接创建”后，它会�
 | 角色 | 职责 | 持久边 |
 | --- | --- | --- |
 | **执行者** | 每轮只做一个 ledger 条目，同轮验证，再记录结果 | 读写 `ledger.md` |
-| **监督者** | 从清洁上下文重新验证、为通过的工作建立 checkpoint，并纠正漂移 | 只读 ledger；只写 directives 边（live queue + cold shards） |
+| **监督者** | 在独立上下文中重新验证、为通过的工作建立 checkpoint，并纠正漂移 | 只读 ledger；只写 directives 边（live queue + cold archive） |
 | **侦察者**（可选） | 在关键路径之外研究一个有边界的问题 | 写 findings 文件，仅在 ledger 引用时读取 |
 
 最关键的规则是：**一个节点 = 一段提示词 + 一条单写者边。** ledger 永远只有一个写者。

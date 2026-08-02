@@ -17,28 +17,25 @@ prompts; do not ask the owner to diagnose the client.
 
 ## Runtime shape
 
-- Executor: one background session with `/loop {{EXEC_INTERVAL}}` pointing at
-  `executor.md`; one verified ledger round per fire.
-- Supervisor harness: a second background session with `/loop {{SUP_INTERVAL}}`.
-  On every fire it spawns **one brand-new subagent** to execute one `supervisor.md`
-  tick. The harness never audits or edits files itself; the fresh subagent is the
-  supervisor node.
-- Both background sessions use a session-only
-  `{"worktree":{"bgIsolation":"none"}}` override so they share the current checkout.
-  Never change project/user settings and never let either session move to a separate
-  worktree.
-- Executor and harness conversations carry context. The actual supervisor is fresh
-  every tick because it is a new subagent. Delete both `CONTEXT_RESET_STEP` blocks;
-  rely on the bounded ledger and Claude Code's normal compaction for the executor.
-- No cross-session wake is needed: the executor's next loop fire folds new
-  directives. Each loop stops itself at terminal state; `claude stop <session-id>` is
-  the host-level fallback.
+Two background sessions, two `/loop` timers, no wake edge between them.
 
-Replace `HOST_DRIVE_STEP` with one-round-per-fire behavior. Replace
-`HOST_CONTROL_STEP` with: do not audit in the harness; spawn a new subagent for each
-tick, let only that subagent execute `supervisor.md`, and at terminal state stop the
-recorded supervisor background session. Create `ops.md` and replace
-`HOST_CONTROL_FACTS` with the executor and supervisor background session IDs.
+- Executor: one background session running `/loop {{EXEC_INTERVAL}}` against
+  `executor.md`. Its conversation carries between fires, so a fire closes up to
+  `{{ROUNDS_PER_FIRE}}` rounds on warm context.
+- Supervisor harness: a second background session running `/loop {{SUP_INTERVAL}}`. On
+  every fire it spawns **one brand-new subagent** to execute one `supervisor.md` tick and
+  then ends the fire. The harness never audits or edits files itself; the fresh subagent
+  is the supervisor node, which is what makes this host's supervisor genuinely fresh
+  per tick.
+- Both background sessions use a session-only `{"worktree":{"bgIsolation":"none"}}`
+  override so they share the current checkout. Never change project/user settings and
+  never let either session move to a separate worktree.
+- No cross-session wake: the executor's next loop fire folds new directives, and each
+  loop stops itself at terminal state. `claude stop <session-id>` is the fallback.
+
+Delete `TIMER_STEP` from both node files — `/loop` already carries the interval, and
+each loop's own stop condition is the terminal ledger status. Delete the `ops.md` Timers
+section and record the two background session IDs there instead.
 
 ## Create both nodes here
 
@@ -65,8 +62,9 @@ Use this path only after the owner selects direct creation. Do not ask again.
 ## Fill the generic handoff
 
 - `EXECUTOR_PROMPT`: `/loop {{EXEC_INTERVAL}} Execute the existing runtime node at
-  {{RUN_DIR}}/executor.md; do exactly one ledger round per fire, re-read the durable
-  files first, and stop this loop when the ledger is terminal.`
+  {{RUN_DIR}}/executor.md; re-read the durable files first, close up to
+  {{ROUNDS_PER_FIRE}} verified ledger rounds this fire, and stop this loop when the
+  ledger is terminal.`
 - `SUPERVISOR_PROMPT`: `/loop {{SUP_INTERVAL}} On every fire, spawn one brand-new
   subagent with no inherited conversation to execute exactly one tick of
   {{RUN_DIR}}/supervisor.md. The harness must not audit or edit files itself. Wait for

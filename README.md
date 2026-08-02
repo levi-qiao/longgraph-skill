@@ -153,7 +153,7 @@ executes it. Generated nodes follow their frozen run contract under
 | Role | Responsibility | Durable edge |
 | --- | --- | --- |
 | **Executor** | Works one ledger item, verifies it in the same round, then records the result | Reads and writes `ledger.md` |
-| **Supervisor** | Re-verifies from a clean context, checkpoints passing work, and corrects drift | Reads the ledger; writes only the directives edge (live queue + cold shards) |
+| **Supervisor** | Re-verifies from its own separate context, checkpoints passing work, and corrects drift | Reads the ledger; writes only the directives edge (live queue + cold archive) |
 | **Scout** *(optional)* | Researches a bounded question away from the critical path | Writes a findings file read only on reference |
 
 The load-bearing rule is **one node = one prompt + one single-writer edge**.

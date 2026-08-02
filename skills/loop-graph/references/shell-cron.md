@@ -8,8 +8,8 @@ Read only for nodes hosted by an agent CLI under shell or cron.
 - Prefer a sequential loop: run one round to closure, inspect ledger terminal state,
   then sleep. Use cron only when its lock and job-removal commands are already known.
 - Stop with `break` or remove the cron job at terminal state.
-- Delete `HOST_DRIVE_STEP`, `CONTEXT_RESET_STEP`, and `HOST_CONTROL_STEP`; each
-  process is already fresh and the wrapper owns scheduling and stop.
+- Delete `TIMER_STEP` and the `ops.md` Timers section; each process is already fresh and
+  the wrapper owns scheduling and stop.
 
 ## Fill the generic handoff
 
@@ -20,7 +20,7 @@ Read only for nodes hosted by an agent CLI under shell or cron.
 
   ```sh
   while :; do
-    {{EXECUTOR_CLI_COMMAND}} "Read {{RUN_DIR}}/executor.md and do one ledger round"
+    {{EXECUTOR_CLI_COMMAND}} "Read {{RUN_DIR}}/executor.md and follow it exactly"
     grep -qE '^Run status: `(exit-ready|stalled|closed)`' {{RUN_DIR}}/ledger.md && break
     sleep {{EXEC_INTERVAL}}
   done

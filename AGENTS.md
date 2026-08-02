@@ -10,8 +10,8 @@ A **curated, opinionated prompt library** for long-horizon agent work, framed as
 is no build step and no runtime. One umbrella (`/octopus`) checks whether the
 method fits, then delegates to one authoring skill:
 
-- **`skills/loop-graph/`** — an executor node + a clean-context supervisor node driven
-  by two loops (for `/loop`-capable hosts).
+- **`skills/loop-graph/`** — an executor node + a separate-context supervisor node, each
+  on its own recurring timer, with no wake edge between them.
 
 Simple self-contained goals use the host's ordinary task/goal directly; octopus
 does not wrap them in a second objective.
@@ -43,10 +43,14 @@ node/edge vocabulary + invariants). The contribution bar is in [`CONTRIBUTING.md
    New abstraction/config in a template needs a concrete motivating case.
 3. **Don't break the load-bearing shape.** The graph's invariants are the product:
    single scoreboard (`ledger` = **exactly one writer**); one item per round → verify
-   same round → update ledger; forced convergence; register-then-defer; hard stop
-   conditions; absolute red lines; the supervisor is a **clean-context** node that
-   steers only through the **one-way directives edge**, never editing the ledger or
-   sharing the executor's context. Tune the numbers, not the shape.
+   same round → update ledger; forced convergence off durable state; register-then-defer;
+   hard stop conditions; absolute red lines; **one self-driving timer per node and no
+   wake edge between them**; the supervisor steers only through the **one-way directives
+   edge**, never editing the ledger or sharing the executor's context. Tune the numbers,
+   not the shape.
+   Every durable section rotates on a cap that is always reached — never on a boundary
+   that may never arrive (a fixed shard size, the next milestone). An edge that can only
+   grow eventually gets truncated on read, and a truncated edge loses signals silently.
 4. **Node = one prompt + one single-writer edge.** To add a role: propose in an issue
    with its tuple first, give it its **own** edge (never partition an existing one),
    keep it **off the hot path** (only the ledger is read every round; new edges are read

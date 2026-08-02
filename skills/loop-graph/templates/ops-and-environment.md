@@ -4,8 +4,9 @@ The executor node consults this instead of re-deriving build/env/data facts ever
 Only create this file if there ARE non-trivial facts worth pinning. Keep it factual.
 It is ambient context, not a timeline: runtime nodes read it; the author/owner updates
 superseded facts in place rather than appending history. Git is the history. The single
-exception is the host-control block at the bottom, where each node records its own
-control ID once so the peers can find each other.
+exception is the Timers block at the bottom, where each node records the ID of its own
+timer so it can stop it at terminal state.
+Keep this file under {{FILE_LINE_CAP|200}} lines.
 Red line: secrets / credentials / real data content NEVER go in this file — only policy
 about them (where they come from, that they're env-injected, that they never get logged).
 -->
@@ -68,12 +69,15 @@ the unit they are counted in (items, calls, currency). State that diagnostic rer
 count too. "Spend beyond budget" is typically an owner-only decision — an undeclared
 budget makes that tripwire unenforceable, so declare it or delete this section.}}
 
-{{HOST_CONTROL_FACTS — insert only durable IDs and control facts required by the
-selected host reference. Never place instructions, secrets, or transient status here;
-delete this block when no host-control facts are required. This block is the one part
-of this file a runtime node may write, and only its own control ID (each node writes its
-own, never another's) — everything else stays author-owned.
-The IDs are self-healing, not write-once: a node overwrites its own field whenever the
-recorded value is not itself, and never trusts a recorded value without confirming it is
-reachable from where it is running. Relaunching a node into a fresh session is normal, and
-a stale pointer left in place is what silently strands a run against a dead peer.}}
+## Timers
+
+<!-- Each node owns one recurring timer and writes only its own ID here, on its first
+invocation, so it can stop that timer at terminal state. No node reads the other's row —
+nothing wakes anything, and a stale ID belonging to a session you are not in is simply
+replaced by the one you create. Delete this section on a host whose launch command
+already carries the interval (nothing to create and nothing to record). -->
+
+| Node | Interval | Timer ID |
+| --- | --- | --- |
+| executor | {{EXEC_INTERVAL}} | pending |
+| supervisor | {{SUP_INTERVAL}} | pending |
