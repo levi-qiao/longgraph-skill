@@ -45,6 +45,12 @@ status, stop your own timer.
   disagreement papered over, a cold sub-task spawned for work the executor already had
   context for or run on the expensive tier — and the reverse, obviously independent
   reads ground through serially.
+- **Termination is a check, not an event.** If every North Star row reads green while
+  `Run status` is still `active`, the run is finished and nobody said so — both timers
+  are burning on completed work. Verify the goal really is met, then either accept and
+  set your own stop, or issue a `stop` directive telling the executor to record
+  `exit-ready`. Symmetrically, a `stalled` status you did not verify is not terminal
+  until you confirm it.
 - **Two mechanical checks, every tick.** *Convergence:* a `next round converges: yes`
   carried past one round with no `CONVERGE` round line — or a tagged convergence round
   that added features or net lines >0 — is a `redo` ordering it before any further
