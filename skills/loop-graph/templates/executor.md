@@ -156,10 +156,24 @@ C — <only if distinct>
 Reply with: A / B / C
 ```
 
-Two closed slices with no change outside the ledger — no gate, metric, worktree or
-commit movement — may be stalled, and lane rounds count: a round that only writes
-findings into the ledger is not progress. `pending-audit` and in-flight work are not
-stalls. Terminal statuses are `exit-ready`, `stalled`, or `closed`.
+## Ending the run
+
+Reaching the goal is a state you must **write down**, not just achieve. Nothing else can
+end this run: both timers stop on a terminal ledger status and on nothing else, so a
+goal that is met but never recorded leaves both nodes firing forever against finished
+work.
+
+- `exit-ready` — every North Star row is green with recorded evidence and no gap row
+  blocks it. Record the closing evidence, set it, and stop your timer. The supervisor
+  runs one final audit and stops its own.
+- `stalled` — two closed slices with no change outside the ledger (no gate, metric,
+  worktree or commit movement). Lane rounds count: a round that only writes findings
+  into the ledger is not progress. `pending-audit` and in-flight work are not stalls.
+  Set it with a stall diagnosis and the outstanding asks.
+- `closed` — the supervisor's final acceptance has landed, or the owner ended the run.
+
+Check these before taking a new slice, not after. Finishing the last item and starting a
+sixth round of invented polish is the failure this rule exists to prevent.
 
 ## Red lines
 
