@@ -21,7 +21,10 @@ about them (where they come from, that they're env-injected, that they never get
 
 <!-- Compile this at authoring time. Prefer exact files, symbols, headings, and gate
 commands over prose. Every live ledger item and supervisor correction points to one
-or more IDs here; nodes follow those pointers instead of searching the workspace. -->
+or more IDs here; nodes follow those pointers instead of searching the workspace.
+Index only what is specific to this run. A repo that already routes its own rules
+(`AGENTS.md`, `CLAUDE.md`, a docs map) is one row pointing at that file — re-listing
+what it routes doubles the per-fire tax and drifts the moment the repo moves. -->
 
 | ID | Use when | Read | Verify |
 | --- | --- | --- | --- |

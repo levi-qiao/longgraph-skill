@@ -102,6 +102,9 @@ section is a defect, not a style choice. In the same round you write a file, fix
 - Keep {{KEEP_ROUNDS|5}} live round lines and {{GAP_CAP|12}} live gap rows. Append excess
   rounds verbatim to `archive/rounds.md`; merge duplicate gaps and fold dead ones into
   the Starting snapshot. Never read archives during normal execution.
+- The Starting snapshot is where the other sections drain, so it needs a drain of its
+  own: a closed milestone's carried detail collapses to one evidence line the round its
+  gate is accepted. Compact it on every convergence round, not only when it hits the cap.
 - Durable sections are rewritten in place. Never record history by appending.
 - Always hot: ledger hot sections, the directives file, `ops.md`'s index. Everything else
   is on-reference through that index. Do not reopen unchanged files or paste full logs,
