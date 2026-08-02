@@ -58,7 +58,10 @@ workspace rediscovery and must stay under six lines. -->
   work you did not create" silently protects the wrong set. Say how each side is to be
   resolved,
 - still-in-force constraints distilled from any prior directives.
-Keep it tight.}}
+Keep it tight. This section is the sink other sections fold into, so it is also the one
+that silently grows forever: it must drain too. A fact belongs here only while it still
+changes what the executor does next — the moment its milestone is accepted, the detail
+that supported it collapses to one evidence line and the rest goes.}}
 
 ---
 
