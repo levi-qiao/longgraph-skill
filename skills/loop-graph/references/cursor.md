@@ -22,8 +22,8 @@ Read only for nodes hosted in Cursor.
   supervisor on the selected fresh-context host.
 - `EXECUTOR_DESTINATION`: Cursor executor session.
 - `EXECUTOR_LAUNCH`: `/loop {{EXEC_INTERVAL}} Execute the existing runtime node at
-  {{RUN_DIR}}/executor.md; close up to {{ROUNDS_PER_FIRE}} verified ledger rounds this
-  fire and stop when the ledger is terminal.`
+  {{RUN_DIR}}/executor.md; carry the current milestone as far as it goes this fire, ending at a seam, and stop when
+  the ledger is terminal.`
 - `EXECUTOR_READY`: the loop is registered and its first round begins.
 - `SUPERVISOR_DESTINATION`: copy from the selected supervisor host's reference.
 - `SUPERVISOR_LAUNCH`: copy from the selected supervisor host's reference.

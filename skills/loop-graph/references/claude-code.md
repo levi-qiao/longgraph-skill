@@ -20,8 +20,8 @@ prompts; do not ask the owner to diagnose the client.
 Two background sessions, two `/loop` timers, no wake edge between them.
 
 - Executor: one background session running `/loop {{EXEC_INTERVAL}}` against
-  `executor.md`. Its conversation carries between fires, so a fire closes up to
-  `{{ROUNDS_PER_FIRE}}` rounds on warm context.
+  `executor.md`. Its conversation carries between fires, so one fire carries the
+  current milestone as far as it goes on warm context.
 - Supervisor harness: a second background session running `/loop {{SUP_INTERVAL}}`. On
   every fire it spawns **one brand-new subagent** to execute one `supervisor.md` tick and
   then ends the fire. The harness never audits or edits files itself; the fresh subagent
@@ -62,9 +62,9 @@ Use this path only after the owner selects direct creation. Do not ask again.
 ## Fill the generic handoff
 
 - `EXECUTOR_PROMPT`: `/loop {{EXEC_INTERVAL}} Execute the existing runtime node at
-  {{RUN_DIR}}/executor.md; re-read the durable files first, close up to
-  {{ROUNDS_PER_FIRE}} verified ledger rounds this fire, and stop this loop when the
-  ledger is terminal.`
+  {{RUN_DIR}}/executor.md; re-read the durable files first, carry the
+  current milestone as far as it goes this fire, ending at a seam, and stop this loop
+  when the ledger is terminal.`
 - `SUPERVISOR_PROMPT`: `/loop {{SUP_INTERVAL}} On every fire, spawn one brand-new
   subagent with no inherited conversation to execute exactly one tick of
   {{RUN_DIR}}/supervisor.md. The harness must not audit or edit files itself. Wait for

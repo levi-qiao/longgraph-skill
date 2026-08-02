@@ -10,8 +10,8 @@ Two `/loop` tasks, two timers, no wake edge between them.
   `/loop [interval] <thin pointer>` task against the same workspace.
 - Interval units are `Ns`, `Nm`, `Nh`, or `Nd`; minimum recurring interval is 60s.
   Overlapping fires are skipped. Recurring tasks expire after seven days.
-- Background loops resume their prior transcript, so an executor fire closes up to
-  `{{ROUNDS_PER_FIRE}}` rounds on warm context. Every tenth fire resets with only a short
+- Background loops resume their prior transcript, so one executor fire carries the current
+  milestone as far as it goes on warm context. Every tenth fire resets with only a short
   carried status — the ledger is what survives that, which is why nothing load-bearing
   may live in the transcript.
 - The supervisor is context-separate from the executor, which is the load-bearing
@@ -30,8 +30,8 @@ Two `/loop` tasks, two timers, no wake edge between them.
   supervisor against the same workspace.
 - `EXECUTOR_DESTINATION`: executor loop task.
 - `EXECUTOR_LAUNCH`: `/loop {{EXEC_INTERVAL}} Execute the existing runtime node at
-  {{RUN_DIR}}/executor.md; close up to {{ROUNDS_PER_FIRE}} verified ledger rounds this
-  fire and stop this loop when the ledger is terminal.`
+  {{RUN_DIR}}/executor.md; carry the current milestone as far as it goes this fire, ending at a seam, and stop this
+  loop when the ledger is terminal.`
 - `EXECUTOR_READY`: Grok returns the executor task ID.
 - `SUPERVISOR_LAUNCH`: `/loop {{SUP_INTERVAL}} Execute exactly one tick of
   {{RUN_DIR}}/supervisor.md; force a fresh transcript for every audit tick.`
