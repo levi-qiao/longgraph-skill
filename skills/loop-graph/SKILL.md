@@ -101,7 +101,7 @@ Use at most three mutually exclusive options. Put the safest reversible option f
 
 - [Claude Code](references/claude-code.md)
 - [Codex](references/codex.md)
-- [Grok](references/grok.md)
+- [Grok Build](references/grok.md)
 - [Cursor](references/cursor.md)
 - [shell / cron](references/shell-cron.md)
 

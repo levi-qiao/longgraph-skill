@@ -2,7 +2,7 @@
 
 # longgraph
 
-**面向 Claude Code / Cursor / Codex / Grok 的长周期智能体 skill。**
+**面向 Claude Code / Cursor / Codex / Grok Build 的长周期智能体 skill。**
 
 用持久 ledger、清洁上下文监督者与可验证闸门，抑制 agent 漂移。
 同一 loop 可持续消化多个长任务（不必彼此相关）；中途换宿主时，
@@ -13,21 +13,20 @@
 [![GitHub stars](https://img.shields.io/github/stars/levi-qiao/longgraph-skill?style=flat-square&color=6C63FF)](https://github.com/levi-qiao/longgraph-skill/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-14B8A6?style=flat-square)](LICENSE)
 [![欢迎 PR](https://img.shields.io/badge/PRs-welcome-22C55E?style=flat-square)](CONTRIBUTING.md)
-![宿主：Claude Code · Grok · Cursor · Codex](https://img.shields.io/badge/Hosts-Claude%20Code%20·%20Grok%20·%20Cursor%20·%20Codex-111827?style=flat-square)
-![类型：Claude Code skill · 提示词库](https://img.shields.io/badge/Type-Claude%20Code%20skill%20·%20prompt%20library-0EA5E9?style=flat-square)
-
+![宿主：Claude Code · Cursor · Codex · Grok Build](https://img.shields.io/badge/Hosts-Claude%20Code%20·%20Cursor%20·%20Codex%20·%20Grok%20Build-111827?style=flat-square)
+![类型：agent skill · 提示词库](https://img.shields.io/badge/Type-agent%20skill%20·%20prompt%20library-0EA5E9?style=flat-square)
 [English](README.md) · 简体中文
 
 </div>
 
 <img alt="执行者与清洁上下文监督者两个 loop 并排运行" src="assets/graph.png" width="100%" />
 
-**longgraph**（`longgraph-skill`）是一套精选的 **Claude Code skill / 智能体 skill**
-与跨宿主 **提示词库**，面向 **长周期 / long-horizon** 智能体任务——多小时编码、
-多里程碑迁移、**同一 loop 里持续消化多个长任务**（彼此不必相关），以及任何会撑破
-单次上下文窗口的工作。它是 **面向 agent 的图工程**：把执行者、监督者、侦察者等
-专门角色，用持久、可检查的文件连成小图——**不是**又一个编排运行时。记分牌在磁盘上，
-因此可以 **中途换宿主**：打开同一工作区，重发已固化的节点提示词，即可继续。
+**longgraph**（`longgraph-skill`）是一套精选的 **智能体 skill** 与跨宿主
+**提示词库**，面向 **长周期 / long-horizon** 智能体任务——多小时编码、多里程碑迁移、
+**同一 loop 里持续消化多个长任务**（彼此不必相关），以及任何会撑破单次上下文窗口的
+工作。它是 **面向 agent 的图工程**：把执行者、监督者、侦察者等专门角色，用持久、可检查的
+文件连成小图——**不是**又一个编排运行时。记分牌在磁盘上，因此可以 **中途换宿主**：
+打开同一工作区，重发已固化的节点提示词，即可继续。
 
 > **一张持久图，跨宿主运行。** 简单、自包含的目标直接交给宿主的普通 task
 > 或 goal；longgraph 只在持久图结构真正有价值时出场。
@@ -65,11 +64,11 @@ Git 复算命令见[自迭代案例](skills/loop-graph/examples/self-iteration-l
 - **长周期 agent** 在上下文压缩 / 会话重置后仍能继续推进
 - 需要 **持久任务 ledger**（唯一记分牌），而不是靠聊天记忆记进度
 - **一个 loop 里连续做多个长任务**——队列式推进，任务之间可以不相关
-- **宿主可换、进度不断**——Claude Code ↔ Cursor ↔ Codex ↔ Grok 中途切换，对着同一批文件重发提示词即可
+- **宿主可换、进度不断**——Claude Code ↔ Cursor ↔ Codex ↔ Grok Build 中途切换，对着同一批文件重发提示词即可
 - 需要 **独立的清洁上下文监督者**——而不是同一 agent 自评
 - **可验证的完成**：针对真实产物重跑验收门，而不是自我报告 “done”
 - 多里程碑、**不可跳过闸门**、明确的 owner 红线
-- 需要跨 **Claude Code · Cursor · Codex · Grok** 的 **Markdown skill / 提示词库**
+- 需要跨 **Claude Code · Cursor · Codex · Grok Build** 的 **Markdown skill / 提示词库**
 
 ### 什么时候*不要*用
 
@@ -85,8 +84,9 @@ Git 复算命令见[自迭代案例](skills/loop-graph/examples/self-iteration-l
 | 单条超长 prompt / 单个 skill | 否 | 无（自评） | 弱（聊天记忆） | 弱——进度跟着会话死 |
 | **longgraph（本仓库）** | **否——纯 Markdown** | **有（监督者节点）** | **有（`ledger.md`）** | **有——文件即 run，重发提示词即可** |
 
-相关搜索词：*长周期智能体 skill*、*防止 agent 漂移*、*多任务 agent loop*、
-*中途切换 AI 编程宿主*、*Claude Code 多 agent 监督*、*agent ledger*、*loop skill*、
+相关搜索词：*longgraph skill*、*长周期智能体 skill*、*long-horizon agent skill*、
+*防止 agent 漂移*、*多任务 agent loop*、*中途切换 AI 编程宿主*、
+*Claude Code 多 agent 监督*、*Grok Build agent loop*、*agent ledger*、*loop-graph*、
 *agent 图工程*、*清洁上下文复审*。
 
 ## 为什么需要 longgraph
@@ -106,7 +106,8 @@ Git 复算命令见[自迭代案例](skills/loop-graph/examples/self-iteration-l
   选择题，而不是一份技术作业。
 
 它是 Markdown 提示词，不是编排框架：无需应用运行时、服务端或厂商绑定。
-可作为 **Claude Code 插件**安装，或 symlink 到 Cursor / Codex / Grok。
+可作为 **Claude Code 插件**安装，用 install 脚本 symlink 到 **Codex / Cursor**，
+或在 **Grok Build**（及其他宿主）上走 prompts-only（见各宿主 reference）。
 
 ## 多任务 loop 与中途换宿主
 
@@ -147,34 +148,30 @@ Git 复算命令见[自迭代案例](skills/loop-graph/examples/self-iteration-l
 
 ### Codex 或 Cursor
 
-安装库并链接到支持的宿主：
+安装库，并把 `/longgraph`（以及遗留 `/octopus`）symlink 到会跟随链接的宿主：
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
 ```
 
-从本地克隆安装时，在仓库根目录运行 `./install.sh`。
+本地克隆时，在仓库根目录运行 `./install.sh`。
+
+### Grok Build（及其他 prompts-only 宿主）
+
+若要直接创建节点，请在 Claude Code 或 Codex 上生成；或选择 prompts-only，把已固化的
+执行者 / 监督者指针粘进 [Grok Build](skills/loop-graph/references/grok.md) 的
+`/loop` 任务（共用同一 run 目录）。Cursor 与 shell/cron 同样走 prompts-only——见
+[宿主兼容性](#宿主兼容性)。
 
 ### 设计一次 run
 
 调用 `/longgraph`。它会自动识别 Codex 或 Claude Code、先检查工作区，只询问无法推断的
 owner 决策，再编译 loop-graph run。选择“直接创建”后，它会在当前宿主启动两个运行节点；
-选择 prompts-only 才需要手动或跨宿主启动。也可以直接调用 `loop-graph`。
+选择 prompts-only 才需要手动或跨宿主启动（含 Grok Build）。也可以直接调用 `loop-graph`。
 
 生成期与运行期严格分离：author skill 只编译，不执行。生成的节点遵循
 `.longgraph/<日期-slug>/` 下已固化的本次 run 契约。
 
-## 从 octopus 更名
-
-| 曾经（遗留 / 仍接受） | 现在（主品牌） |
-| --- | --- |
-| 产品 `octopus`、仓库 `octopus-skill` | **longgraph**、仓库 **longgraph-skill** |
-| 斜杠 `/octopus` | **`/longgraph`**（install 仍会把 `/octopus` symlink 到同一树） |
-| 插件 `octopus@octopus-skill` | **`longgraph@longgraph-skill`** |
-| run 目录 `.octopus/<日期-slug>/` | **`.longgraph/<日期-slug>/`**（进行中的 `.octopus/` run 原位继续） |
-| 契约 `octopus.loop-graph.*` | **`longgraph.loop-graph.*`**（已有文件上的旧头仍属同一契约族） |
-
-GitHub 更名会重定向旧的 clone/curl URL。请重新跑一次 `install.sh` 或重装插件，让磁盘上的主名称生效。
 ## 这张图怎么运行
 
 | 角色 | 职责 | 持久边 |
@@ -195,13 +192,25 @@ GitHub 更名会重定向旧的 clone/curl URL。请重新跑一次 `install.sh`
 | --- | --- |
 | [**Codex**](skills/loop-graph/references/codex.md) | ✅ 自动识别宿主并直接创建两个运行节点 |
 | [**Claude Code**](skills/loop-graph/references/claude-code.md) | ✅ 自动识别宿主；能力检查通过后直接创建两个后台运行会话 |
-| [**Grok**](skills/loop-graph/references/grok.md) | 仅作为 prompts-only 执行目标 |
+| [**Grok Build**](skills/loop-graph/references/grok.md) | prompts-only — 两个 `/loop` 任务（执行者 + 监督者），无 wake 边 |
 | [**Cursor**](skills/loop-graph/references/cursor.md) | 仅作为 prompts-only 执行目标 |
 | [**shell / cron**](skills/loop-graph/references/shell-cron.md) | 仅作为 prompts-only 执行目标 |
 
 权威语法、节奏行为、上下文携带模型和宿主 hook 分别维护在
 [按宿主拆分的 reference](skills/loop-graph/references/) 中；生成时只加载选中的宿主。
 中途换宿主时复用同一套持久 run 目录，变的只是每一 tick 如何启动。
+
+## 从 octopus 更名
+
+| 曾经（遗留 / 仍接受） | 现在（主品牌） |
+| --- | --- |
+| 产品 `octopus`、仓库 `octopus-skill` | **longgraph**、仓库 **longgraph-skill** |
+| 斜杠 `/octopus` | **`/longgraph`**（install 仍会把 `/octopus` symlink 到同一树） |
+| 插件 `octopus@octopus-skill` | **`longgraph@longgraph-skill`** |
+| run 目录 `.octopus/<日期-slug>/` | **`.longgraph/<日期-slug>/`**（进行中的 `.octopus/` run 原位继续） |
+| 契约 `octopus.loop-graph.*` | **`longgraph.loop-graph.*`**（已有文件上的旧头仍属同一契约族） |
+
+GitHub 更名会重定向旧的 clone/curl URL。请重新跑一次 `install.sh` 或重装插件，让磁盘上的主名称生效。
 
 ## 仓库地图
 

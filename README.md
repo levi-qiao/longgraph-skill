@@ -2,7 +2,7 @@
 
 # longgraph
 
-**Long-horizon agent skill for Claude Code, Cursor, Codex & Grok.**
+**Long-horizon agent skill for Claude Code, Cursor, Codex & Grok Build.**
 
 Stop agent drift with a durable ledger, a clean-context supervisor, and verified gates.
 Queue many long tasks in one loop — even unrelated ones — and keep going after a host switch
@@ -13,8 +13,8 @@ Design once → compile a durable loop-graph → verify all the way to done.
 [![GitHub stars](https://img.shields.io/github/stars/levi-qiao/longgraph-skill?style=flat-square&color=6C63FF)](https://github.com/levi-qiao/longgraph-skill/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-14B8A6?style=flat-square)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-22C55E?style=flat-square)](CONTRIBUTING.md)
-![Hosts: Claude Code · Grok · Cursor · Codex](https://img.shields.io/badge/Hosts-Claude%20Code%20·%20Grok%20·%20Cursor%20·%20Codex-111827?style=flat-square)
-![Type: Claude Code skill · prompt library](https://img.shields.io/badge/Type-Claude%20Code%20skill%20·%20prompt%20library-0EA5E9?style=flat-square)
+![Hosts: Claude Code · Cursor · Codex · Grok Build](https://img.shields.io/badge/Hosts-Claude%20Code%20·%20Cursor%20·%20Codex%20·%20Grok%20Build-111827?style=flat-square)
+![Type: agent skill · prompt library](https://img.shields.io/badge/Type-agent%20skill%20·%20prompt%20library-0EA5E9?style=flat-square)
 
 English · [简体中文](README.zh-CN.md)
 
@@ -22,11 +22,11 @@ English · [简体中文](README.zh-CN.md)
 
 <img alt="Executor and clean-context supervisor loops running side by side" src="assets/graph.png" width="100%" />
 
-**longgraph** (`longgraph-skill`) is a curated **Claude Code skill / agent skill** and
-cross-host **prompt library** for **long-running / long-horizon** agent work —
-multi-hour coding, multi-milestone migrations, a **queue of long tasks in one
-loop** (they need not be related), and anything that outlives one context window.
-It is **graph engineering for agents**: specialized roles (executor · supervisor ·
+**longgraph** (`longgraph-skill`) is a curated **agent skill** and cross-host
+**prompt library** for **long-running / long-horizon** agent work — multi-hour
+coding, multi-milestone migrations, a **queue of long tasks in one loop** (they
+need not be related), and anything that outlives one context window. It is
+**graph engineering for agents**: specialized roles (executor · supervisor ·
 scout) connected through durable, inspectable files — not another orchestration
 runtime. Because the scoreboard lives on disk, you can **change hosts mid-run**:
 open the same workspace, re-send the frozen node prompt, and continue.
@@ -71,11 +71,11 @@ Reach for longgraph when you need any of:
 - A **long-horizon agent** that keeps working after context compaction / session resets
 - A **durable task ledger** (single scoreboard) instead of chat-memory progress
 - **Several long tasks in one loop** — a continuous queue, even when items are unrelated
-- **Host-portable continuity** — switch Claude Code ↔ Cursor ↔ Codex ↔ Grok mid-run by re-sending the prompt against the same files
+- **Host-portable continuity** — switch Claude Code ↔ Cursor ↔ Codex ↔ Grok Build mid-run by re-sending the prompt against the same files
 - An independent **clean-context supervisor** — not the same agent grading itself
 - **Verified done**: acceptance gates re-run against real output, not self-reported “done”
 - Multi-milestone work with **non-skippable gates** and explicit owner red lines
-- A **Markdown skill / prompt library** that works across **Claude Code · Cursor · Codex · Grok**
+- A **Markdown skill / prompt library** that works across **Claude Code · Cursor · Codex · Grok Build**
 
 ### When *not* to use this
 
@@ -91,9 +91,10 @@ Reach for longgraph when you need any of:
 | One mega-prompt / single skill | No | No (self-check) | Weak (chat memory) | Weak — progress dies with the session |
 | **longgraph (this repo)** | **No — Markdown only** | **Yes (supervisor node)** | **Yes (`ledger.md`)** | **Yes — files are the run; re-send the prompt** |
 
-Also called / related searches: *long-running agent skill*, *prevent agent drift*,
-*multi-task agent loop*, *switch AI coding host mid-task*, *Claude Code multi-agent
-supervisor*, *agent ledger*, *loop skill*, *graph engineering for
+Also called / related searches: *longgraph skill*, *long-horizon agent skill*,
+*long-running agent skill*, *prevent agent drift*, *multi-task agent loop*,
+*switch AI coding host mid-task*, *Claude Code multi-agent supervisor*,
+*Grok Build agent loop*, *agent ledger*, *loop-graph*, *graph engineering for
 agents*, *clean-context review*.
 
 ## Why longgraph
@@ -115,8 +116,9 @@ disappear from context. longgraph moves the safeguards outside the model’s mem
   recommended A/B/C choice, not a technical homework assignment.
 
 It is Markdown, not an orchestration framework: no application runtime, server,
-or vendor lock-in. Install it as a **Claude Code plugin** or symlink the skills
-into Cursor / Codex / Grok.
+or vendor lock-in. Install as a **Claude Code plugin**, symlink into **Codex /
+Cursor** (see install script), or run **prompts-only** on **Grok Build** (and
+other hosts) via the per-host references.
 
 ## Multi-task loops & switching hosts
 
@@ -158,37 +160,33 @@ Install the plugin from the marketplace:
 
 ### Codex or Cursor
 
-Install the library and symlink it into supported hosts:
+Install the library and symlink `/longgraph` (plus legacy `/octopus`) into hosts
+whose loaders follow symlinks:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
 ```
 
-To install from a local clone, run `./install.sh` from the repository root.
+From a local clone, run `./install.sh` at the repository root.
+
+### Grok Build (and other prompts-only hosts)
+
+Author on Claude Code or Codex when you want direct node creation, **or** choose
+prompts-only and paste the frozen executor / supervisor pointers into
+[Grok Build](skills/loop-graph/references/grok.md) `/loop` tasks (same run
+directory). Cursor and shell/cron use the same prompts-only path — see
+[host compatibility](#host-compatibility).
 
 ### Design a run
 
 Invoke `/longgraph`. It detects Codex or Claude Code, inspects the workspace, and asks
 only for unresolved owner decisions before compiling the run. Choose direct creation
 to have it start both same-host runtime nodes, or prompts-only for manual/cross-host
-launch. You can also invoke `loop-graph` directly.
+launch (including Grok Build). You can also invoke `loop-graph` directly.
 
 Authoring and runtime stay separate: the author skill compiles the work but never
 executes it. Generated nodes follow their frozen run contract under
 `.longgraph/<date-slug>/`.
-
-## Renamed from octopus
-
-| Was (legacy / still accepted) | Now (primary) |
-| --- | --- |
-| Product `octopus`, repo `octopus-skill` | **longgraph**, repo **longgraph-skill** |
-| Slash `/octopus` | **`/longgraph`** (install still symlinks `/octopus` → same tree) |
-| Plugin `octopus@octopus-skill` | **`longgraph@longgraph-skill`** |
-| Run dir `.octopus/<date-slug>/` | **`.longgraph/<date-slug>/`** (continue in-flight `.octopus/` runs in place) |
-| Contract `octopus.loop-graph.*` | **`longgraph.loop-graph.*`** (old headers on existing files still mean the same family) |
-
-GitHub renames redirect old clone/curl URLs (`…/octopus-skill/…` → `…/longgraph-skill/…`).
-Re-run `install.sh` or reinstall the plugin once so primary names win on disk.
 
 ## How the graph works
 
@@ -213,13 +211,26 @@ For the rationale behind every constraint, read
 | --- | --- |
 | [**Codex**](skills/loop-graph/references/codex.md) | ✅ detects the host and directly creates both runtime nodes |
 | [**Claude Code**](skills/loop-graph/references/claude-code.md) | ✅ detects the host and directly creates two background runtime sessions when capability checks pass |
-| [**Grok**](skills/loop-graph/references/grok.md) | prompts-only execution target |
+| [**Grok Build**](skills/loop-graph/references/grok.md) | prompts-only — two `/loop` tasks (executor + supervisor), no wake edge |
 | [**Cursor**](skills/loop-graph/references/cursor.md) | prompts-only execution target |
 | [**shell / cron**](skills/loop-graph/references/shell-cron.md) | prompts-only execution target |
 
 Authoritative syntax, pacing, context carry, and hooks live in separate
 [per-host references](skills/loop-graph/references/), so authoring loads only the selected host. Mid-run host switches reuse the same
 durable run directory; only how you start each tick changes.
+
+## Renamed from octopus
+
+| Was (legacy / still accepted) | Now (primary) |
+| --- | --- |
+| Product `octopus`, repo `octopus-skill` | **longgraph**, repo **longgraph-skill** |
+| Slash `/octopus` | **`/longgraph`** (install still symlinks `/octopus` → same tree) |
+| Plugin `octopus@octopus-skill` | **`longgraph@longgraph-skill`** |
+| Run dir `.octopus/<date-slug>/` | **`.longgraph/<date-slug>/`** (continue in-flight `.octopus/` runs in place) |
+| Contract `octopus.loop-graph.*` | **`longgraph.loop-graph.*`** (old headers on existing files still mean the same family) |
+
+GitHub renames redirect old clone/curl URLs (`…/octopus-skill/…` → `…/longgraph-skill/…`).
+Re-run `install.sh` or reinstall the plugin once so primary names win on disk.
 
 ## Repository map
 

@@ -1,6 +1,6 @@
 {
   "name": "longgraph-skill",
-  "description": "longgraph — author durable loop-graph runs for verified long-horizon execution.",
+  "description": "longgraph — long-horizon agent skill (Claude Code / Codex / Cursor / Grok Build): durable loop-graph runs with verified gates.",
   "owner": {
     "name": "levi-qiao",
     "url": "https://github.com/levi-qiao"

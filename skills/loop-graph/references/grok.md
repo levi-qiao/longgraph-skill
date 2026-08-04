@@ -1,6 +1,6 @@
-# Grok
+# Grok Build
 
-Read only for nodes hosted in Grok.
+Read only for nodes hosted in **Grok Build** (xAI’s agent TUI / CLI host).
 
 ## Runtime shape
 
@@ -32,7 +32,7 @@ Two `/loop` tasks, two timers, no wake edge between them.
 - `EXECUTOR_LAUNCH`: `/loop {{EXEC_INTERVAL}} Execute the existing runtime node at
   {{RUN_DIR}}/executor.md; carry the current milestone as far as it goes this fire, ending at a seam, and stop this
   loop when the ledger is terminal.`
-- `EXECUTOR_READY`: Grok returns the executor task ID.
+- `EXECUTOR_READY`: Grok Build returns the executor task ID.
 - `SUPERVISOR_LAUNCH`: `/loop {{SUP_INTERVAL}} Execute exactly one tick of
   {{RUN_DIR}}/supervisor.md; force a fresh transcript for every audit tick.`
 - `SUPERVISOR_DESTINATION`: separate supervisor loop task.

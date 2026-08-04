@@ -4,7 +4,7 @@
 
 **把长周期编码任务跑成一张智能体节点图，而不是一个会漂移的循环。**
 
-一个面向 Codex / [Claude Code](https://claude.com/claude-code) 的技能：把"让这个项目达到生产标准"这类模糊目标，拆成一个干活的执行节点和一个站在执行方上下文之外的监督节点，在漂移累积之前纠偏。
+一个面向 Codex / [Claude Code](https://claude.com/claude-code) / Grok Build 的技能：把"让这个项目达到生产标准"这类模糊目标，拆成一个干活的执行节点和一个站在执行方上下文之外的监督节点，在漂移累积之前纠偏。
 
 loop-graph 是 **graph engineering（图工程）** 的一次具体落地——从调教单个智能体循环，转向把分工明确的智能体角色接成一张图。目前是两个角色，后续会增加。
 
@@ -113,7 +113,7 @@ host 还有一个差别决定了一个 run 到底烧多少 token：**下一次�
    curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
    ```
 
-   <sub>装成单一 `/longgraph` 技能，Claude Code 和 Codex 都可用。</sub>
+   <sub>为 Codex / Cursor 创建 `/longgraph` symlink（并保留遗留 `/octopus`）。Claude Code 用插件安装。</sub>
 
 2. **在 Codex 或 Claude Code 中运行 `/longgraph`。** 它先识别当前宿主并检查工作区，只把无法推断的 owner 决策合成一小组问题。文件生成到全新的 `.longgraph/<日期-slug>/` 目录。（[每个文件的作用 →](#每次-run-生成的文件)）
 
@@ -121,7 +121,7 @@ host 还有一个差别决定了一个 run 到底烧多少 token：**下一次�
 
 4. **保留结果中列出的运行节点。** 到终态时，它们会使用识别到的宿主机制自行停止。
 
-在其他宿主上选择 prompts-only；模板也可以手动使用。
+在 **Grok Build**、Cursor 或 shell/cron 上选择 prompts-only，并使用对应的 [宿主 reference](references/)（Grok Build：两个 `/loop` 任务）。
 
 ## 仓库结构
 
