@@ -45,7 +45,7 @@ Use this path only after the owner selects direct creation. Do not ask again.
 2. Start the executor with a real background session, not a subagent:
 
    ```sh
-   claude --bg --name "Octopus executor — {{RUN_SLUG}}" \
+   claude --bg --name "longgraph executor — {{RUN_SLUG}}" \
      --settings '{"worktree":{"bgIsolation":"none"}}' \
      "{{EXECUTOR_PROMPT}}"
    ```
@@ -74,7 +74,7 @@ Use this path only after the owner selects direct creation. Do not ask again.
   create separate background sessions in the current checkout; do not open sessions
   or configure worktrees manually.
 - `EXECUTOR_DESTINATION`: project terminal.
-- `EXECUTOR_LAUNCH`: the complete `claude --bg --name "Octopus executor —
+- `EXECUTOR_LAUNCH`: the complete `claude --bg --name "longgraph executor —
   {{RUN_SLUG}}" --settings '{"worktree":{"bgIsolation":"none"}}'
   "{{EXECUTOR_PROMPT}}"` command.
 - `EXECUTOR_READY`: the command returns a session ID and `claude logs <id>` shows the

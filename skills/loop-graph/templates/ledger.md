@@ -10,7 +10,7 @@ only the last {{KEEP_ROUNDS|5}} entries and the excess is appended verbatim to
 below; update durable sections in place, never by appending.
 -->
 
-# {{PROJECT}} — Octopus Ledger
+# {{PROJECT}} — longgraph Ledger
 
 > This ledger is the run's only scoreboard. Authority order: {{AUTHORITY_LAYERS}} > this ledger. Environment facts: `ops.md`. Corrections from the supervisor: `directives.md`.
 > Older rounds live in `archive/rounds.md` — don't open it unless debugging. Everything a fresh round needs is the snapshot + durable sections below.

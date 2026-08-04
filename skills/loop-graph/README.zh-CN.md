@@ -60,7 +60,7 @@ Graph engineering 把结构移到模型之外：一张由分工明确、上下�
 
 ```mermaid
 flowchart LR
-    U([你]) -->|"/octopus" 面试| G[生成这张图]
+    U([你]) -->|"/longgraph" 面试| G[生成这张图]
     G --> EXE((执行节点<br/>廉价 · 每轮))
     G --> SUP((监督节点<br/>强模型 · 约 30 分钟<br/>干净上下文))
 
@@ -86,7 +86,7 @@ flowchart LR
 
 | 节点 | 频率 | 模型 | 原因 |
 | --- | --- | --- | --- |
-| 搭图（`/octopus` 面试） | 一次 | 你最强的模型 | 设计门禁、红线、里程碑靠判断力 |
+| 搭图（`/longgraph` 面试） | 一次 | 你最强的模型 | 设计门禁、红线、里程碑靠判断力 |
 | 执行节点 | 每轮 | 廉价/快的 agent——低价档、本地模型、开源 coder | 它只是照显式台账一步步走 |
 | 监督节点 | 每 ~30 分钟 | 强模型 | 冷读判漂移最难，但触发频率低 |
 
@@ -101,21 +101,21 @@ flowchart LR
 
 **每个节点跑在自己的定时器上，谁也不唤醒谁。** 执行节点定时触发，在热上下文里连做几轮已验证的 round，然后结束；监督节点按更慢的节奏触发，审计、追加纠偏，然后结束。纠偏会在执行节点的下一次触发时被折叠。没有派发、没有唤醒提示词、没有存活协议——所以“这一 tick 没什么可说的”是一次完整的 tick，而不是一次漏掉的心跳；对端不可达只损失一个间隔，而不是整个 run。
 
-host 还有一个差别决定了一个 run 到底烧多少 token：**下一次触发从什么上下文开始**。几乎没有 host 是冷启动，多数都接着上一次往下跑——所以**轮切得越细并不越省**，反而是把几轮塞进同一次热触发更省。`/octopus` 只读取 [`references/`](references/) 中选定宿主的文件，用它确定节奏与单次触发的轮数。
+host 还有一个差别决定了一个 run 到底烧多少 token：**下一次触发从什么上下文开始**。几乎没有 host 是冷启动，多数都接着上一次往下跑——所以**轮切得越细并不越省**，反而是把几轮塞进同一次热触发更省。`/longgraph` 只读取 [`references/`](references/) 中选定宿主的文件，用它确定节奏与单次触发的轮数。
 
-每个 loop 在跑完时都会**停掉自己的定时器**。具体启动和停止动作来自选中的宿主 reference；`/octopus` 会直接给出下一步和可复制提示词。
+每个 loop 在跑完时都会**停掉自己的定时器**。具体启动和停止动作来自选中的宿主 reference；`/longgraph` 会直接给出下一步和可复制提示词。
 
 ## 快速开始
 
-1. **安装** octopus 库（本技能包含在内）：
+1. **安装** longgraph 库（本技能包含在内）：
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/install.sh | sh
+   curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
    ```
 
-   <sub>装成单一 `/octopus` 技能，Claude Code 和 Codex 都可用。</sub>
+   <sub>装成单一 `/longgraph` 技能，Claude Code 和 Codex 都可用。</sub>
 
-2. **在 Codex 或 Claude Code 中运行 `/octopus`。** 它先识别当前宿主并检查工作区，只把无法推断的 owner 决策合成一小组问题。文件生成到全新的 `.octopus/<日期-slug>/` 目录。（[每个文件的作用 →](#每次-run-生成的文件)）
+2. **在 Codex 或 Claude Code 中运行 `/longgraph`。** 它先识别当前宿主并检查工作区，只把无法推断的 owner 决策合成一小组问题。文件生成到全新的 `.longgraph/<日期-slug>/` 目录。（[每个文件的作用 →](#每次-run-生成的文件)）
 
 3. **选择 A 直接在这里创建两个节点（推荐），或选择 B 只拿提示词。** 选 A 后，Codex 或 Claude Code 会直接创建并验证执行者和监督者，不再问你当前是什么客户端，也不用你手动新开会话。
 
@@ -129,10 +129,10 @@ host 还有一个差别决定了一个 run 到底烧多少 token：**下一次�
 
 | 路径 | 说明 |
 | --- | --- |
-| [`SKILL.md`](SKILL.md) | 技能入口：`/octopus` 背后的面试与生成流程。 |
+| [`SKILL.md`](SKILL.md) | 技能入口：`/longgraph` 背后的面试与生成流程。 |
 | [`templates/`](templates/) | 节点与边的模板，技能按 run 填充；脱离 Claude Code 也可手动使用。 |
 | [`methodology`](../../lib/methodology.md) | 设计依据：每条规则及其防范的失败模式。 |
-| [`examples/self-iteration-octopus-skill/`](examples/self-iteration-octopus-skill/) | **公开 Git 证据**——本 skill 自身多日打磨窗口（可用 commit 核验；不是私有客户 run）。 |
+| [`examples/self-iteration-longgraph-skill/`](examples/self-iteration-longgraph-skill/) | **公开 Git 证据**——本 skill 自身多日打磨窗口（可用 commit 核验；不是私有客户 run）。 |
 | [`examples/redacted-multiday-control-plane/`](examples/redacted-multiday-control-plane/) | **脱敏真实 run 模式**——只写多日控制面功能（ledger、清洁上下文审计、闸门、阻塞旁路、owner 卡）；无私有载荷。 |
 | [`examples/add-tests-to-cli/`](examples/add-tests-to-cli/) | 一次*虚构*完整样例 run——executor 与台账跑到第 3 轮。先看 ledger 形态可从这里开始。 |
 | [`examples/migrate-blob-storage/`](examples/migrate-blob-storage/) | 更长的*虚构*样例 run——里程碑、先试点再全量的回填、一次收敛轮、一条识破"自报证据"的监督指令，以及不可跳过的里程碑门禁实际运作过程。 |
@@ -140,7 +140,7 @@ host 还有一个差别决定了一个 run 到底烧多少 token：**下一次�
 
 ## 每次 run 生成的文件
 
-每次 run 在你的仓库里生成一个 `.octopus/<日期-slug>/`：
+每次 run 在你的仓库里生成一个 `.longgraph/<日期-slug>/`：
 
 | 文件 | 谁写 | 作用 |
 | --- | --- | --- |

@@ -61,7 +61,7 @@ No LangGraph, no Python runtime, no orchestration server: the nodes and edges ar
 
 ```mermaid
 flowchart LR
-    U([You]) -->|"/octopus" interview| G[Generate the graph]
+    U([You]) -->|"/longgraph" interview| G[Generate the graph]
     G --> EXE((Executor<br/>cheap · every round))
     G --> SUP((Supervisor<br/>strong · ~30 min<br/>clean context))
 
@@ -87,7 +87,7 @@ Because the nodes share no context, each can run on a different model. The disci
 
 | Node | Runs | Model | Why |
 | --- | --- | --- | --- |
-| Authoring (`/octopus` interview) | once | your best model | designing gates, red lines and milestones is the judgment call |
+| Authoring (`/longgraph` interview) | once | your best model | designing gates, red lines and milestones is the judgment call |
 | Executor | every round | a cheap / fast agent — a budget tier, a local model, an OSS coder | it follows an explicit ledger one step at a time |
 | Supervisor | every ~30 min | a strong model | judging a run from a cold read is the hardest call, but it fires rarely |
 
@@ -102,21 +102,21 @@ A *node* is a role — executor, supervisor. A *host* repeatedly invokes it. A n
 
 **Each node runs on its own timer and never wakes the other.** The executor fires, closes several verified rounds on warm context, ends; the supervisor fires on a slower cadence, audits, appends corrections, ends. A correction is folded on the executor's next fire. There is no dispatch, no resume prompt and no liveness protocol — so a tick with nothing to say is a complete tick, not a missed heartbeat, and an unreachable peer costs one interval rather than the run.
 
-Hosts also differ in **what a fire starts from**, and that drives what a run costs. Almost none boots cold — most resume the previous fire — so finer rounds are *not* cheaper, and batching several rounds into one warm fire is. `/octopus` reads only the selected file under [`references/`](references/) to size the cadence and the rounds-per-fire batch.
+Hosts also differ in **what a fire starts from**, and that drives what a run costs. Almost none boots cold — most resume the previous fire — so finer rounds are *not* cheaper, and batching several rounds into one warm fire is. `/longgraph` reads only the selected file under [`references/`](references/) to size the cadence and the rounds-per-fire batch.
 
 Each loop **stops its own timer** when the run is done. Exact launch and stop behavior comes from the selected host reference.
 
 ## Quickstart
 
-1. **Install** the octopus library (this skill ships inside it):
+1. **Install** the longgraph library (this skill ships inside it):
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/install.sh | sh
+   curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
    ```
 
-   <sub>Installs as a single `/octopus` skill for Claude Code and Codex.</sub>
+   <sub>Installs as a single `/longgraph` skill for Claude Code and Codex.</sub>
 
-2. **Run `/octopus` in Codex or Claude Code.** It detects the current host and inspects the workspace first, then asks one short batch only for unresolved owner decisions. The files land in a fresh `.octopus/<date-slug>/` directory. ([What each file does →](#files-generated-per-run))
+2. **Run `/longgraph` in Codex or Claude Code.** It detects the current host and inspects the workspace first, then asks one short batch only for unresolved owner decisions. The files land in a fresh `.longgraph/<date-slug>/` directory. ([What each file does →](#files-generated-per-run))
 
 3. **Choose A to create both nodes here (recommended), or B for prompts only.** On A, Codex or Claude Code creates and verifies the executor and supervisor directly; it does not ask you to identify the current client or open the sessions yourself.
 
@@ -130,10 +130,10 @@ These files are read, not edited:
 
 | Path | What it is |
 | --- | --- |
-| [`SKILL.md`](SKILL.md) | The skill entry: the interview and generation flow behind `/octopus`. |
+| [`SKILL.md`](SKILL.md) | The skill entry: the interview and generation flow behind `/longgraph`. |
 | [`templates/`](templates/) | Node and edge templates the skill fills in per run; usable by hand outside Claude Code. |
 | [`methodology`](../../lib/methodology.md) | The rationale: each rule and the failure mode it prevents. |
-| [`examples/self-iteration-octopus-skill/`](examples/self-iteration-octopus-skill/) | **Public Git evidence** — this skill’s own multi-day hardening window (commit-backed; not a private client run). |
+| [`examples/self-iteration-longgraph-skill/`](examples/self-iteration-longgraph-skill/) | **Public Git evidence** — this skill’s own multi-day hardening window (commit-backed; not a private client run). |
 | [`examples/redacted-multiday-control-plane/`](examples/redacted-multiday-control-plane/) | **Redacted real-run pattern** — multi-day control-plane functions only (ledger, clean-context audit, gates, blocked-work lane, owner cards); no private payload. |
 | [`examples/add-tests-to-cli/`](examples/add-tests-to-cli/) | A worked *fictional* run — executor and ledger three rounds in. Start here for ledger shape. |
 | [`examples/migrate-blob-storage/`](examples/migrate-blob-storage/) | A longer *fictional* worked run — milestones, a pilot-before-cohort backfill, a convergence round, a supervisor directive catching self-reported evidence, and the non-skippable milestone gate in action. |
@@ -141,7 +141,7 @@ These files are read, not edited:
 
 ## Files generated per run
 
-Each run gets a fresh `.octopus/<date-slug>/` in your repo:
+Each run gets a fresh `.longgraph/<date-slug>/` in your repo:
 
 | File | Written by | Role |
 | --- | --- | --- |

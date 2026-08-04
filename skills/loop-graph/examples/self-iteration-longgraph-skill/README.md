@@ -1,10 +1,11 @@
-# Example: octopus self-iteration (public Git evidence)
+# Example: longgraph self-iteration (public Git evidence)
 
 A **public-safe, commit-backed** case. This is not a fictional project run and not a
-private client trajectory. It is the history of **this repository** while the
-loop-graph method was hardened into a shippable skill.
+private client trajectory. It is the history of **this repository** (published during
+the window as `octopus-skill`; product brand is now **longgraph** / `longgraph-skill`)
+while the loop-graph method was hardened into a shippable skill.
 
-The point for a first-time reader: octopus is not only a methodology writeup.
+The point for a first-time reader: longgraph is not only a methodology writeup.
 Its durable rules (single scoreboard, clean-context supervisor, no wake edge,
 gate-wait backlog, bounded live files) were shaped by multi-day agent work and
 then written back into the public library.
@@ -74,7 +75,7 @@ pressure while remaining a **Markdown skill**, not a new runtime kernel.
 1. **Trigger.** Long coding goals outlive one context window. A single loop with a
    self-check grades itself from the same history that produced the drift.
 2. **Shape.** Author once → freeze executor + supervisor prompts and a ledger under
-   `.octopus/<date-slug>/` → each node runs on its own timer and writes only its edge.
+   `.longgraph/<date-slug>/` → each node runs on its own timer and writes only its edge.
 3. **Failure modes that forced product changes.** Wake edges that stalled peers;
    "parked" when blocked; milestone audits that idled the executor; live files that
    grew until something important was truncated on read; host fires that looked cold
@@ -108,7 +109,7 @@ pressure while remaining a **Markdown skill**, not a new runtime kernel.
 
 - Private client names, domains, or corpus metrics
 - Absolute machine paths, internal hostnames, credentials
-- Raw agent transcripts, session JSONL, or private `.octopus/` ledgers
+- Raw agent transcripts, session JSONL, or private `.longgraph/` ledgers
 - Claims that calendar hours equal model-GPU hours or unattended autonomy
 
 ## Related reading

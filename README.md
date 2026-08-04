@@ -1,6 +1,6 @@
 <div align="center">
 
-# octopus 🐙
+# longgraph
 
 **Long-horizon agent skill for Claude Code, Cursor, Codex & Grok.**
 
@@ -10,7 +10,7 @@ by re-sending the same prompt against the files.
 
 Design once → compile a durable loop-graph → verify all the way to done.
 
-[![GitHub stars](https://img.shields.io/github/stars/levi-qiao/octopus-skill?style=flat-square&color=6C63FF)](https://github.com/levi-qiao/octopus-skill/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/levi-qiao/longgraph-skill?style=flat-square&color=6C63FF)](https://github.com/levi-qiao/longgraph-skill/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-14B8A6?style=flat-square)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-22C55E?style=flat-square)](CONTRIBUTING.md)
 ![Hosts: Claude Code · Grok · Cursor · Codex](https://img.shields.io/badge/Hosts-Claude%20Code%20·%20Grok%20·%20Cursor%20·%20Codex-111827?style=flat-square)
@@ -22,7 +22,7 @@ English · [简体中文](README.zh-CN.md)
 
 <img alt="Executor and clean-context supervisor loops running side by side" src="assets/graph.png" width="100%" />
 
-**octopus** (`octopus-skill`) is a curated **Claude Code skill / agent skill** and
+**longgraph** (`longgraph-skill`) is a curated **Claude Code skill / agent skill** and
 cross-host **prompt library** for **long-running / long-horizon** agent work —
 multi-hour coding, multi-milestone migrations, a **queue of long tasks in one
 loop** (they need not be related), and anything that outlives one context window.
@@ -32,18 +32,24 @@ runtime. Because the scoreboard lives on disk, you can **change hosts mid-run**:
 open the same workspace, re-send the frozen node prompt, and continue.
 
 > **One durable graph, portable across hosts.** For a simple self-contained goal,
-> use the host's normal task or goal directly; octopus starts where durable graph
+> use the host's normal task or goal directly; longgraph starts where durable graph
 > structure adds value.
+
+> **Renamed from octopus.** Same library; primary brand is now **longgraph** /
+> `longgraph-skill` / `/longgraph` / `.longgraph/`. Older posts that say
+> `octopus-skill`, `/octopus`, or `.octopus/` still work via GitHub repo redirect,
+> install legacy symlinks, and in-flight run-dir alias (see [Install](#quick-start)
+> and [Migration](#renamed-from-octopus)).
 
 ## Evidence
 
-These are not one-shot demos. octopus is a **Markdown skill / prompt library**
+These are not one-shot demos. longgraph is a **Markdown skill / prompt library**
 (not an orchestration runtime). The table mixes **checkable public Git**, a
 **function-only redacted multi-day pattern**, and **synthetic pedagogy**.
 
 | Case | What a reader can verify | Kind |
 | --- | --- | --- |
-| [**Self-iteration of this skill**](skills/loop-graph/examples/self-iteration-octopus-skill/README.md) | **87** public commits across **~14 calendar days** (2026-07-19 → 2026-08-02), **74** files, method rules written back into the library (no wake edge, gate-wait backlog, blocked≠parked, bounded live edges, authoring≠runtime) | Public Git facts — fixed anchor `6efcb7f` |
+| [**Self-iteration of this skill**](skills/loop-graph/examples/self-iteration-longgraph-skill/README.md) | **87** public commits across **~14 calendar days** (2026-07-19 → 2026-08-02), **74** files, method rules written back into the library (no wake edge, gate-wait backlog, blocked≠parked, bounded live edges, authoring≠runtime) | Public Git facts — fixed anchor `6efcb7f` |
 | [**Multi-day control-plane pattern**](skills/loop-graph/examples/redacted-multiday-control-plane/README.md) | Multi-day wall-clock, tens of rounds, many directives: durable ledger, clean-context supervisor overturns self-reported evidence, non-skippable gates, blocked-work lane, owner A/B/C — **functions only**, no private payload | Redacted real-run pattern |
 | [**migrate-blob-storage**](skills/loop-graph/examples/migrate-blob-storage/README.md) | Multi-milestone ledger: pilot → cohort, forced convergence, supervisor overturns self-reported evidence, non-skippable gate + blocked-work lane | Synthetic pedagogy (fictional app) |
 | [**add-tests-to-cli**](skills/loop-graph/examples/add-tests-to-cli/README.md) | Smallest full run: three rounds, register-then-defer, clean-context supervisor intent | Synthetic pedagogy (fictional CLI) |
@@ -51,7 +57,7 @@ These are not one-shot demos. octopus is a **Markdown skill / prompt library**
 **How to read the clock.** The self-iteration window’s ~14 days / ~340 hours is
 **project wall-clock** (first public commit → frozen anchor), not continuous model
 execution and not a claim of unattended production autonomy. Re-check Git with the
-commands in the [self-iteration case](skills/loop-graph/examples/self-iteration-octopus-skill/README.md).
+commands in the [self-iteration case](skills/loop-graph/examples/self-iteration-longgraph-skill/README.md).
 The redacted multi-day card uses **coarse buckets only** and is **not** private-Git
 re-checkable — see its evidence boundary.
 
@@ -60,7 +66,7 @@ Publication rules for future cases:
 
 ## When to use this
 
-Reach for octopus when you need any of:
+Reach for longgraph when you need any of:
 
 - A **long-horizon agent** that keeps working after context compaction / session resets
 - A **durable task ledger** (single scoreboard) instead of chat-memory progress
@@ -83,24 +89,24 @@ Reach for octopus when you need any of:
 | --- | --- | --- | --- | --- |
 | LangGraph / CrewAI / AutoGen | Yes | You build it | Usually yes | Framework-bound; often one deployment stack |
 | One mega-prompt / single skill | No | No (self-check) | Weak (chat memory) | Weak — progress dies with the session |
-| **octopus (this repo)** | **No — Markdown only** | **Yes (supervisor node)** | **Yes (`ledger.md`)** | **Yes — files are the run; re-send the prompt** |
+| **longgraph (this repo)** | **No — Markdown only** | **Yes (supervisor node)** | **Yes (`ledger.md`)** | **Yes — files are the run; re-send the prompt** |
 
 Also called / related searches: *long-running agent skill*, *prevent agent drift*,
 *multi-task agent loop*, *switch AI coding host mid-task*, *Claude Code multi-agent
 supervisor*, *agent ledger*, *loop skill*, *graph engineering for
 agents*, *clean-context review*.
 
-## Why octopus
+## Why longgraph
 
 Long-running agents tend to drift in predictable ways: scope expands, “done”
 becomes self-reported, tests stop proving the real path, and early decisions
-disappear from context. octopus moves the safeguards outside the model’s memory:
+disappear from context. longgraph moves the safeguards outside the model’s memory:
 
 - **Verified, not merely written** — acceptance gates are rerun against real output.
 - **Durable state** — the ledger survives context loss and remains the single scoreboard.
 - **Many long tasks, one loop** — the ledger is a continuous queue; items can be
   independent (migrations, test debt, docs, gates) without forcing one mega-goal.
-- **Host-portable** — progress is files under `.octopus/<date-slug>/`, not chat
+- **Host-portable** — progress is files under `.longgraph/<date-slug>/`, not chat
   history. Point another host at the same workspace, re-send the compiled node
   prompt, and pick up the next open ledger item.
 - **Clean-context review** — an independent supervisor can catch drift the executor cannot see.
@@ -121,7 +127,7 @@ is the extreme case: useful work with no dependency on the item under audit). Yo
 do not need a new graph every time the next long task is about something else.
 
 **The host is swappable; the files are not.** A compiled loop-graph run freezes
-prompts and state under `.octopus/<date-slug>/`. To continue elsewhere:
+prompts and state under `.longgraph/<date-slug>/`. To continue elsewhere:
 
 1. Use a workspace that can see those files (and the project).
 2. Re-send the same frozen executor (and, if used, supervisor) prompt on the new host.
@@ -130,14 +136,14 @@ prompts and state under `.octopus/<date-slug>/`. To continue elsewhere:
 You are not exporting chat transcripts. Invocation syntax still follows each host’s
 dialect ([per-host references](skills/loop-graph/references/)) — only the *progress* is portable.
 
-## Is octopus the right tool?
+## Is longgraph the right tool?
 
 | Your task shape | Choose | What you get |
 | --- | --- | --- |
-| One self-contained goal that fits a normal task/session | Use the host's ordinary task or goal directly | No octopus wrapper or extra prompt layer |
-| Many rounds, durable state, non-skippable gates, owner boundaries, host switching, or independent verification | [**octopus / loop-graph**](skills/loop-graph/README.md) | An executor loop plus a clean-context supervisor, coordinated through durable files |
+| One self-contained goal that fits a normal task/session | Use the host's ordinary task or goal directly | No longgraph wrapper or extra prompt layer |
+| Many rounds, durable state, non-skippable gates, owner boundaries, host switching, or independent verification | [**longgraph / loop-graph**](skills/loop-graph/README.md) | An executor loop plus a clean-context supervisor, coordinated through durable files |
 
-**Rule of thumb:** if you do not need the graph, do not use octopus.
+**Rule of thumb:** if you do not need the graph, do not use longgraph.
 
 ## Quick start
 
@@ -146,8 +152,8 @@ dialect ([per-host references](skills/loop-graph/references/)) — only the *pro
 Install the plugin from the marketplace:
 
 ```text
-/plugin marketplace add levi-qiao/octopus-skill
-/plugin install octopus@octopus-skill
+/plugin marketplace add levi-qiao/longgraph-skill
+/plugin install longgraph@longgraph-skill
 ```
 
 ### Codex or Cursor
@@ -155,21 +161,34 @@ Install the plugin from the marketplace:
 Install the library and symlink it into supported hosts:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
 ```
 
 To install from a local clone, run `./install.sh` from the repository root.
 
 ### Design a run
 
-Invoke `/octopus`. It detects Codex or Claude Code, inspects the workspace, and asks
+Invoke `/longgraph`. It detects Codex or Claude Code, inspects the workspace, and asks
 only for unresolved owner decisions before compiling the run. Choose direct creation
 to have it start both same-host runtime nodes, or prompts-only for manual/cross-host
 launch. You can also invoke `loop-graph` directly.
 
 Authoring and runtime stay separate: the author skill compiles the work but never
 executes it. Generated nodes follow their frozen run contract under
-`.octopus/<date-slug>/`.
+`.longgraph/<date-slug>/`.
+
+## Renamed from octopus
+
+| Was (legacy / still accepted) | Now (primary) |
+| --- | --- |
+| Product `octopus`, repo `octopus-skill` | **longgraph**, repo **longgraph-skill** |
+| Slash `/octopus` | **`/longgraph`** (install still symlinks `/octopus` → same tree) |
+| Plugin `octopus@octopus-skill` | **`longgraph@longgraph-skill`** |
+| Run dir `.octopus/<date-slug>/` | **`.longgraph/<date-slug>/`** (continue in-flight `.octopus/` runs in place) |
+| Contract `octopus.loop-graph.*` | **`longgraph.loop-graph.*`** (old headers on existing files still mean the same family) |
+
+GitHub renames redirect old clone/curl URLs (`…/octopus-skill/…` → `…/longgraph-skill/…`).
+Re-run `install.sh` or reinstall the plugin once so primary names win on disk.
 
 ## How the graph works
 
@@ -206,7 +225,7 @@ durable run directory; only how you start each tick changes.
 
 | Path | Purpose |
 | --- | --- |
-| [Root `SKILL.md`](SKILL.md) | `/octopus` entrypoint; checks fit and delegates authoring to loop-graph |
+| [Root `SKILL.md`](SKILL.md) | `/longgraph` entrypoint; checks fit and delegates authoring to loop-graph |
 | [Loop-graph author](skills/loop-graph/SKILL.md) | Generates executor, supervisor, ledger, and directive artifacts |
 | [`lib/`](lib) | Shared methodology |
 | [Host references](skills/loop-graph/references) | One independently loaded owner for each host's runtime facts |
@@ -215,7 +234,7 @@ durable run directory; only how you start each tick changes.
 
 ## Governance
 
-octopus applies its own anti-bloat rule to the library: **no prompt enters
+longgraph applies its own anti-bloat rule to the library: **no prompt enters
 without a real run that proved its value.** Curated and opinionated beats
 comprehensive.
 
@@ -224,7 +243,7 @@ Contributions are welcome. Start with [the contribution guide](CONTRIBUTING.md).
 ## Credits
 
 The loop-graph skill grew from real runs and community input. A
-[public-Git self-iteration case](skills/loop-graph/examples/self-iteration-octopus-skill/README.md)
+[public-Git self-iteration case](skills/loop-graph/examples/self-iteration-longgraph-skill/README.md)
 records how the method was hardened into this library. Special thanks to
 [@BrightProgrammer7](https://github.com/BrightProgrammer7) for the
 `migrate-blob-storage` example and the discussions that sharpened milestone

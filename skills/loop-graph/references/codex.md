@@ -56,8 +56,8 @@ two thread creations; do not ask again.
 
 1. Resolve the current saved project from the workspace path and use its **local**
    checkout — both nodes must see the same run files. Never create a worktree.
-2. Create one task named `Octopus executor — {{RUN_SLUG}}` with the filled
-   `EXECUTOR_LAUNCH`, and one named `Octopus supervisor — {{RUN_SLUG}}` with the filled
+2. Create one task named `longgraph executor — {{RUN_SLUG}}` with the filled
+   `EXECUTOR_LAUNCH`, and one named `longgraph supervisor — {{RUN_SLUG}}` with the filled
    `SUPERVISOR_LAUNCH`. Create no automations yourself: each node arms its own on its
    first invocation.
 3. Wait until each has emitted its first status. Report both task links/IDs, both
