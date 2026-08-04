@@ -1,21 +1,26 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
-  "name": "octopus",
-  "displayName": "octopus 🐙",
-  "description": "Author durable loop-graph runs with executor/supervisor nodes, verified gates, and low-friction owner decisions. Invoke /octopus to design a run.",
+  "name": "longgraph",
+  "displayName": "longgraph",
+  "description": "Author durable loop-graph runs with executor/supervisor nodes, verified gates, and low-friction owner decisions. Invoke /longgraph to design a run.",
   "author": {
     "name": "levi-qiao",
     "url": "https://github.com/levi-qiao"
   },
-  "homepage": "https://github.com/levi-qiao/octopus-skill",
-  "repository": "https://github.com/levi-qiao/octopus-skill",
+  "homepage": "https://github.com/levi-qiao/longgraph-skill",
+  "repository": "https://github.com/levi-qiao/longgraph-skill",
   "license": "MIT",
   "keywords": [
+    "longgraph",
+    "longgraph-skill",
+    "long-horizon",
+    "long-horizon-agent",
     "graph-engineering",
     "agent-graph",
-    "long-horizon",
-    "loop",
+    "loop-graph",
     "supervisor",
+    "claude-code-skill",
+    "agent-skill",
     "orchestration",
     "agents"
   ]

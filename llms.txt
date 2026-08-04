@@ -1,4 +1,4 @@
-# octopus-skill
+# longgraph-skill
 
 > Long-horizon agent skill / Claude Code skill for Claude Code, Cursor, Codex, and Grok.
 > Durable ledger + clean-context supervisor + verified gates. Queue many long tasks
@@ -7,35 +7,36 @@
 
 ## Primary
 
-- [README](https://github.com/levi-qiao/octopus-skill/blob/main/README.md): overview, when to use, install, host compatibility
-- [README (简体中文)](https://github.com/levi-qiao/octopus-skill/blob/main/README.zh-CN.md)
-- [Methodology](https://github.com/levi-qiao/octopus-skill/blob/main/lib/methodology.md): why each constraint exists
-- [Host references](https://github.com/levi-qiao/octopus-skill/tree/main/skills/loop-graph/references): independently loaded loop/goal syntax and context model per host
+- [README](https://github.com/levi-qiao/longgraph-skill/blob/main/README.md): overview, when to use, install, host compatibility
+- [README (简体中文)](https://github.com/levi-qiao/longgraph-skill/blob/main/README.zh-CN.md)
+- [Methodology](https://github.com/levi-qiao/longgraph-skill/blob/main/lib/methodology.md): why each constraint exists
+- [Host references](https://github.com/levi-qiao/longgraph-skill/tree/main/skills/loop-graph/references): independently loaded loop/goal syntax and context model per host
 
 ## Skills (authoring → runtime)
 
-- [Root `/octopus`](https://github.com/levi-qiao/octopus-skill/blob/main/SKILL.md): checks fit and delegates authoring to loop-graph; never executes generated work
-- [loop-graph author](https://github.com/levi-qiao/octopus-skill/blob/main/skills/loop-graph/SKILL.md): executor + supervisor + ledger
-- [loop-graph model](https://github.com/levi-qiao/octopus-skill/blob/main/skills/loop-graph/docs/model.md): node/edge invariants
+- [Root `/longgraph`](https://github.com/levi-qiao/longgraph-skill/blob/main/SKILL.md): checks fit and delegates authoring to loop-graph; never executes generated work
+- [loop-graph author](https://github.com/levi-qiao/longgraph-skill/blob/main/skills/loop-graph/SKILL.md): executor + supervisor + ledger
+- [loop-graph model](https://github.com/levi-qiao/longgraph-skill/blob/main/skills/loop-graph/docs/model.md): node/edge invariants
 
 ## Install
 
 Claude Code plugin:
 
 ```text
-/plugin marketplace add levi-qiao/octopus-skill
-/plugin install octopus@octopus-skill
+/plugin marketplace add levi-qiao/longgraph-skill
+/plugin install longgraph@longgraph-skill
 ```
 
 Codex / Cursor (and local clone):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
 ```
 
 ## Keywords for retrieval
 
-long-horizon agent, long-running agent, agent drift, durable ledger, clean-context supervisor,
-multi-task agent loop, unrelated tasks one loop, switch host mid-run, portable agent state,
-Claude Code skill, Claude Code plugin, agent skill, multi-agent, prompt library, graph engineering,
-loop-graph, Cursor, Codex, Grok, verified gates, acceptance criteria, owner decision cards, not LangGraph
+longgraph, longgraph-skill, long-horizon agent skill, long-horizon agent, long-running agent,
+agent drift, durable ledger, clean-context supervisor, multi-task agent loop, unrelated tasks one loop,
+switch host mid-run, portable agent state, Claude Code skill, Claude Code plugin, agent skill,
+multi-agent, prompt library, graph engineering, loop-graph, Cursor, Codex, Grok, verified gates,
+acceptance criteria, owner decision cards, not LangGraph, formerly octopus-skill

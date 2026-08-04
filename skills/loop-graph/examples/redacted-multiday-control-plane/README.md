@@ -7,7 +7,7 @@ lanes, owner choice cards — without publishing any private run payload.
 **Evidence class:** redacted real-run pattern (control-plane only).
 
 This is **not** public Git telemetry (see
-[self-iteration](../self-iteration-octopus-skill/)), and **not** a full fictional
+[self-iteration](../self-iteration-longgraph-skill/)), and **not** a full fictional
 ledger (see [migrate-blob-storage](../migrate-blob-storage/)). Readers cannot
 re-run a private project to verify scale; re-check is *structural consistency*
 with the public methodology plus the evidence boundary below.
@@ -30,7 +30,7 @@ claims are **control-plane verbs and coarse scale only**.
 | Round volume | **Tens of rounds** on a single durable ledger |
 | Steering volume | **Many** supervisor directives folded over the life of the run |
 | Shape | Multiple milestones with **non-skippable** promotion gates |
-| Continuity | Progress lived in run files under a dated `.octopus/` directory, not in chat memory |
+| Continuity | Progress lived in run files under a dated `.longgraph/` directory, not in chat memory |
 
 These are **order-of-magnitude buckets**, not measurements. They do **not** equal
 continuous model execution hours or unattended production autonomy.
@@ -110,7 +110,7 @@ flowchart TD
 - Any **accuracy / recall / scorecard / audit-report** substance
 - Any private repository, product, customer, or absolute path
 - Public Git re-checkability of the private engagement (that is a different
-  evidence class — use [self-iteration](../self-iteration-octopus-skill/) for Git)
+  evidence class — use [self-iteration](../self-iteration-longgraph-skill/) for Git)
 
 ## Evidence boundary
 
@@ -125,7 +125,7 @@ flowchart TD
 **Forbidden here (and not present)**
 
 - Private workspace roots, product codenames, service/repo names from sensitive work
-- Live or archived private `.octopus/` contents, directives text, ops env facts
+- Live or archived private `.longgraph/` contents, directives text, ops env facts
 - Audit-report bodies, findings, recommendations, or excerpts
 - Real corpus metrics, document samples, or identifying score tables
 - Absolute home paths, internal hostnames, credentials, session transcripts
@@ -144,6 +144,6 @@ it is **omitted** — not “approximated” from private logs.
 
 ## Related
 
-- [Self-iteration (public Git)](../self-iteration-octopus-skill/README.md) — checkable product history
+- [Self-iteration (public Git)](../self-iteration-longgraph-skill/README.md) — checkable product history
 - [migrate-blob-storage](../migrate-blob-storage/) — synthetic multi-milestone ledger
 - Root [Evidence](../../../../README.md#evidence)

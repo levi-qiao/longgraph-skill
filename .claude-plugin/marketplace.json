@@ -1,13 +1,13 @@
 {
-  "name": "octopus-skill",
-  "description": "octopus 🐙 — author durable loop-graph runs for verified long-horizon execution.",
+  "name": "longgraph-skill",
+  "description": "longgraph — author durable loop-graph runs for verified long-horizon execution.",
   "owner": {
     "name": "levi-qiao",
     "url": "https://github.com/levi-qiao"
   },
   "plugins": [
     {
-      "name": "octopus",
+      "name": "longgraph",
       "source": "./",
       "description": "Author loop-graph executor/supervisor runs with durable state, verified gates, and clear owner decision cards."
     }

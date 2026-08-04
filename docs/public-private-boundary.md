@@ -1,11 +1,11 @@
 # Public / private boundary
 
-octopus is a **public prompt library**. Most useful long-horizon *runs* are not public.
+longgraph is a **public prompt library**. Most useful long-horizon *runs* are not public.
 This page is the publication rule for docs, examples, and showcases.
 
 ## What the public repo should answer
 
-> **How does an octopus loop work?**
+> **How does an longgraph loop work?**
 
 Schemas of the method, host-agnostic templates, fictional worked examples, and
 **sanitized** evidence that a reader can re-check (public Git facts, redacted
@@ -15,8 +15,9 @@ narratives, pedagogical ledgers).
 
 > **What is *this* goal doing right now?**
 
-Live `.octopus/<date-slug>/` trees, private ledgers, real corpus paths, customer
-names, raw model traces, and metrics that identify a private deployment.
+Live `.longgraph/<date-slug>/` (or legacy `.octopus/`) trees, private ledgers, real
+corpus paths, customer names, raw model traces, and metrics that identify a private
+deployment.
 
 ---
 
@@ -36,7 +37,7 @@ names, raw model traces, and metrics that identify a private deployment.
 
 | Kind | Examples |
 | --- | --- |
-| Live run state | Project `.octopus/` ledgers, directives, ops with real env facts, archives of private rounds |
+| Live run state | Project `.longgraph/` ledgers, directives, ops with real env facts, archives of private rounds |
 | Identity | Customer, employer, or non-public product names; personal emails; team handles that imply a private program |
 | Paths & infra | Absolute home paths, internal hostnames, VPN/cluster names, private package registries |
 | Secrets | Tokens, keys, `.env`, session cookies, cloud account IDs |
@@ -117,5 +118,5 @@ without the payload.
 ## Related
 
 - [CONTRIBUTING.md](../CONTRIBUTING.md)
-- [Self-iteration example](../skills/loop-graph/examples/self-iteration-octopus-skill/README.md)
+- [Self-iteration example](../skills/loop-graph/examples/self-iteration-longgraph-skill/README.md)
 - [AGENTS.md](../AGENTS.md) — anti-bloat and “no secrets” rules for editors

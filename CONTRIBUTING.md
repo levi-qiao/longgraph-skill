@@ -1,6 +1,6 @@
-# Contributing to octopus-skill
+# Contributing to longgraph-skill
 
-Thanks for helping! octopus-skill is a small, opinionated prompt library: `/octopus`
+Thanks for helping! longgraph-skill is a small, opinionated prompt library: `/longgraph`
 checks fit, `loop-graph` compiles durable runtime nodes, `lib/` holds shared
 methodology, and `skills/loop-graph/references/` isolates host facts. Contributions that keep it curated rather than
 comprehensive are the most welcome.
@@ -22,7 +22,7 @@ comprehensive are the most welcome.
 
 ## Adding a new node role (`loop-graph`)
 
-The graph grows one node at a time — a node is **one Markdown prompt + one inspectable edge**, no runtime. The scout ([#17](https://github.com/levi-qiao/octopus-skill/issues/17) → [#18](https://github.com/levi-qiao/octopus-skill/pull/18) → [#19](https://github.com/levi-qiao/octopus-skill/issues/19)) is the reference example; the path that merged cleanly:
+The graph grows one node at a time — a node is **one Markdown prompt + one inspectable edge**, no runtime. The scout ([#17](https://github.com/levi-qiao/longgraph-skill/issues/17) → [#18](https://github.com/levi-qiao/longgraph-skill/pull/18) → [#19](https://github.com/levi-qiao/longgraph-skill/issues/19)) is the reference example; the path that merged cleanly:
 
 1. **Propose in an issue first.** State the node's *tuple* — `(prompt, model, activation, read-set, write-set, authority, stop-condition)` — and which existing role it's distinct from. The vocabulary lives in [`skills/loop-graph/docs/model.md`](skills/loop-graph/docs/model.md).
 2. **Give it its own single-writer edge.** Never partition an existing edge — the ledger has exactly one writer. A new writer means a new file it alone writes; other nodes read it. Preserve the edge invariants in `model.md`.
@@ -41,7 +41,7 @@ The graph grows one node at a time — a node is **one Markdown prompt + one ins
   (same doc). Redacted real-run cards are **function-only** (control-plane verbs +
   coarse buckets) — never private ledgers, audit-report bodies, or identifying metrics.
 - **No prompt enters the library without a real consumer** — a run it was actually
-  proven on. This is octopus's own anti-bloat rule turned on itself; curated and
+  proven on. This is longgraph's own anti-bloat rule turned on itself; curated and
   opinionated beats a junk drawer.
 - **Keep it minimal.** New abstraction or config in a template needs a concrete
   motivating case. The library preaches anti-bloat; the repo should practice it.
@@ -52,7 +52,7 @@ The graph grows one node at a time — a node is **one Markdown prompt + one ins
   are the product. Tune the numbers, not the shape.
 - **Don't mix phases.** Author skills interview and compile; runtime contracts
   execute. A loop-graph tick follows its self-contained node under
-  `.octopus/<date-slug>/` and must not reload an author skill.
+  `.longgraph/<date-slug>/` and must not reload an author skill.
 
 ## How to submit
 

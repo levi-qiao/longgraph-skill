@@ -9,7 +9,7 @@ labels: bug
 A clear description of the bug.
 
 **Which part**
-- [ ] `/octopus` authoring (loop-graph or quest)
+- [ ] `/longgraph` authoring (loop-graph or quest)
 - [ ] `quest-executor` runtime
 - [ ] a template (`templates/…`)
 - [ ] the installer (`install.sh`)

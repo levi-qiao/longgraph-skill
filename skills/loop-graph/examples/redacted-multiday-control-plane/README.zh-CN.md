@@ -7,7 +7,7 @@
 **证据类型：** 脱敏真实 run 模式（仅控制面）。
 
 这不是公开 Git 遥测（见
-[自迭代](../self-iteration-octopus-skill/README.zh-CN.md)），也不是完整虚构 ledger
+[自迭代](../self-iteration-longgraph-skill/README.zh-CN.md)），也不是完整虚构 ledger
 （见 [migrate-blob-storage](../migrate-blob-storage/)）。读者无法用公开命令复现私有
 项目的规模；可复检的是：与公开方法论结构一致，以及下方证据边界成立。
 
@@ -27,7 +27,7 @@
 | 轮次体量 | 单一持久 ledger 上 **数十轮** 量级 |
 | 纠偏体量 | 全生命周期内 **多条** 监督者 directives 被折叠 |
 | 形状 | 多个带 **不可跳过** 晋级闸门的里程碑 |
-| 连续性 | 进度在带日期的 `.octopus/` 运行文件里，不在聊天记忆里 |
+| 连续性 | 进度在带日期的 `.longgraph/` 运行文件里，不在聊天记忆里 |
 
 以上是 **数量级桶**，不是测量值。它们 **不等于** 连续模型执行小时，也不等于无人
 值守生产自治。
@@ -97,7 +97,7 @@ flowchart TD
 - 任何 **准确率 / 召回 / 记分卡 / 审计报告** 正文
 - 任何私有仓库、产品、客户或绝对路径
 - 对私有项目的公开 Git 复算（那是另一类证据——Git 请看
-  [自迭代](../self-iteration-octopus-skill/README.zh-CN.md)）
+  [自迭代](../self-iteration-longgraph-skill/README.zh-CN.md)）
 
 ## 证据边界
 
@@ -112,7 +112,7 @@ flowchart TD
 **此处禁止（且未写入）**
 
 - 私有工作区根路径、敏感工作相关的产品/服务/仓库名
-- 私有 `.octopus/` 热/冷内容、directives 原文、ops 环境事实
+- 私有 `.longgraph/` 热/冷内容、directives 原文、ops 环境事实
 - 审计报告正文、发现、建议或摘录
 - 真实语料指标、文档样本或可识别的分数表
 - 本机绝对路径、内网主机名、凭据、会话转录
@@ -130,6 +130,6 @@ flowchart TD
 
 ## 相关
 
-- [自迭代（公开 Git）](../self-iteration-octopus-skill/README.zh-CN.md)
+- [自迭代（公开 Git）](../self-iteration-longgraph-skill/README.zh-CN.md)
 - [migrate-blob-storage](../migrate-blob-storage/)
 - 根目录 [证据](../../../../README.zh-CN.md#证据)

@@ -1,6 +1,6 @@
 <!-- Compile to a self-contained runtime prompt. Replace placeholders, delete this comment. -->
 
-Runtime contract: `octopus.loop-graph.executor/v4`
+Runtime contract: `longgraph.loop-graph.executor/v4`
 
 You are the executor for {{PROJECT_OR_REPOS}} and the only writer of
 `{{LEDGER_PATH}}`. The supervisor is a separate node on its own timer; it writes only

@@ -1,4 +1,4 @@
-# AGENTS.md — working on octopus-skill
+# AGENTS.md — working on longgraph-skill
 
 Guidance for any agent (or human) editing **this repo**. Read before changing anything.
 The same rules apply in Claude Code — [`CLAUDE.md`](CLAUDE.md) imports this file.
@@ -7,13 +7,13 @@ The same rules apply in Claude Code — [`CLAUDE.md`](CLAUDE.md) imports this fi
 
 A **curated, opinionated prompt library** for long-horizon agent work, framed as
 **"graph engineering."** It ships **Markdown prompts, not application code** — there
-is no build step and no runtime. One umbrella (`/octopus`) checks whether the
+is no build step and no runtime. One umbrella (`/longgraph`) checks whether the
 method fits, then delegates to one authoring skill:
 
 - **`skills/loop-graph/`** — an executor node + a separate-context supervisor node, each
   on its own recurring timer, with no wake edge between them.
 
-Simple self-contained goals use the host's ordinary task/goal directly; octopus
+Simple self-contained goals use the host's ordinary task/goal directly; longgraph
 does not wrap them in a second objective.
 
 Deep context lives in [`lib/methodology.md`](lib/methodology.md) (the *why* behind each
@@ -24,7 +24,7 @@ node/edge vocabulary + invariants). The contribution bar is in [`CONTRIBUTING.md
 
 | Path | What it is |
 |---|---|
-| `SKILL.md` | `/octopus` fit check and authoring entrypoint; may launch nodes but never acts as one |
+| `SKILL.md` | `/longgraph` fit check and authoring entrypoint; may launch nodes but never acts as one |
 | `skills/loop-graph/SKILL.md` | author skill: interview → generate → deliver |
 | `skills/loop-graph/templates/*.md` | compiled runtime prompts — not code; keep `{{PLACEHOLDER}}`s and structural headings intact |
 | `skills/loop-graph/examples/` | concrete, fully worked runs (these *are* project-specific — that's correct) |
@@ -58,7 +58,12 @@ node/edge vocabulary + invariants). The contribution bar is in [`CONTRIBUTING.md
    example. The scout (#17→#18→#19) is the reference. See `CONTRIBUTING.md`.
 5. **Keep authoring and runtime separate.** Author skills may interview and compile;
    they never execute their output. Loop-graph runtime follows the self-contained
-   node files in `.octopus/<date-slug>/` and never reloads an authoring skill.
+   node files in `.longgraph/<date-slug>/` (legacy in-flight runs may still live under
+   `.octopus/<date-slug>/`) and never reloads an authoring skill.
+6. **Brand is longgraph.** Primary product/repo/slash/run-root names are longgraph /
+   longgraph-skill / `/longgraph` / `.longgraph/`. Mentions of octopus / octopus-skill /
+   `/octopus` / `.octopus/` are **legacy aliases only** (promotion continuity), never the
+   primary install or plugin id.
 
 ## Editing conventions
 
