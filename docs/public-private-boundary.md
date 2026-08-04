@@ -1,0 +1,108 @@
+# Public / private boundary
+
+octopus is a **public prompt library**. Most useful long-horizon *runs* are not public.
+This page is the publication rule for docs, examples, and showcases.
+
+## What the public repo should answer
+
+> **How does an octopus loop work?**
+
+Schemas of the method, host-agnostic templates, fictional worked examples, and
+**sanitized** evidence that a reader can re-check (public Git facts, redacted
+narratives, pedagogical ledgers).
+
+## What project-local state should answer
+
+> **What is *this* goal doing right now?**
+
+Live `.octopus/<date-slug>/` trees, private ledgers, real corpus paths, customer
+names, raw model traces, and metrics that identify a private deployment.
+
+---
+
+## Public (safe in this repository)
+
+| Kind | Examples |
+| --- | --- |
+| Method & shape | `lib/methodology.md`, `skills/loop-graph/docs/model.md`, node/edge vocabulary |
+| Templates & skills | `templates/*`, root and skill `SKILL.md` (placeholders only — no real projects) |
+| Host facts | `skills/loop-graph/references/*` |
+| Fictional pedagogy | `examples/add-tests-to-cli/`, `examples/migrate-blob-storage/`, `examples/scout-library-choice/` |
+| Public Git evidence | Commit SHAs, titles, dates, `git log` counts for **this** open-source repo |
+| Redacted showcases | Generalized domain labels, control-plane patterns, explicit evidence boundaries |
+| Install & plugin | `install.sh`, `.claude-plugin/*` manifests |
+
+## Private (keep out of git / public docs)
+
+| Kind | Examples |
+| --- | --- |
+| Live run state | Project `.octopus/` ledgers, directives, ops with real env facts, archives of private rounds |
+| Identity | Customer, employer, or non-public product names; personal emails; team handles that imply a private program |
+| Paths & infra | Absolute home paths, internal hostnames, VPN/cluster names, private package registries |
+| Secrets | Tokens, keys, `.env`, session cookies, cloud account IDs |
+| Raw agent evidence | Session JSONL, tool dumps, full transcripts, private screenshots |
+| Identifying metrics | Accuracy/recall on a named private corpus, production SLOs, unreleased benchmark scores |
+| Third-party confidential | Contracts, unreleased designs, internal doc URLs |
+
+**Rule of thumb:** if a stranger on the internet could map the artifact to a
+real private engagement, it does not belong here.
+
+---
+
+## Showcase / evidence card rule
+
+Every public case under `examples/` or linked from root **Evidence** must declare:
+
+1. **Evidence class** — public Git / synthetic pedagogy / redacted real run (if ever used).
+2. **What is claimed** — e.g. calendar window, commit count, method feature list.
+3. **How to re-check** — commands or links a reader can run without private access.
+4. **Evidence boundary** — a short do/don’t list of what was excluded.
+5. **Disclaimer** when using time — *elapsed wall-clock / project lifetime ≠ continuous model hours ≠ unattended production autonomy*.
+
+Cases may enter docs **before** they have a runnable synthetic demo, but status
+must say so. Prefer a modest claim over a dramatic one.
+
+### Preferred first public artifacts
+
+| Priority | Artifact | Why |
+| --- | --- | --- |
+| 1 | Self-iteration of **this** skill repo | Zero customer risk; Git-checkable |
+| 2 | Fictional full ledgers | Teach shape without secrets |
+| 3 | Redacted multi-day case (optional later PR) | Only after scrubbing identities, paths, and metrics |
+
+Do **not** paste a private ledger “with numbers deleted” if remaining structure
+still identifies the engagement (unique milestone names, internal service names, etc.).
+
+---
+
+## Templates vs examples (AGENTS.md alignment)
+
+| Surface | Concrete private work? | Concrete *fictional* work? |
+| --- | --- | --- |
+| `templates/`, `lib/`, skill `SKILL.md` | **Never** | No — stay host- and goal-agnostic |
+| `examples/` | **Never** | **Yes** — that is their job |
+| Self-iteration case | N/A (this public repo only) | N/A |
+
+Hardening lessons mined from private runs must be rewritten as **generic failure
+modes** before they touch templates or methodology.
+
+---
+
+## Contributor checklist (before you open a PR with a case)
+
+- [ ] No absolute paths under a user home or internal mount
+- [ ] No customer / employer / private product names
+- [ ] No raw accuracy tables from a private corpus
+- [ ] No credentials, tokens, or live env URLs
+- [ ] Every hero number has a public source (Git command or labeled synthetic)
+- [ ] Time claims include the wall-clock vs continuous-execution disclaimer
+- [ ] EN and 中文 skill/root copy that state numbers stay consistent in substance
+
+If in doubt, leave it project-local and open an issue describing the *pattern*
+without the payload.
+
+## Related
+
+- [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [Self-iteration example](../skills/loop-graph/examples/self-iteration-octopus-skill/README.md)
+- [AGENTS.md](../AGENTS.md) — anti-bloat and “no secrets” rules for editors
