@@ -38,18 +38,22 @@ open the same workspace, re-send the frozen node prompt, and continue.
 ## Evidence
 
 These are not one-shot demos. octopus is a **Markdown skill / prompt library**
-(not an orchestration runtime). The signals below are **public and re-checkable**.
+(not an orchestration runtime). The table mixes **checkable public Git**, a
+**function-only redacted multi-day pattern**, and **synthetic pedagogy**.
 
 | Case | What a reader can verify | Kind |
 | --- | --- | --- |
 | [**Self-iteration of this skill**](skills/loop-graph/examples/self-iteration-octopus-skill/README.md) | **87** public commits across **~14 calendar days** (2026-07-19 → 2026-08-02), **74** files, method rules written back into the library (no wake edge, gate-wait backlog, blocked≠parked, bounded live edges, authoring≠runtime) | Public Git facts — fixed anchor `6efcb7f` |
+| [**Multi-day control-plane pattern**](skills/loop-graph/examples/redacted-multiday-control-plane/README.md) | Multi-day wall-clock, tens of rounds, many directives: durable ledger, clean-context supervisor overturns self-reported evidence, non-skippable gates, blocked-work lane, owner A/B/C — **functions only**, no private payload | Redacted real-run pattern |
 | [**migrate-blob-storage**](skills/loop-graph/examples/migrate-blob-storage/README.md) | Multi-milestone ledger: pilot → cohort, forced convergence, supervisor overturns self-reported evidence, non-skippable gate + blocked-work lane | Synthetic pedagogy (fictional app) |
 | [**add-tests-to-cli**](skills/loop-graph/examples/add-tests-to-cli/README.md) | Smallest full run: three rounds, register-then-defer, clean-context supervisor intent | Synthetic pedagogy (fictional CLI) |
 
 **How to read the clock.** The self-iteration window’s ~14 days / ~340 hours is
 **project wall-clock** (first public commit → frozen anchor), not continuous model
-execution and not a claim of unattended production autonomy. Re-check with the
+execution and not a claim of unattended production autonomy. Re-check Git with the
 commands in the [self-iteration case](skills/loop-graph/examples/self-iteration-octopus-skill/README.md).
+The redacted multi-day card uses **coarse buckets only** and is **not** private-Git
+re-checkable — see its evidence boundary.
 
 Publication rules for future cases:
 [public / private boundary](docs/public-private-boundary.md).

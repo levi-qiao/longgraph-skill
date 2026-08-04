@@ -134,6 +134,7 @@ These files are read, not edited:
 | [`templates/`](templates/) | Node and edge templates the skill fills in per run; usable by hand outside Claude Code. |
 | [`methodology`](../../lib/methodology.md) | The rationale: each rule and the failure mode it prevents. |
 | [`examples/self-iteration-octopus-skill/`](examples/self-iteration-octopus-skill/) | **Public Git evidence** — this skill’s own multi-day hardening window (commit-backed; not a private client run). |
+| [`examples/redacted-multiday-control-plane/`](examples/redacted-multiday-control-plane/) | **Redacted real-run pattern** — multi-day control-plane functions only (ledger, clean-context audit, gates, blocked-work lane, owner cards); no private payload. |
 | [`examples/add-tests-to-cli/`](examples/add-tests-to-cli/) | A worked *fictional* run — executor and ledger three rounds in. Start here for ledger shape. |
 | [`examples/migrate-blob-storage/`](examples/migrate-blob-storage/) | A longer *fictional* worked run — milestones, a pilot-before-cohort backfill, a convergence round, a supervisor directive catching self-reported evidence, and the non-skippable milestone gate in action. |
 | [Public / private boundary](../../docs/public-private-boundary.md) | What may enter the public tree vs stay project-local. |

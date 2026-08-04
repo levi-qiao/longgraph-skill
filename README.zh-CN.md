@@ -35,17 +35,19 @@
 ## 证据
 
 这些不是单轮 demo。octopus 是 **Markdown skill / 提示词库**（不是编排运行时）。
-下表信号均可 **公开复算**。
+下表混合了 **可复算的公开 Git**、**仅功能层的脱敏多日模式**，以及 **教学合成**。
 
 | 案例 | 读者可核验的内容 | 类型 |
 | --- | --- | --- |
 | [**本 skill 自迭代**](skills/loop-graph/examples/self-iteration-octopus-skill/README.zh-CN.md) | **87** 次公开 commit，跨越约 **14 个日历日**（2026-07-19 → 2026-08-02），触及 **74** 个文件；无 wake 边、gate-wait backlog、阻塞≠停机、热边有界、生成期≠运行期等规则写回库内 | 公开 Git 事实 — 固定锚点 `6efcb7f` |
+| [**多日控制面模式**](skills/loop-graph/examples/redacted-multiday-control-plane/README.zh-CN.md) | 多日 wall-clock、数十轮、多条 directives：持久 ledger、清洁上下文监督者推翻自报证据、不可跳过闸门、阻塞旁路、owner A/B/C — **只写功能**，无私有载荷 | 脱敏真实 run 模式 |
 | [**migrate-blob-storage**](skills/loop-graph/examples/migrate-blob-storage/README.md) | 多里程碑 ledger：试点→全量、强制收敛、监督者推翻自报证据、不可跳过闸门 + 阻塞旁路 | 教学合成（虚构应用） |
 | [**add-tests-to-cli**](skills/loop-graph/examples/add-tests-to-cli/README.md) | 最小完整 run：三轮、register-then-defer、清洁上下文监督意图 | 教学合成（虚构 CLI） |
 
 **时钟怎么读。** 自迭代窗口里的约 14 天 / 约 340 小时是 **项目 wall-clock**
 （首个公开 commit → 冻结锚点），不是连续模型执行时长，也不是无人值守生产自治。
-复算命令见[自迭代案例](skills/loop-graph/examples/self-iteration-octopus-skill/README.zh-CN.md)。
+Git 复算命令见[自迭代案例](skills/loop-graph/examples/self-iteration-octopus-skill/README.zh-CN.md)。
+脱敏多日卡只用 **粗粒度桶**，**不能**用私有 Git 复算——见其证据边界。
 
 后续案例的发布规则见：
 [公开 / 私有边界](docs/public-private-boundary.md)。

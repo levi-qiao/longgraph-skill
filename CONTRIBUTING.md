@@ -38,7 +38,8 @@ The graph grows one node at a time — a node is **one Markdown prompt + one ins
   [`docs/public-private-boundary.md`](docs/public-private-boundary.md).
 - **Showcase cards declare an evidence boundary** — every public case linked from
   root Evidence must state evidence class, re-check path, and what was excluded
-  (same doc).
+  (same doc). Redacted real-run cards are **function-only** (control-plane verbs +
+  coarse buckets) — never private ledgers, audit-report bodies, or identifying metrics.
 - **No prompt enters the library without a real consumer** — a run it was actually
   proven on. This is octopus's own anti-bloat rule turned on itself; curated and
   opinionated beats a junk drawer.
