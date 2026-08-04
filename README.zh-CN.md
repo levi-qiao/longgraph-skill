@@ -32,6 +32,24 @@
 > **一张持久图，跨宿主运行。** 简单、自包含的目标直接交给宿主的普通 task
 > 或 goal；octopus 只在持久图结构真正有价值时出场。
 
+## 证据
+
+这些不是单轮 demo。octopus 是 **Markdown skill / 提示词库**（不是编排运行时）。
+下表信号均可 **公开复算**。
+
+| 案例 | 读者可核验的内容 | 类型 |
+| --- | --- | --- |
+| [**本 skill 自迭代**](skills/loop-graph/examples/self-iteration-octopus-skill/README.zh-CN.md) | **87** 次公开 commit，跨越约 **14 个日历日**（2026-07-19 → 2026-08-02），触及 **74** 个文件；无 wake 边、gate-wait backlog、阻塞≠停机、热边有界、生成期≠运行期等规则写回库内 | 公开 Git 事实 — 固定锚点 `6efcb7f` |
+| [**migrate-blob-storage**](skills/loop-graph/examples/migrate-blob-storage/README.md) | 多里程碑 ledger：试点→全量、强制收敛、监督者推翻自报证据、不可跳过闸门 + 阻塞旁路 | 教学合成（虚构应用） |
+| [**add-tests-to-cli**](skills/loop-graph/examples/add-tests-to-cli/README.md) | 最小完整 run：三轮、register-then-defer、清洁上下文监督意图 | 教学合成（虚构 CLI） |
+
+**时钟怎么读。** 自迭代窗口里的约 14 天 / 约 340 小时是 **项目 wall-clock**
+（首个公开 commit → 冻结锚点），不是连续模型执行时长，也不是无人值守生产自治。
+复算命令见[自迭代案例](skills/loop-graph/examples/self-iteration-octopus-skill/README.zh-CN.md)。
+
+后续案例的发布规则见：
+[公开 / 私有边界](docs/public-private-boundary.md)。
+
 ## 什么时候用
 
 出现下面任一需求时，优先考虑 octopus：
@@ -174,7 +192,8 @@ owner 决策，再编译 loop-graph run。选择“直接创建”后，它会�
 | [Loop-graph author](skills/loop-graph/SKILL.md) | 生成执行者、监督者、ledger 与 directive 产物 |
 | [`lib/`](lib) | 共享方法论 |
 | [宿主 references](skills/loop-graph/references) | 每个宿主一份、按需加载的运行事实 owner |
-| [完整示例](skills/loop-graph/examples) | 展示 ledger 与闸门实际运行的具体 loop-graph run |
+| [完整示例](skills/loop-graph/examples) | 公开 Git 自迭代 + 虚构 ledger，展示闸门运作 |
+| [公开 / 私有边界](docs/public-private-boundary.md) | 什么可以进公开树，什么必须留在项目本地 |
 
 ## 治理
 
@@ -185,7 +204,9 @@ octopus 把自己的 anti-bloat 规则用在库本身：**没有真实 run 证�
 
 ## 致谢
 
-loop-graph skill 来自真实运行与社区输入。特别感谢
+loop-graph skill 来自真实运行与社区输入。
+[公开 Git 自迭代案例](skills/loop-graph/examples/self-iteration-octopus-skill/README.zh-CN.md)
+记录了方法如何被打磨进本库。特别感谢
 [@BrightProgrammer7](https://github.com/BrightProgrammer7) 提供
 `migrate-blob-storage` 示例，并参与打磨里程碑闸门与节点/边词汇。
 

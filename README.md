@@ -35,6 +35,25 @@ open the same workspace, re-send the frozen node prompt, and continue.
 > use the host's normal task or goal directly; octopus starts where durable graph
 > structure adds value.
 
+## Evidence
+
+These are not one-shot demos. octopus is a **Markdown skill / prompt library**
+(not an orchestration runtime). The signals below are **public and re-checkable**.
+
+| Case | What a reader can verify | Kind |
+| --- | --- | --- |
+| [**Self-iteration of this skill**](skills/loop-graph/examples/self-iteration-octopus-skill/README.md) | **87** public commits across **~14 calendar days** (2026-07-19 → 2026-08-02), **74** files, method rules written back into the library (no wake edge, gate-wait backlog, blocked≠parked, bounded live edges, authoring≠runtime) | Public Git facts — fixed anchor `6efcb7f` |
+| [**migrate-blob-storage**](skills/loop-graph/examples/migrate-blob-storage/README.md) | Multi-milestone ledger: pilot → cohort, forced convergence, supervisor overturns self-reported evidence, non-skippable gate + blocked-work lane | Synthetic pedagogy (fictional app) |
+| [**add-tests-to-cli**](skills/loop-graph/examples/add-tests-to-cli/README.md) | Smallest full run: three rounds, register-then-defer, clean-context supervisor intent | Synthetic pedagogy (fictional CLI) |
+
+**How to read the clock.** The self-iteration window’s ~14 days / ~340 hours is
+**project wall-clock** (first public commit → frozen anchor), not continuous model
+execution and not a claim of unattended production autonomy. Re-check with the
+commands in the [self-iteration case](skills/loop-graph/examples/self-iteration-octopus-skill/README.md).
+
+Publication rules for future cases:
+[public / private boundary](docs/public-private-boundary.md).
+
 ## When to use this
 
 Reach for octopus when you need any of:
@@ -187,7 +206,8 @@ durable run directory; only how you start each tick changes.
 | [Loop-graph author](skills/loop-graph/SKILL.md) | Generates executor, supervisor, ledger, and directive artifacts |
 | [`lib/`](lib) | Shared methodology |
 | [Host references](skills/loop-graph/references) | One independently loaded owner for each host's runtime facts |
-| [Worked examples](skills/loop-graph/examples) | Concrete loop-graph runs showing the ledger and gates in action |
+| [Worked examples](skills/loop-graph/examples) | Public-Git self-iteration plus fictional ledgers showing gates in action |
+| [Public / private boundary](docs/public-private-boundary.md) | What may enter the public tree vs stay project-local |
 
 ## Governance
 
@@ -199,7 +219,9 @@ Contributions are welcome. Start with [the contribution guide](CONTRIBUTING.md).
 
 ## Credits
 
-The loop-graph skill grew from real runs and community input. Special thanks to
+The loop-graph skill grew from real runs and community input. A
+[public-Git self-iteration case](skills/loop-graph/examples/self-iteration-octopus-skill/README.md)
+records how the method was hardened into this library. Special thanks to
 [@BrightProgrammer7](https://github.com/BrightProgrammer7) for the
 `migrate-blob-storage` example and the discussions that sharpened milestone
 gates and the node/edge vocabulary.

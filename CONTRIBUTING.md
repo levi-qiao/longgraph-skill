@@ -9,8 +9,9 @@ comprehensive are the most welcome.
 
 - **Real-world tunings** of the defaults (convergence interval, net-line cap, loop
   cadence) with a note on the project shape they suited.
-- **New worked examples** under the skill's `examples/` — must be fully generic and
-  secret-free (see below).
+- **New worked examples** under the skill's `examples/` — fully generic fictional
+  projects, or public-Git evidence about *this* repo; secret-free (see below and
+  [`docs/public-private-boundary.md`](docs/public-private-boundary.md)).
 - **Clarity fixes** to the skill templates, `lib/methodology.md`, or a per-host
   reference (corrections to what a host actually supports are
   especially valued).
@@ -32,7 +33,12 @@ The graph grows one node at a time — a node is **one Markdown prompt + one ins
 ## Hard rules
 
 - **No secrets, no real client data, ever** — in examples, fixtures, docs, or commit
-  messages. Examples must use fictional projects.
+  messages. Examples must use fictional projects (or public Git facts about *this*
+  open-source repo). See the full do/don’t lists in
+  [`docs/public-private-boundary.md`](docs/public-private-boundary.md).
+- **Showcase cards declare an evidence boundary** — every public case linked from
+  root Evidence must state evidence class, re-check path, and what was excluded
+  (same doc).
 - **No prompt enters the library without a real consumer** — a run it was actually
   proven on. This is octopus's own anti-bloat rule turned on itself; curated and
   opinionated beats a junk drawer.
