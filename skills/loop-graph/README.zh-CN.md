@@ -133,6 +133,7 @@ host 还有一个差别决定了一个 run 到底烧多少 token：**下一次�
 | [`templates/`](templates/) | 节点与边的模板，技能按 run 填充；脱离 Claude Code 也可手动使用。 |
 | [`methodology`](../../lib/methodology.md) | 设计依据：每条规则及其防范的失败模式。 |
 | [`examples/self-iteration-octopus-skill/`](examples/self-iteration-octopus-skill/) | **公开 Git 证据**——本 skill 自身多日打磨窗口（可用 commit 核验；不是私有客户 run）。 |
+| [`examples/redacted-multiday-control-plane/`](examples/redacted-multiday-control-plane/) | **脱敏真实 run 模式**——只写多日控制面功能（ledger、清洁上下文审计、闸门、阻塞旁路、owner 卡）；无私有载荷。 |
 | [`examples/add-tests-to-cli/`](examples/add-tests-to-cli/) | 一次*虚构*完整样例 run——executor 与台账跑到第 3 轮。先看 ledger 形态可从这里开始。 |
 | [`examples/migrate-blob-storage/`](examples/migrate-blob-storage/) | 更长的*虚构*样例 run——里程碑、先试点再全量的回填、一次收敛轮、一条识破"自报证据"的监督指令，以及不可跳过的里程碑门禁实际运作过程。 |
 | [公开 / 私有边界](../../docs/public-private-boundary.md) | 什么可以进公开树，什么必须留在项目本地。 |

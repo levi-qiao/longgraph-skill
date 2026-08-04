@@ -29,7 +29,7 @@ names, raw model traces, and metrics that identify a private deployment.
 | Host facts | `skills/loop-graph/references/*` |
 | Fictional pedagogy | `examples/add-tests-to-cli/`, `examples/migrate-blob-storage/`, `examples/scout-library-choice/` |
 | Public Git evidence | Commit SHAs, titles, dates, `git log` counts for **this** open-source repo |
-| Redacted showcases | Generalized domain labels, control-plane patterns, explicit evidence boundaries |
+| Redacted showcases | Generalized domain labels, **function-only** control-plane patterns, coarse scale buckets, explicit evidence boundaries (see `examples/redacted-multiday-control-plane/`) |
 | Install & plugin | `install.sh`, `.claude-plugin/*` manifests |
 
 ## Private (keep out of git / public docs)
@@ -42,6 +42,7 @@ names, raw model traces, and metrics that identify a private deployment.
 | Secrets | Tokens, keys, `.env`, session cookies, cloud account IDs |
 | Raw agent evidence | Session JSONL, tool dumps, full transcripts, private screenshots |
 | Identifying metrics | Accuracy/recall on a named private corpus, production SLOs, unreleased benchmark scores |
+| Audit / review documents | Audit-report bodies, findings, recommendations, or excerpts from private engagements |
 | Third-party confidential | Contracts, unreleased designs, internal doc URLs |
 
 **Rule of thumb:** if a stranger on the internet could map the artifact to a
@@ -68,10 +69,22 @@ must say so. Prefer a modest claim over a dramatic one.
 | --- | --- | --- |
 | 1 | Self-iteration of **this** skill repo | Zero customer risk; Git-checkable |
 | 2 | Fictional full ledgers | Teach shape without secrets |
-| 3 | Redacted multi-day case (optional later PR) | Only after scrubbing identities, paths, and metrics |
+| 3 | Redacted multi-day case (**function only**) | Coarse scale + control-plane verbs; never private ledger paste |
 
-Do **not** paste a private ledger “with numbers deleted” if remaining structure
-still identifies the engagement (unique milestone names, internal service names, etc.).
+### Function-only redacted runs
+
+When a case is inspired by real multi-day work but must stay public-safe:
+
+- Publish **what the graph did** (scoreboard, gates, clean-context overturn,
+  blocked-work lane, owner A/B/C), not **what the private system measured**.
+- Use **buckets** (multi-day, tens of rounds, many directives) — not exact private
+  round indices, directive IDs, score tables, or audit-report substance.
+- Do **not** claim public Git re-checkability for the private engagement.
+- Do **not** paste a private ledger “with numbers deleted” if remaining structure
+  still identifies the engagement (unique milestone names, internal service names,
+  fingerprintable paths, etc.). When in doubt, omit.
+
+See [`examples/redacted-multiday-control-plane/`](../skills/loop-graph/examples/redacted-multiday-control-plane/).
 
 ---
 
