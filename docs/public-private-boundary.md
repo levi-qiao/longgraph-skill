@@ -93,7 +93,8 @@ See [`examples/redacted-multiday-control-plane/`](../skills/loop-graph/examples/
 
 | Surface | Concrete private work? | Concrete *fictional* work? |
 | --- | --- | --- |
-| `templates/`, `lib/`, skill `SKILL.md` | **Never** | No — stay host- and goal-agnostic |
+| Core `templates/`, `lib/`, core `SKILL.md` | **Never** | No — stay host- and goal-agnostic |
+| Preset `SKILL.md` + pack | **Never** | Reusable goal-domain rules only; no project facts |
 | `examples/` | **Never** | **Yes** — that is their job |
 | Self-iteration case | N/A (this public repo only) | N/A |
 

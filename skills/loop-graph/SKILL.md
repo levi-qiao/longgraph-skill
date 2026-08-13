@@ -1,6 +1,6 @@
 ---
 name: loop-graph
-description: Author and optionally direct-launch one durable loop-graph run as executor, ledger, directives, and supervisor artifacts under a dated `.longgraph` directory, then present copy-ready host prompts. Use for multi-round work with gated milestones, independent audit, cross-host execution, or durable state. Detect Codex, Claude Code, or Grok Build from context and create both same-host runtime nodes when the owner chooses direct launch. Existing runtime nodes are self-contained. A sibling preset (for example /loop-converge) may bind a pack and then follow this skill.
+description: Author and optionally direct-launch one durable loop-graph run as executor, ledger, directives, and supervisor artifacts under a dated `.longgraph` directory, then present copy-ready host prompts. Use for multi-round work with gated milestones, independent audit, cross-host execution, or durable state. Detect Codex or Claude Code from context and create both same-host runtime nodes when the owner chooses direct launch. Existing runtime nodes are self-contained. A sibling preset (for example /loop-converge) may bind a pack and then follow this skill.
 ---
 
 # loop-graph — a graph of agent nodes, not a drifting loop
@@ -42,7 +42,9 @@ Five live artifacts from a short interview:
 1. **`executor.md`** — executor prompt: one task book, one cadence, anti-bloat rules, stop conditions, red lines.
 2. **`ledger.md`** — the single scoreboard both nodes read; the executor rewrites it every round.
 3. **`directives.md`** — the bounded one-way corrections queue: current STANDING locks + not-yet-folded numbered corrections; folded ones rotate into a cold archive.
-4. **`ops.md`** *(optional)* — current env facts (build commands, credential/data policy, context index, timer IDs) the executor consults, not re-derives; update facts in place, never as a timeline.
+4. **`ops.md`** — the exact context index and gates every cold node follows,
+   plus current environment/data/host lifecycle facts when applicable; update
+   facts in place, never as a timeline.
 5. **`supervisor.md`** *(optional)* — supervisor prompt, scheduled; independently re-verifies claimed-done work, checkpoint-commits what passes, decides pending items, and corrects drift / steers the plan via the directives file.
 
 **Run directory — fixed, one per run.** Everything above goes in `.longgraph/<YYYY-MM-DD-slug>/` at the repo root (workspace root for multi-repo runs), plus an `archive/` subdir for in-run rotations. **A new run always creates `.longgraph/…` from the templates — never retarget or edit a previous run's files**: patching stale prompts wastes tokens and leaves leftover text steering toward the old goal. The old directory stays untouched (it *is* the archive); distill what still holds into the new ledger's starting snapshot and copy still-in-force STANDING directives forward. Commit the run directory unless data policy forbids — it's the durable state the graph depends on.
@@ -79,8 +81,9 @@ answered for:
 
 Still discover the workspace. Still ask at most three owner questions; with a
 bound pack those are typically scope, authority, and launch mode. Still
-generate from this skill's `templates/` — never a second template set, never a
-third runtime node. The preset skill does not execute the generated nodes.
+generate from this skill's [`templates/`](templates/) — never a second template
+set, never a third runtime node. The preset skill does not execute the generated
+nodes.
 
 ## How to run it
 
@@ -95,7 +98,7 @@ unverifiable:
 1. **North Star and proof**, only when the request does not already imply a checkable outcome. Offer one concise recommended wording.
 2. **Authority**, only where not already stated. Recommended default: local edits and verification allowed; no push, destructive git, production/remote mutation, secret or real-data exposure, unbounded spend, or lowering an acceptance bar. Ask whether commits are allowed only when the run needs them. When the run performs metered or expensive work, put the actual numbers in `ops.md` — "spend beyond budget" is an owner-only tripwire, and an undeclared budget makes it unenforceable.
 3. **Milestones**, only when two materially different decompositions exist. Present the recommended phase split and exit checks as A; offer B only when it changes the outcome or risk. Single goal means no milestone question. Sequence so the smallest slice that unblocks the main line comes first: a large enabling refactor placed ahead of the delivery milestone concentrates risk and delays every proof behind it. Split such a milestone into the narrow unblocking part and a remainder that runs alongside the main line instead of in front of it.
-4. **Launch mode**, unless the user already chose it: **A (Recommended) — create both runtime nodes here on the detected Codex, Claude Code, or Grok Build host**; **B — print copy-ready prompts only**. Ask target hosts only for B or when the user explicitly requests a cross-host run.
+4. **Launch mode**, unless the user already chose it: **A (Recommended) — create both runtime nodes here on the detected Codex or Claude Code host**; **B — print copy-ready prompts only**. Ask target hosts only for B or when the user explicitly requests a cross-host run.
 
 Do not ask for repo paths, branches, host, test commands, red lines, or cadences when they are discoverable. If a gate is missing or ambiguous after inspection, propose the narrowest credible command and ask one A/B choice. Long-horizon loop-graph runs include the supervisor by default; ask whether to omit it only when its value is genuinely doubtful.
 
@@ -116,7 +119,7 @@ Reply with: A / B / C
 
 Use at most three mutually exclusive options. Put the safest reversible option first unless evidence clearly favors another. Translate technical evidence into consequences; place paths, commands, and jargon in an optional `Technical note` after the choices. Never end with "what do you think?" or make the owner invent option D. If no answer arrives, the run holds at the safe no-change state.
 
-**Host and cadence.** Infer the current authoring host from system context and callable tools. Codex, Claude Code, and Grok Build are the supported direct-launch planners. When A is chosen, place both runtime nodes on that detected host and read only its reference; do not ask about or print other-host syntax. When B or an explicit cross-host request is chosen, read one reference per selected node:
+**Host and cadence.** Infer the current authoring host from system context and callable tools. Codex and Claude Code are the supported direct-launch planners. When A is chosen, place both runtime nodes on that detected host and read only its reference; do not ask about or print other-host syntax. When B or an explicit cross-host request is chosen, read one reference per selected node:
 
 - [Claude Code](references/claude-code.md)
 - [Codex](references/codex.md)
@@ -124,7 +127,7 @@ Use at most three mutually exclusive options. Put the safest reversible option f
 - [Cursor](references/cursor.md)
 - [shell / cron](references/shell-cron.md)
 
-Do not load unrelated host references. The selected reference owns capability checks, node creation, and how each node arms and stops its own timer. Other hosts may execute prepared prompts, but direct creation is supported only from Codex, Claude Code, and Grok Build.
+Do not load unrelated host references. The selected reference owns capability checks, node creation, and how each node arms and stops its own timer. Other hosts may execute prepared prompts, but direct creation is supported only from Codex and Claude Code.
 
 Set two cadences. The timer guarantees a node comes back; it does not pace it. `EXEC_INTERVAL` is how soon the executor returns after a fire ends — short, because the fire, not the interval, decides how much work happens. `SUP_INTERVAL` is 3–4× that, phase-offset, so the supervisor audits several times across a long fire.
 
@@ -136,8 +139,8 @@ Decide from context what you reasonably can and state the assumption; anything g
 
 **Step 2 — Generate** a fresh `.longgraph/<YYYY-MM-DD-slug>/` from `templates/` (never a new `.octopus/` directory):
 
-- Always: `executor.md`, `ledger.md`, `directives.md`, and `archive/`.
-- When useful: `ops.md`. Add `supervisor.md` only when chosen.
+- Always: `executor.md`, `ledger.md`, `directives.md`, `ops.md`, and `archive/`.
+  Add `supervisor.md` only when chosen.
 - Replace every placeholder and delete guidance comments. Keep paths inside the run directory.
 - Keep host launch prompts to a pointer plus the host primitive. Put behavior in `executor.md`/`supervisor.md`, never duplicate it in the handoff prompt. Two things matter in every launch prompt: **read-and-follow, never an authoring verb** ("set up", "create", "author", "plan" read as permission to build something, and a fresh node answers by creating a second run) — and **"do not load any skill"**, because a host that matches skills by name or path can inject the authoring skill before the node opens its own file.
 - Compile the `ops.md` Context index before writing the first ledger slice. Each row names when to read it, exact source pointers, and exact verification. Make the ledger Current slice and every directive cite those rows.
@@ -150,7 +153,7 @@ Decide from context what you reasonably can and state the assumption; anything g
 
 **Step 3 — Deliver without making the owner discover the workflow.** Offer only when the user has not already chosen:
 
-- **A (Recommended) — create both nodes here** when the detected host is Codex, Claude Code, or Grok Build.
+- **A (Recommended) — create both nodes here** when the detected host is Codex or Claude Code.
 - **B — prompts only** when the owner will launch elsewhere.
 
 Never end at "files generated." End with the exact next action and copy-ready prompt(s).

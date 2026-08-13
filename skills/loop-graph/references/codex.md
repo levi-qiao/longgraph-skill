@@ -26,28 +26,29 @@ Two tasks, two timers, no wake edge between them.
   its "keep the full objective intact" continuation fights the one-item round.
 - No node dispatches, resumes, or queries the other. A correction is folded on the
   executor's next fire.
-- Stop: each node deletes its own recorded automation at terminal ledger state.
+- Give each automation a deterministic name containing the run slug and node role.
+  Before creating, resolve that exact name plus target thread and reuse it if present.
+- Stop: at terminal ledger state, each node resolves its own exact automation by name
+  and target thread, then deletes it. Automation IDs are host state, not run state.
 
 ## Generate
 
 - Replace `TIMER_STEP` in **both** node files with the arming instruction below,
   substituting that node's file, interval, and wake instruction:
 
-  > **First invocation only.** If this node's row in the `ops.md` Timers table reads
-  > `pending`, or names an automation you cannot reach from this thread, create exactly
-  > one recurring wakeup of **this thread** at `{{INTERVAL}}` whose instruction is
-  > exactly `{{WAKE_TEXT}}`, write the returned ID into that row, and then do this
-  > activation's work. Never create a second automation for this run, never attach one to
-  > another thread, and never create a thread, task, or goal. Every later invocation
-  > skips this step entirely and goes straight to Hot start.
+  > **First invocation only.** Resolve the exact automation name
+  > `longgraph {{NODE}} — {{RUN_SLUG}}` for this thread. If none exists, create exactly
+  > one recurring wakeup of **this thread** at `{{INTERVAL}}` with that name and the
+  > instruction `{{WAKE_TEXT}}`; otherwise reuse the exact match. Never create a second
+  > automation for this node, attach one to another thread, or create a thread, task, or
+  > goal. Every later invocation skips this step and goes straight to Hot start.
 
   Wake text is `Run one executor activation from {{RUN_DIR}}/executor.md.` at
   `{{EXEC_INTERVAL}}`, and `Run one audit tick from {{RUN_DIR}}/supervisor.md.` at
   `{{SUP_INTERVAL}}`.
-- On this host, "stop your own timer" at terminal ledger state means deleting the
-  automation recorded in your Timers row — say so in both files.
-- Create `ops.md` with the Timers table; seed both IDs `pending`. Do not ask the owner to
-  type either.
+- On this host, "stop your own timer" means resolving the exact deterministic name for
+  this thread and deleting that automation. Say so in both node files. Do not persist
+  automation IDs or generate an `ops.md` Timers table.
 
 ## Create both nodes here
 
@@ -61,7 +62,7 @@ two thread creations; do not ask again.
    `SUPERVISOR_LAUNCH`. Create no automations yourself: each node arms its own on its
    first invocation.
 3. Wait until each has emitted its first status. Report both task links/IDs, both
-   cadences, and that stopping means deleting the two automations (or the two tasks).
+   cadences, the two deterministic automation names, and how to stop them.
    If either creation fails, say so plainly and fall back to prompts-only for both;
    never leave a half-launched graph.
 
@@ -77,7 +78,7 @@ two thread creations; do not ask again.
   Read {{RUN_DIR}}/executor.md and follow it exactly. Do not load any skill.
   ```
 
-- `EXECUTOR_READY`: the task replies and reports the wakeup it armed.
+- `EXECUTOR_READY`: the task replies and confirms the named wakeup is armed.
 - `SUPERVISOR_DESTINATION`: Task 2.
 - `SUPERVISOR_LAUNCH`:
 
@@ -95,5 +96,5 @@ two thread creations; do not ask again.
 - `RESET_INSTRUCTION`: none is needed per fire. To hand the executor a genuinely fresh
   context, delete its automation, open a new task with the same launch prompt, and let it
   re-arm; the run directory carries everything it needs.
-- `STOP_INSTRUCTION`: each node deletes its own automation at terminal state; manually,
-  delete the two automations or the two tasks.
+- `STOP_INSTRUCTION`: each node resolves and deletes its own named automation at
+  terminal state; manually, delete the two named automations or the two tasks.

@@ -31,5 +31,5 @@ and it does not ship a second template set.
    North Star. Do not offer to omit the supervisor.
 4. Read and follow [`../loop-graph/SKILL.md`](../loop-graph/SKILL.md) from
    **When called from a preset skill** through generate and deliver. Compile
-   from loop-graph `templates/` only. This skill never executes the generated
-   nodes.
+   only from loop-graph's [`templates/`](../loop-graph/templates/). This skill
+   never executes the generated nodes.
