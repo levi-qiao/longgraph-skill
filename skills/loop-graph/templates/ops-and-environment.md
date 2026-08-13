@@ -1,7 +1,8 @@
 <!--
-loop-graph template: ops.md — durable environment facts.
-The executor node consults this instead of re-deriving build/env/data facts every round.
-Only create this file if there ARE non-trivial facts worth pinning. Keep it factual.
+loop-graph template: ops.md — durable context index, gates, and environment facts.
+Always generate this file: cold nodes depend on its exact pointers and verification
+commands. When there are no non-trivial environment/data facts, keep only the index,
+gates, standards pointer, and host lifecycle fields. Keep it factual.
 It is ambient context, not a timeline: runtime nodes read it; the author/owner updates
 superseded facts in place rather than appending history. Git is the history. The single
 exception is the Timers block at the bottom, where each node records the ID of its own

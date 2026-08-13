@@ -20,9 +20,8 @@ tidy.
 1. Invoke `/loop-converge` (Claude Code plugin: `longgraph:loop-converge`).
 2. Answer the short interview — scope, authority, launch — or accept the
    recommended A on each.
-3. **A** creates both nodes on the detected host (Codex, Claude Code, or
-   Grok Build). **B** prints copy-ready read-and-follow prompts for another
-   host.
+3. **A** creates both nodes on Codex or Claude Code. **B** prints copy-ready
+   read-and-follow prompts for another host, including Grok Build.
 
 Authoring never executes the generated nodes.
 

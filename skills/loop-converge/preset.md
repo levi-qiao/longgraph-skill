@@ -29,14 +29,17 @@ After inspection, propose answers; do not ask the owner to design them.
    or real-data exposure, unbounded spend, or lowering the acceptance bar.
    **B** — edits and tests only; no commits. **C** — allow a named public-API
    merge under a drafted STANDING evidence bar.
-3. **Launch.** **A (Recommended)** — create both runtime nodes here on the
-   detected host. **B** — print copy-ready prompts for another host.
+3. **Launch.** **A (Recommended when supported)** — create both runtime nodes
+   here on Codex or Claude Code. **B** — print copy-ready prompts for another
+   host.
 
 ## Milestones (present as A unless inspection differs)
 
 1. Inventory the scope and pin the detectors that actually exist here.
-2. Delete code that is proven dead (static **and** dynamic evidence).
-3. Merge twin implementations into one owner.
+2. Delete code only after its reachability is disproved with evidence suited
+   to the path.
+3. Merge twin implementations only after a behavior matrix shows the shared
+   contract and divergent edge cases.
 4. Extract a shared owner only when there are at least three call sites.
 5. Tighten names and interfaces; net lines ≤ 0.
 6. Dry run: detectors + the full gate green; no new public surface.
@@ -49,19 +52,33 @@ front of every proof.
 
 - Priority is delete, then merge, then extract, then rename. "Elegant" or
   "generic" means one owner, not a new framework.
-- No new abstraction without at least two existing call sites (extract
-  defaults to three). No consumer → do not build.
+- Do not extract a new shared abstraction before three existing call sites;
+  merging two twins into an existing owner is allowed. No consumer → do not
+  build.
 - Every work round nets ≤ 0 lines. Inventory rounds write only the ledger.
   An extract and the deletion of its copies belong in the same round.
-- A static "unused" hit that may be a plugin, reflection, public API, or
-  generated path is registered, not deleted.
+- Every candidate names its scope and verifier, then records before/after
+  evidence plus a persistent pointer. No proof packet → no deletion or merge.
+- Keep each open candidate in one bounded Debt/gap row:
+  `lane | scope | baseline | verifier | evidence/window | verdict`. Rewrite
+  the row in place and remove it when its round closes; do not add a new edge
+  or unbounded candidate log.
+- Static suspicion is not proof for plugins, reflection, public APIs, or
+  generated paths. When existing runtime observability can decide the case,
+  use its narrowest available probe and record the observation window in
+  `ops.md`; delete only on a later round after the window closes. Otherwise
+  register the candidate instead of deleting it.
 - Do not merge similar-but-divergent implementations without a named shared
-  contract.
+  contract and a compact behavior matrix covering representative and edge
+  cases; preserve intentional differences explicitly.
 - A compatibility double path is a defect, not a migration strategy, unless
   a STANDING directive already authorizes it.
 - Behavior-preserving: existing tests stay green. A critical path with no
   test gets one narrow characterization test in the same round before the
-  edit.
+  edit; keep the round net ≤ 0 or register the candidate instead.
+- When review rejects a candidate, the supervisor records the failure class
+  and tightens its detector, scope, or proof through a directive. It never
+  lowers the bar or leaves the lesson only in either node's context.
 
 ## Knob overrides
 

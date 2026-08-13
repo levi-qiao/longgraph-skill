@@ -18,8 +18,8 @@
 
 1. 调用 `/loop-converge`（Claude Code 插件：`longgraph:loop-converge`）。
 2. 回答短面试——范围、权限、启动——或直接接受每题的推荐项 A。
-3. **A** 在当前宿主创建两个节点（Codex、Claude Code 或 Grok Build）。
-   **B** 打印可复制的 read-and-follow 提示词，去别的宿主粘贴。
+3. **A** 在 Codex 或 Claude Code 上创建两个节点。**B** 打印可复制的
+   read-and-follow 提示词，可粘贴到 Grok Build 等其他宿主。
 
 作者会话不会执行生成出来的节点。
 

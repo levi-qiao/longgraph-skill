@@ -37,11 +37,12 @@ node/edge vocabulary + invariants). The contribution bar is in [`CONTRIBUTING.md
 
 ## Rules that are easy to get wrong (don't)
 
-1. **Keep templates host- and goal-agnostic.** Never hardcode a specific project or
-   domain into `templates/`, `lib/`, or a `SKILL.md`. Rules adapt to whatever goal the
-   user writes; scope eval/measurement-specific language behind *"when a check is a
-   measurement."* Mine real runs for failure modes, then write them up generically.
-   (Examples under `examples/` are the one place concrete is right.)
+1. **Keep the core host- and goal-agnostic.** Never hardcode a specific project or
+   goal domain into loop-graph `templates/`, `lib/`, or its `SKILL.md`. A preset
+   `SKILL.md` may name its reusable goal domain for routing; domain rules live in its
+   pack, never in the core templates. Mine real runs for failure modes, then write
+   them up generically. (Examples under `examples/` are the one place concrete is
+   right.)
 2. **Anti-bloat governance — the library holds itself to its own rule.** No prompt
    enters without a real consumer (a run it was proven on). Curated > comprehensive.
    New abstraction/config in a template needs a concrete motivating case.
