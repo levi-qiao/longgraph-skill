@@ -115,13 +115,13 @@ host 还有一个差别决定了一个 run 到底烧多少 token：**下一次�
 
    <sub>为 Codex / Cursor 创建 `/longgraph` symlink（并保留遗留 `/octopus`）。Claude Code 用插件安装。</sub>
 
-2. **在 Codex 或 Claude Code 中运行 `/longgraph`。** 它先识别当前宿主并检查工作区，只把无法推断的 owner 决策合成一小组问题。文件生成到全新的 `.longgraph/<日期-slug>/` 目录。（[每个文件的作用 →](#每次-run-生成的文件)）
+2. **在 Codex、Claude Code 或 Grok Build 中运行 `/longgraph`。** 它先识别当前宿主并检查工作区，只把无法推断的 owner 决策合成一小组问题。文件生成到全新的 `.longgraph/<日期-slug>/` 目录。（[每个文件的作用 →](#每次-run-生成的文件)）删无用 / 去重 / 瘦身请改用 [`/loop-converge`](../loop-converge/README.zh-CN.md)——同一套编译路径，北星已预填。
 
-3. **选择 A 直接在这里创建两个节点（推荐），或选择 B 只拿提示词。** 选 A 后，Codex 或 Claude Code 会直接创建并验证执行者和监督者，不再问你当前是什么客户端，也不用你手动新开会话。
+3. **选择 A 直接在这里创建两个节点（推荐），或选择 B 只拿提示词。** 选 A 后，Codex、Claude Code 或 Grok Build 会直接创建并验证执行者和监督者，不再问你当前是什么客户端，也不用你手动新开会话。
 
 4. **保留结果中列出的运行节点。** 到终态时，它们会使用识别到的宿主机制自行停止。
 
-在 **Grok Build**、Cursor 或 shell/cron 上选择 prompts-only，并使用对应的 [宿主 reference](references/)（Grok Build：两个 `/loop` 任务）。
+在 **Cursor** 或 **shell/cron** 上选择 prompts-only，并使用对应的 [宿主 reference](references/)。在 Grok Build 上，A 就是两条 `/loop` 调度任务。
 
 ## 仓库结构
 

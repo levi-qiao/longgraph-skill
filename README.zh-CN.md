@@ -107,7 +107,7 @@ Git 复算命令见[自迭代案例](skills/loop-graph/examples/self-iteration-l
 
 它是 Markdown 提示词，不是编排框架：无需应用运行时、服务端或厂商绑定。
 可作为 **Claude Code 插件**安装，用 install 脚本 symlink 到 **Codex / Cursor**，
-或在 **Grok Build**（及其他宿主）上走 prompts-only（见各宿主 reference）。
+或在 **Grok Build** 上直接创建两个 `/loop` 调度任务（见各宿主 reference）。
 
 ## 多任务 loop 与中途换宿主
 
@@ -132,6 +132,7 @@ Git 复算命令见[自迭代案例](skills/loop-graph/examples/self-iteration-l
 | --- | --- | --- |
 | 一个普通 task / 单次会话能完成的自包含目标 | 直接用宿主的普通 task 或 goal | 不加 longgraph 包装，不多一层 prompt |
 | 多轮、持久状态、不可跳过的闸门、owner 边界、中途换宿主或独立验证 | [**longgraph / loop-graph**](skills/loop-graph/README.zh-CN.md) | 执行者 loop + 清洁上下文监督者，通过持久文件协作 |
+| 多轮删无用 / 去重 / 复用 / 瘦身（同一张双节点图） | [**`/loop-converge`**](skills/loop-converge/README.zh-CN.md) | 已预填收敛绑包的 loop-graph 作者 |
 
 **一句话：**不需要这张图，就不要用 longgraph。
 
@@ -148,7 +149,7 @@ Git 复算命令见[自迭代案例](skills/loop-graph/examples/self-iteration-l
 
 ### Codex 或 Cursor
 
-安装库，并把 `/longgraph`（以及遗留 `/octopus`）symlink 到会跟随链接的宿主：
+安装库，并把 `/longgraph` 与 `/loop-converge`（以及遗留 `/octopus`）symlink 到会跟随链接的宿主：
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
@@ -156,18 +157,19 @@ curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/inst
 
 本地克隆时，在仓库根目录运行 `./install.sh`。
 
-### Grok Build（及其他 prompts-only 宿主）
+### Grok Build
 
-若要直接创建节点，请在 Claude Code 或 Codex 上生成；或选择 prompts-only，把已固化的
-执行者 / 监督者指针粘进 [Grok Build](skills/loop-graph/references/grok.md) 的
-`/loop` 任务（共用同一 run 目录）。Cursor 与 shell/cron 同样走 prompts-only——见
-[宿主兼容性](#宿主兼容性)。
+在 **Grok Build**、Codex 或 Claude Code 上可以直接创建节点。Grok Build 上是两条
+独立的 `/loop` 调度任务，共用同一工作区（见
+[Grok 参考](skills/loop-graph/references/grok.md)）。Cursor 与 shell/cron 仍走
+prompts-only——见[宿主兼容性](#宿主兼容性)。
 
 ### 设计一次 run
 
-调用 `/longgraph`。它会自动识别 Codex 或 Claude Code、先检查工作区，只询问无法推断的
-owner 决策，再编译 loop-graph run。选择“直接创建”后，它会在当前宿主启动两个运行节点；
-选择 prompts-only 才需要手动或跨宿主启动（含 Grok Build）。也可以直接调用 `loop-graph`。
+调用 `/longgraph`（删无用 / 去重 / 瘦身用 `/loop-converge`）。它会自动识别
+Codex、Claude Code 或 Grok Build、先检查工作区，只询问无法推断的 owner 决策，
+再编译 loop-graph run。选择“直接创建”后，它会在当前宿主启动两个运行节点；
+选择 prompts-only 才需要手动或跨宿主启动。也可以直接调用 `loop-graph`。
 
 生成期与运行期严格分离：author skill 只编译，不执行。生成的节点遵循
 `.longgraph/<日期-slug>/` 下已固化的本次 run 契约。
@@ -192,7 +194,7 @@ owner 决策，再编译 loop-graph run。选择“直接创建”后，它会�
 | --- | --- |
 | [**Codex**](skills/loop-graph/references/codex.md) | ✅ 自动识别宿主并直接创建两个运行节点 |
 | [**Claude Code**](skills/loop-graph/references/claude-code.md) | ✅ 自动识别宿主；能力检查通过后直接创建两个后台运行会话 |
-| [**Grok Build**](skills/loop-graph/references/grok.md) | prompts-only — 两个 `/loop` 任务（执行者 + 监督者），无 wake 边 |
+| [**Grok Build**](skills/loop-graph/references/grok.md) | ✅ 自动识别宿主并直接创建两个 `/loop` 调度任务（执行者 + 监督者），无 wake 边 |
 | [**Cursor**](skills/loop-graph/references/cursor.md) | 仅作为 prompts-only 执行目标 |
 | [**shell / cron**](skills/loop-graph/references/shell-cron.md) | 仅作为 prompts-only 执行目标 |
 
@@ -218,6 +220,7 @@ GitHub 更名会重定向旧的 clone/curl URL。请重新跑一次 `install.sh`
 | --- | --- |
 | [根 `SKILL.md`](SKILL.md) | `/longgraph` 入口；检查是否适用，再交给 loop-graph 生成 |
 | [Loop-graph author](skills/loop-graph/SKILL.md) | 生成执行者、监督者、ledger 与 directive 产物 |
+| [loop-converge](skills/loop-converge/SKILL.md) | 预设入口：代码收敛面试 → 同一套 loop-graph 编译 |
 | [`lib/`](lib) | 共享方法论 |
 | [宿主 references](skills/loop-graph/references) | 每个宿主一份、按需加载的运行事实 owner |
 | [完整示例](skills/loop-graph/examples) | 公开 Git 自迭代 + 虚构 ledger，展示闸门运作 |

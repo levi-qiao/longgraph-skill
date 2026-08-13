@@ -116,13 +116,13 @@ Each loop **stops its own timer** when the run is done. Exact launch and stop be
 
    <sub>Symlinks `/longgraph` for Codex / Cursor (legacy `/octopus` too). Claude Code uses the plugin.</sub>
 
-2. **Run `/longgraph` in Codex or Claude Code.** It detects the current host and inspects the workspace first, then asks one short batch only for unresolved owner decisions. The files land in a fresh `.longgraph/<date-slug>/` directory. ([What each file does →](#files-generated-per-run))
+2. **Run `/longgraph` in Codex, Claude Code, or Grok Build.** It detects the current host and inspects the workspace first, then asks one short batch only for unresolved owner decisions. The files land in a fresh `.longgraph/<date-slug>/` directory. ([What each file does →](#files-generated-per-run)) For unused / duplicate / slim work, invoke [`/loop-converge`](../loop-converge/README.md) instead — same compile path, pre-bound North Star.
 
-3. **Choose A to create both nodes here (recommended), or B for prompts only.** On A, Codex or Claude Code creates and verifies the executor and supervisor directly; it does not ask you to identify the current client or open the sessions yourself.
+3. **Choose A to create both nodes here (recommended), or B for prompts only.** On A, Codex, Claude Code, or Grok Build creates and verifies the executor and supervisor directly; it does not ask you to identify the current client or open the sessions yourself.
 
 4. **Leave the reported runtime nodes active.** They stop themselves at terminal state using the detected host's mechanism.
 
-On **Grok Build**, Cursor, or shell/cron, choose prompts-only and use the matching [host reference](references/) (Grok Build: two `/loop` tasks).
+On **Cursor** or **shell/cron**, choose prompts-only and use the matching [host reference](references/). On Grok Build, A is two `/loop` scheduler tasks.
 
 ## Repository layout
 

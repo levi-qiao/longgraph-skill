@@ -1,6 +1,6 @@
 ---
 name: loop-graph
-description: Author and optionally direct-launch one durable loop-graph run as executor, ledger, directives, and supervisor artifacts under a dated `.longgraph` directory, then present copy-ready host prompts. Use for multi-round work with gated milestones, independent audit, cross-host execution, or durable state. Detect Codex or Claude Code from context and create both same-host runtime nodes when the owner chooses direct launch. Existing runtime nodes are self-contained.
+description: Author and optionally direct-launch one durable loop-graph run as executor, ledger, directives, and supervisor artifacts under a dated `.longgraph` directory, then present copy-ready host prompts. Use for multi-round work with gated milestones, independent audit, cross-host execution, or durable state. Detect Codex, Claude Code, or Grok Build from context and create both same-host runtime nodes when the owner chooses direct launch. Existing runtime nodes are self-contained. A sibling preset (for example /loop-converge) may bind a pack and then follow this skill.
 ---
 
 # loop-graph — a graph of agent nodes, not a drifting loop
@@ -63,6 +63,25 @@ Invariants: **ledger = the only scoreboard**; **one item per round → verify �
 
 Interview in the user's language and mirror it in the prose inside the artifacts (goals, notes, red lines). Keep structural keywords, headings, and field names as in the templates so files stay tool-friendly.
 
+## When called from a preset skill
+
+A sibling authoring skill (for example [`loop-converge`](../loop-converge/SKILL.md))
+may bind a **preset pack** and then hand off here. Treat the pack as already
+answered for:
+
+- **North Star and proof** — skip that interview question unless the pack is
+  silent on a checkable outcome.
+- **Supervisor** — required when the pack says so; do not ask to omit it.
+- **Method guards** — append the pack's guards as `PROJECT_SPECIFIC_METHOD_GUARDS`.
+- **Knob overrides** — use the pack's numbers instead of the defaults.
+- **Recommended milestone split** — present the pack's split as A unless
+  inspection shows a materially different decomposition.
+
+Still discover the workspace. Still ask at most three owner questions; with a
+bound pack those are typically scope, authority, and launch mode. Still
+generate from this skill's `templates/` — never a second template set, never a
+third runtime node. The preset skill does not execute the generated nodes.
+
 ## How to run it
 
 **Step 1 — Discover, then interview.** Before asking anything, inspect the workspace and current system/tool context. Infer the current authoring host, project root, repos, branches, dirty state, repo instructions, likely gates, and any explicit goal/constraints. **Never ask the user which client or host this is when the system context already identifies it.** Capture the dirty-state baseline before this session changes anything — whatever you go on to move, archive, generate, or delete becomes indistinguishable from the owner's uncommitted work unless your own paths are enumerated in the ledger's starting snapshot.
@@ -76,7 +95,7 @@ unverifiable:
 1. **North Star and proof**, only when the request does not already imply a checkable outcome. Offer one concise recommended wording.
 2. **Authority**, only where not already stated. Recommended default: local edits and verification allowed; no push, destructive git, production/remote mutation, secret or real-data exposure, unbounded spend, or lowering an acceptance bar. Ask whether commits are allowed only when the run needs them. When the run performs metered or expensive work, put the actual numbers in `ops.md` — "spend beyond budget" is an owner-only tripwire, and an undeclared budget makes it unenforceable.
 3. **Milestones**, only when two materially different decompositions exist. Present the recommended phase split and exit checks as A; offer B only when it changes the outcome or risk. Single goal means no milestone question. Sequence so the smallest slice that unblocks the main line comes first: a large enabling refactor placed ahead of the delivery milestone concentrates risk and delays every proof behind it. Split such a milestone into the narrow unblocking part and a remainder that runs alongside the main line instead of in front of it.
-4. **Launch mode**, unless the user already chose it: **A (Recommended) — create both runtime nodes here on the detected Codex or Claude Code host**; **B — print copy-ready prompts only**. Ask target hosts only for B or when the user explicitly requests a cross-host run.
+4. **Launch mode**, unless the user already chose it: **A (Recommended) — create both runtime nodes here on the detected Codex, Claude Code, or Grok Build host**; **B — print copy-ready prompts only**. Ask target hosts only for B or when the user explicitly requests a cross-host run.
 
 Do not ask for repo paths, branches, host, test commands, red lines, or cadences when they are discoverable. If a gate is missing or ambiguous after inspection, propose the narrowest credible command and ask one A/B choice. Long-horizon loop-graph runs include the supervisor by default; ask whether to omit it only when its value is genuinely doubtful.
 
@@ -97,7 +116,7 @@ Reply with: A / B / C
 
 Use at most three mutually exclusive options. Put the safest reversible option first unless evidence clearly favors another. Translate technical evidence into consequences; place paths, commands, and jargon in an optional `Technical note` after the choices. Never end with "what do you think?" or make the owner invent option D. If no answer arrives, the run holds at the safe no-change state.
 
-**Host and cadence.** Infer the current authoring host from system context and callable tools. Codex and Claude Code are the supported direct-launch planners. When A is chosen, place both runtime nodes on that detected host and read only its reference; do not ask about or print other-host syntax. When B or an explicit cross-host request is chosen, read one reference per selected node:
+**Host and cadence.** Infer the current authoring host from system context and callable tools. Codex, Claude Code, and Grok Build are the supported direct-launch planners. When A is chosen, place both runtime nodes on that detected host and read only its reference; do not ask about or print other-host syntax. When B or an explicit cross-host request is chosen, read one reference per selected node:
 
 - [Claude Code](references/claude-code.md)
 - [Codex](references/codex.md)
@@ -105,7 +124,7 @@ Use at most three mutually exclusive options. Put the safest reversible option f
 - [Cursor](references/cursor.md)
 - [shell / cron](references/shell-cron.md)
 
-Do not load unrelated host references. The selected reference owns capability checks, node creation, and how each node arms and stops its own timer. Other hosts may execute prepared prompts, but direct creation is supported only from Codex or Claude Code.
+Do not load unrelated host references. The selected reference owns capability checks, node creation, and how each node arms and stops its own timer. Other hosts may execute prepared prompts, but direct creation is supported only from Codex, Claude Code, and Grok Build.
 
 Set two cadences. The timer guarantees a node comes back; it does not pace it. `EXEC_INTERVAL` is how soon the executor returns after a fire ends — short, because the fire, not the interval, decides how much work happens. `SUP_INTERVAL` is 3–4× that, phase-offset, so the supervisor audits several times across a long fire.
 
@@ -131,7 +150,7 @@ Decide from context what you reasonably can and state the assumption; anything g
 
 **Step 3 — Deliver without making the owner discover the workflow.** Offer only when the user has not already chosen:
 
-- **A (Recommended) — create both nodes here** when the detected host is Codex or Claude Code.
+- **A (Recommended) — create both nodes here** when the detected host is Codex, Claude Code, or Grok Build.
 - **B — prompts only** when the owner will launch elsewhere.
 
 Never end at "files generated." End with the exact next action and copy-ready prompt(s).
