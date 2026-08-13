@@ -8,10 +8,13 @@ The same rules apply in Claude Code — [`CLAUDE.md`](CLAUDE.md) imports this fi
 A **curated, opinionated prompt library** for long-horizon agent work, framed as
 **"graph engineering."** It ships **Markdown prompts, not application code** — there
 is no build step and no runtime. One umbrella (`/longgraph`) checks whether the
-method fits, then delegates to one authoring skill:
+method fits, then delegates to the loop-graph author. Specialized entries such as
+**`skills/loop-converge/`** bind a goal pack and follow that same author — they do
+not add a runtime.
 
 - **`skills/loop-graph/`** — an executor node + a separate-context supervisor node, each
   on its own recurring timer, with no wake edge between them.
+- **`skills/loop-converge/`** — preset entry: code-convergence interview → same compile.
 
 Simple self-contained goals use the host's ordinary task/goal directly; longgraph
 does not wrap them in a second objective.
@@ -26,6 +29,7 @@ node/edge vocabulary + invariants). The contribution bar is in [`CONTRIBUTING.md
 |---|---|
 | `SKILL.md` | `/longgraph` fit check and authoring entrypoint; may launch nodes but never acts as one |
 | `skills/loop-graph/SKILL.md` | author skill: interview → generate → deliver |
+| `skills/loop-converge/` | preset entry: binds a convergence pack, then follows loop-graph |
 | `skills/loop-graph/templates/*.md` | compiled runtime prompts — not code; keep `{{PLACEHOLDER}}`s and structural headings intact |
 | `skills/loop-graph/examples/` | concrete, fully worked runs (these *are* project-specific — that's correct) |
 | `skills/loop-graph/references/*.md` | one independently loaded owner per host (invocation, context, hooks, handoff fields) |

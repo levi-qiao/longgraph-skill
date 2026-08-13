@@ -34,11 +34,13 @@ else
   fi
 fi
 
-# 2. Symlink the whole library into each host skills dir.
-#    Primary: longgraph. Legacy alias: octopus → same tree (old /octopus promotions).
+# 2. Symlink the library and each invocable preset into each host skills dir.
+#    Primary: longgraph (whole tree). Legacy alias: octopus → same tree.
+#    Presets (loop-converge, …) are their own slash names → skills/<name>.
 link_skill() {
   skills_dir="$1"
   name="$2"
+  src="${3:-$CACHE}"
   [ -d "$(dirname "$skills_dir")" ] || return 0   # host not installed — skip
   mkdir -p "$skills_dir"
   dest="$skills_dir/$name"
@@ -47,21 +49,22 @@ link_skill() {
     mv "$dest" "$bak"
     echo "  backed up existing $name -> $bak"
   fi
-  ln -sfn "$CACHE" "$dest"
+  ln -sfn "$src" "$dest"
   echo "  linked $name -> $dest"
 }
 
-echo "Linking /longgraph (and legacy /octopus) into symlink-following hosts (Codex, Cursor):"
+echo "Linking /longgraph, /loop-converge (and legacy /octopus) into symlink-following hosts (Codex, Cursor):"
 for skills in \
   "${CODEX_SKILLS_DIR:-$HOME/.codex/skills}" \
   "${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
 do
   link_skill "$skills" "$PRIMARY"
   link_skill "$skills" "$LEGACY"
+  link_skill "$skills" "loop-converge" "$CACHE/skills/loop-converge"
 done
 
 echo ""
-echo "✅ Linked for Codex / Cursor — run:  /longgraph"
+echo "✅ Linked for Codex / Cursor — run:  /longgraph   or   /loop-converge"
 echo "   (legacy alias still works:  /octopus )"
 echo "ℹ️  Claude Code does not load symlinked skills; install it there as a plugin:"
 echo "     /plugin marketplace add levi-qiao/longgraph-skill"

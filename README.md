@@ -117,8 +117,8 @@ disappear from context. longgraph moves the safeguards outside the model’s mem
 
 It is Markdown, not an orchestration framework: no application runtime, server,
 or vendor lock-in. Install as a **Claude Code plugin**, symlink into **Codex /
-Cursor** (see install script), or run **prompts-only** on **Grok Build** (and
-other hosts) via the per-host references.
+Cursor** (see install script), or author on **Grok Build** (two `/loop`
+scheduler tasks) and other hosts via the per-host references.
 
 ## Multi-task loops & switching hosts
 
@@ -144,6 +144,7 @@ dialect ([per-host references](skills/loop-graph/references/)) — only the *pro
 | --- | --- | --- |
 | One self-contained goal that fits a normal task/session | Use the host's ordinary task or goal directly | No longgraph wrapper or extra prompt layer |
 | Many rounds, durable state, non-skippable gates, owner boundaries, host switching, or independent verification | [**longgraph / loop-graph**](skills/loop-graph/README.md) | An executor loop plus a clean-context supervisor, coordinated through durable files |
+| Multi-round unused / duplicate / reuse / slim (same two-node graph) | [**`/loop-converge`**](skills/loop-converge/README.md) | The loop-graph author with a pre-bound convergence pack |
 
 **Rule of thumb:** if you do not need the graph, do not use longgraph.
 
@@ -160,7 +161,7 @@ Install the plugin from the marketplace:
 
 ### Codex or Cursor
 
-Install the library and symlink `/longgraph` (plus legacy `/octopus`) into hosts
+Install the library and symlink `/longgraph` and `/loop-converge` (plus legacy `/octopus`) into hosts
 whose loaders follow symlinks:
 
 ```sh
@@ -169,20 +170,21 @@ curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/inst
 
 From a local clone, run `./install.sh` at the repository root.
 
-### Grok Build (and other prompts-only hosts)
+### Grok Build
 
-Author on Claude Code or Codex when you want direct node creation, **or** choose
-prompts-only and paste the frozen executor / supervisor pointers into
-[Grok Build](skills/loop-graph/references/grok.md) `/loop` tasks (same run
-directory). Cursor and shell/cron use the same prompts-only path — see
+Author on **Grok Build**, Codex, or Claude Code when you want direct node
+creation. On Grok Build that is two independent `/loop` scheduler tasks
+against the same workspace (see [the Grok reference](skills/loop-graph/references/grok.md)).
+Cursor and shell/cron stay prompts-only — see
 [host compatibility](#host-compatibility).
 
 ### Design a run
 
-Invoke `/longgraph`. It detects Codex or Claude Code, inspects the workspace, and asks
-only for unresolved owner decisions before compiling the run. Choose direct creation
-to have it start both same-host runtime nodes, or prompts-only for manual/cross-host
-launch (including Grok Build). You can also invoke `loop-graph` directly.
+Invoke `/longgraph` (or `/loop-converge` for unused / duplicate / slim). It
+detects Codex, Claude Code, or Grok Build, inspects the workspace, and asks
+only for unresolved owner decisions before compiling the run. Choose direct
+creation to have it start both same-host runtime nodes, or prompts-only for
+manual or cross-host launch. You can also invoke `loop-graph` directly.
 
 Authoring and runtime stay separate: the author skill compiles the work but never
 executes it. Generated nodes follow their frozen run contract under
@@ -211,7 +213,7 @@ For the rationale behind every constraint, read
 | --- | --- |
 | [**Codex**](skills/loop-graph/references/codex.md) | ✅ detects the host and directly creates both runtime nodes |
 | [**Claude Code**](skills/loop-graph/references/claude-code.md) | ✅ detects the host and directly creates two background runtime sessions when capability checks pass |
-| [**Grok Build**](skills/loop-graph/references/grok.md) | prompts-only — two `/loop` tasks (executor + supervisor), no wake edge |
+| [**Grok Build**](skills/loop-graph/references/grok.md) | ✅ detects the host and directly creates two `/loop` scheduler tasks (executor + supervisor), no wake edge |
 | [**Cursor**](skills/loop-graph/references/cursor.md) | prompts-only execution target |
 | [**shell / cron**](skills/loop-graph/references/shell-cron.md) | prompts-only execution target |
 
@@ -238,6 +240,7 @@ Re-run `install.sh` or reinstall the plugin once so primary names win on disk.
 | --- | --- |
 | [Root `SKILL.md`](SKILL.md) | `/longgraph` entrypoint; checks fit and delegates authoring to loop-graph |
 | [Loop-graph author](skills/loop-graph/SKILL.md) | Generates executor, supervisor, ledger, and directive artifacts |
+| [loop-converge](skills/loop-converge/SKILL.md) | Preset entry: code-convergence interview → same loop-graph compile |
 | [`lib/`](lib) | Shared methodology |
 | [Host references](skills/loop-graph/references) | One independently loaded owner for each host's runtime facts |
 | [Worked examples](skills/loop-graph/examples) | Public-Git self-iteration plus fictional ledgers showing gates in action |
