@@ -114,7 +114,7 @@ Each loop **stops its own timer** when the run is done. Exact launch and stop be
    curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
    ```
 
-   <sub>Symlinks `/longgraph` for Codex / Cursor / Grok Build (legacy `/octopus` too). Claude Code uses the plugin.</sub>
+   <sub>Symlinks `/longgraph` for Codex / Cursor / Grok Build. Claude Code uses the plugin.</sub>
 
 2. **Run `/longgraph` in Codex or Claude Code.** It detects the current host and inspects the workspace first, then asks one short batch only for unresolved owner decisions. The files land in a fresh `.longgraph/<date-slug>/` directory. ([What each file does →](#files-generated-per-run)) For unused / duplicate / slim work, invoke [`/loop-converge`](../loop-converge/README.md) instead — same compile path, pre-bound North Star.
 

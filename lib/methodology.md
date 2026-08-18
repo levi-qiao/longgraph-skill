@@ -101,7 +101,7 @@ or preference.
 
 ## 10. One run, one directory
 
-**Rule:** every run generates its artifacts fresh into its own `.longgraph/<YYYY-MM-DD-slug>/` directory (legacy in-flight trees may still live under `.octopus/`; new runs always use `.longgraph/`). A successor run never edits the previous run's prompts or ledger — it distills what still holds into its own starting snapshot, carries still-in-force STANDING directives forward, and leaves the old directory untouched as the archive.
+**Rule:** every run generates its artifacts fresh into its own `.longgraph/<YYYY-MM-DD-slug>/` directory. A successor run never edits the previous run's prompts or ledger — it distills what still holds into its own starting snapshot, carries still-in-force STANDING directives forward, and leaves the old directory untouched as the archive.
 
 **Prevents:** *state bleed between runs.* Retargeting an old executor prompt or ledger means patching stale goals line by line — token-expensive, error-prone, and the leftover text quietly steers the new run toward the old goal. Fresh generation from templates plus a distilled snapshot carries exactly the learnings and none of the stale scaffolding; a fixed, predictable location means the supervisor cron and a fresh executor always find state in the same place.
 

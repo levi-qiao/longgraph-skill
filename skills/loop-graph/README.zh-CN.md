@@ -113,7 +113,7 @@ host 还有一个差别决定了一个 run 到底烧多少 token：**下一次�
    curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
    ```
 
-   <sub>为 Codex / Cursor / Grok Build 创建 `/longgraph` symlink（并保留遗留 `/octopus`）。Claude Code 用插件安装。</sub>
+   <sub>为 Codex / Cursor / Grok Build 创建 `/longgraph` symlink。Claude Code 用插件安装。</sub>
 
 2. **在 Codex 或 Claude Code 中运行 `/longgraph`。** 它先识别当前宿主并检查工作区，只把无法推断的 owner 决策合成一小组问题。文件生成到全新的 `.longgraph/<日期-slug>/` 目录。（[每个文件的作用 →](#每次-run-生成的文件)）删无用 / 去重 / 瘦身请改用 [`/loop-converge`](../loop-converge/README.zh-CN.md)——同一套编译路径，北星已预填。
 

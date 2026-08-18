@@ -40,4 +40,4 @@ longgraph, longgraph-skill, long-horizon agent skill, long-horizon agent, long-r
 agent drift, durable ledger, clean-context supervisor, multi-task agent loop, unrelated tasks one loop,
 switch host mid-run, portable agent state, Claude Code skill, Claude Code plugin, agent skill,
 multi-agent, prompt library, graph engineering, loop-graph, Cursor, Codex, Grok Build, Grok,
-verified gates, acceptance criteria, owner decision cards, not LangGraph, formerly octopus-skill
+verified gates, acceptance criteria, owner decision cards, not LangGraph

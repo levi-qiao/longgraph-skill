@@ -63,12 +63,10 @@ node/edge vocabulary + invariants). The contribution bar is in [`CONTRIBUTING.md
    example. The scout (#17→#18→#19) is the reference. See `CONTRIBUTING.md`.
 5. **Keep authoring and runtime separate.** Author skills may interview and compile;
    they never execute their output. Loop-graph runtime follows the self-contained
-   node files in `.longgraph/<date-slug>/` (legacy in-flight runs may still live under
-   `.octopus/<date-slug>/`) and never reloads an authoring skill.
-6. **Brand is longgraph.** Primary product/repo/slash/run-root names are longgraph /
-   longgraph-skill / `/longgraph` / `.longgraph/`. Mentions of octopus / octopus-skill /
-   `/octopus` / `.octopus/` are **legacy aliases only** (promotion continuity), never the
-   primary install or plugin id.
+   node files in `.longgraph/<date-slug>/` and never reloads an authoring skill.
+6. **Brand is longgraph.** Product, repo, slash, and run-root names are longgraph /
+   longgraph-skill / `/longgraph` / `.longgraph/`. Do not add `/octopus`,
+   `.octopus/`, or other retired aliases.
 
 ## Editing conventions
 

@@ -31,12 +31,6 @@
 > **一张持久图，跨宿主运行。** 简单、自包含的目标直接交给宿主的普通 task
 > 或 goal；longgraph 只在持久图结构真正有价值时出场。
 
-> **已从 octopus 更名。** 同一套库；主品牌现为 **longgraph** /
-> `longgraph-skill` / `/longgraph` / `.longgraph/`。旧帖里的
-> `octopus-skill`、`/octopus`、`.octopus/` 仍可通过 GitHub 仓库重定向、
-> install 遗留 symlink、以及进行中的 run 目录别名继续使用（见
-> [快速开始](#快速开始) 与 [更名说明](#从-octopus-更名)）。
-
 ## 证据
 
 这些不是单轮 demo。longgraph 是 **Markdown skill / 提示词库**（不是编排运行时）。
@@ -149,7 +143,7 @@ Grok Build**。Grok Build 上的运行节点仍是 prompts-only：两条 `/loop`
 
 ### Codex、Cursor 或 Grok Build
 
-安装库，并把 `/longgraph` 与 `/loop-converge`（以及遗留 `/octopus`）symlink 到会跟随链接的宿主：
+安装库，并把 `/longgraph` 与 `/loop-converge` symlink 到会跟随链接的宿主：
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
@@ -198,18 +192,6 @@ shell/cron 同样走 prompts-only 执行——见[宿主兼容性](#宿主兼容
 权威语法、节奏行为、上下文携带模型和宿主 hook 分别维护在
 [按宿主拆分的 reference](skills/loop-graph/references/) 中；生成时只加载选中的宿主。
 中途换宿主时复用同一套持久 run 目录，变的只是每一 tick 如何启动。
-
-## 从 octopus 更名
-
-| 曾经（遗留 / 仍接受） | 现在（主品牌） |
-| --- | --- |
-| 产品 `octopus`、仓库 `octopus-skill` | **longgraph**、仓库 **longgraph-skill** |
-| 斜杠 `/octopus` | **`/longgraph`**（install 仍会把 `/octopus` symlink 到同一树） |
-| 插件 `octopus@octopus-skill` | **`longgraph@longgraph-skill`** |
-| run 目录 `.octopus/<日期-slug>/` | **`.longgraph/<日期-slug>/`**（进行中的 `.octopus/` run 原位继续） |
-| 契约 `octopus.loop-graph.*` | **`longgraph.loop-graph.*`**（已有文件上的旧头仍属同一契约族） |
-
-GitHub 更名会重定向旧的 clone/curl URL。请重新跑一次 `install.sh` 或重装插件，让磁盘上的主名称生效。
 
 ## 仓库地图
 

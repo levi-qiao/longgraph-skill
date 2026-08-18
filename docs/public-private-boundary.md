@@ -15,7 +15,7 @@ narratives, pedagogical ledgers).
 
 > **What is *this* goal doing right now?**
 
-Live `.longgraph/<date-slug>/` (or legacy `.octopus/`) trees, private ledgers, real
+Live `.longgraph/<date-slug>/` trees, private ledgers, real
 corpus paths, customer names, raw model traces, and metrics that identify a private
 deployment.
 
