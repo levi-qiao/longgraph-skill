@@ -1,6 +1,9 @@
 <!--
 Universal owner handoff. Replace every {{PLACEHOLDER}}, delete this comment, and
 print the completed handoff in chat. Host references supply the field values.
+Never invent owner steps that write timer IDs or create a scheduled task — those
+belong in TIMER_STEP / the node files. On /loop hosts the paste fields are
+`/loop {{INTERVAL}} Execute the existing runtime node at {{PATH}}. Do not load any skill.`
 -->
 
 # Start this run

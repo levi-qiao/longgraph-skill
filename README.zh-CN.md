@@ -106,8 +106,8 @@ Git 复算命令见[自迭代案例](skills/loop-graph/examples/self-iteration-l
   选择题，而不是一份技术作业。
 
 它是 Markdown 提示词，不是编排框架：无需应用运行时、服务端或厂商绑定。
-可作为 **Claude Code 插件**安装，用 install 脚本 symlink 到 **Codex / Cursor**，
-或在 **Grok Build**（及其他宿主）上走 prompts-only（见各宿主 reference）。
+可作为 **Claude Code 插件**安装，或用 install 脚本 symlink 到 **Codex / Cursor /
+Grok Build**。Grok Build 上的运行节点仍是 prompts-only：两条 `/loop`，不直接拉起。
 
 ## 多任务 loop 与中途换宿主
 
@@ -147,7 +147,7 @@ Git 复算命令见[自迭代案例](skills/loop-graph/examples/self-iteration-l
 /plugin install longgraph@longgraph-skill
 ```
 
-### Codex 或 Cursor
+### Codex、Cursor 或 Grok Build
 
 安装库，并把 `/longgraph` 与 `/loop-converge`（以及遗留 `/octopus`）symlink 到会跟随链接的宿主：
 
@@ -157,18 +157,15 @@ curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/inst
 
 本地克隆时，在仓库根目录运行 `./install.sh`。
 
-### Grok Build（及其他 prompts-only 宿主）
-
-若要直接创建节点，请在 Claude Code 或 Codex 上生成；或选择 prompts-only，把已固化的
-执行者 / 监督者指针粘进 [Grok Build](skills/loop-graph/references/grok.md) 的
-`/loop` 任务（共用同一 run 目录）。Cursor 与 shell/cron 同样走 prompts-only——见
-[宿主兼容性](#宿主兼容性)。
+在 Grok Build 上搭图：装好后直接 `/longgraph`。两个运行节点仍是 prompts-only，粘编译好的
+`/loop` 行——见 [Grok Build](skills/loop-graph/references/grok.md)。Cursor 与
+shell/cron 同样走 prompts-only 执行——见[宿主兼容性](#宿主兼容性)。
 
 ### 设计一次 run
 
 调用 `/longgraph`（删无用 / 去重 / 瘦身用 `/loop-converge`）。它会自动识别
-Codex 或 Claude Code、先检查工作区，只询问无法推断的 owner 决策，
-再编译 loop-graph run。选择“直接创建”后，它会在当前宿主启动两个运行节点；
+当前宿主、先检查工作区，只询问无法推断的 owner 决策，
+再编译 loop-graph run。在 Codex 或 Claude Code 上选择“直接创建”后，它会在当前宿主启动两个运行节点；
 选择 prompts-only 才需要手动或跨宿主启动（含 Grok Build）。也可以直接调用 `loop-graph`。
 
 生成期与运行期严格分离：author skill 只编译，不执行。生成的节点遵循
@@ -179,7 +176,7 @@ Codex 或 Claude Code、先检查工作区，只询问无法推断的 owner 决�
 | 角色 | 职责 | 持久边 |
 | --- | --- | --- |
 | **执行者** | 每轮只做一个 ledger 条目，同轮验证，再记录结果 | 读写 `ledger.md` |
-| **监督者** | 在独立上下文中重新验证、为通过的工作建立 checkpoint，并纠正漂移 | 只读 ledger；只写 directives 边（live queue + cold archive） |
+| **监督者** | 在独立上下文中重新验证、为通过的工作建立 checkpoint，并纠正漂移 | 只读 ledger；只通过 directives 边纠偏（live queue + cold archive） |
 | **侦察者**（可选） | 在关键路径之外研究一个有边界的问题 | 写 findings 文件，仅在 ledger 引用时读取 |
 
 最关键的规则是：**一个节点 = 一段提示词 + 一条单写者边。** ledger 永远只有一个写者。

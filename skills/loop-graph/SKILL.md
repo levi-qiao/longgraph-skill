@@ -143,10 +143,22 @@ Decide from context what you reasonably can and state the assumption; anything g
   Add `supervisor.md` only when chosen.
 - Replace every placeholder and delete guidance comments. Keep paths inside the run directory.
 - Keep host launch prompts to a pointer plus the host primitive. Put behavior in `executor.md`/`supervisor.md`, never duplicate it in the handoff prompt. Two things matter in every launch prompt: **read-and-follow, never an authoring verb** ("set up", "create", "author", "plan" read as permission to build something, and a fresh node answers by creating a second run) — and **"do not load any skill"**, because a host that matches skills by name or path can inject the authoring skill before the node opens its own file.
+- **Owner-facing paste is a `/loop` line on every host that has `/loop`.** Shape:
+  `/loop {{INTERVAL}} Execute the existing runtime node at {{PATH}}. Do not load any skill.`
+  Cadence, timer-ID recording, self-stop, and freshness belong in `TIMER_STEP` or the
+  node file — never as extra owner steps ("write this ID into `ops.md`", "then create
+  a scheduled task"). Codex has no `/loop`: the owner paste is the thin read-and-follow
+  line. Mention creating a scheduled task or automation only when the owner explicitly
+  asked; the compiled `TIMER_STEP` is what arms Codex.
 - Compile the `ops.md` Context index before writing the first ledger slice. Each row names when to read it, exact source pointers, and exact verification. Make the ledger Current slice and every directive cite those rows.
 - Tune the knobs; otherwise use `FIRE_ROUND_CAP=8`, `CONVERGE_EVERY=5`, `NET_LINE_CAP=400`, `KEEP_ROUNDS=5`, `OPEN_DIRECTIVE_CAP=8`, `STANDING_CAP=12`, `GAP_CAP=12`, and `FILE_LINE_CAP=200`.
 - **Every durable section is bounded and rotates on a rule that actually fires.** Rotate by count against a cap — rounds past `KEEP_ROUNDS` and corrections at or below the folded watermark move to `archive/`; STANDING and the gap register are capped and rewritten in place; no live file exceeds `FILE_LINE_CAP` lines. A rule keyed to a boundary that may never be reached (a fixed shard size, a milestone that slips) is the same as no rule: the file grows until a node truncates its read and silently misses the newest entry. Anything re-read every round that can only grow is a defect, not a style choice.
-- Fill `TIMER_STEP` from the selected reference, or delete it where the host's launch command already carries the interval. Host-specific facts belong in references, not in the generic templates.
+- Fill `TIMER_STEP` from the selected reference. Delete it only when the node has
+  nothing to arm, record, or stop. A `/loop` interval on the launch line is not a
+  reason to delete `TIMER_STEP` if the node must still write its own timer ID or
+  delete its own task. Never ask the owner to type a task, session, or automation
+  ID into `ops.md`. Host-specific facts belong in references, not in the generic
+  templates.
 - Name the host's cheap model tier as `FANOUT_TIER` in `ops.md` when the executor may spawn read-only sub-tasks; delete the section when the host has no cheap concurrent tier. Read-only investigators run cheap; the executor itself does not.
 - Render [`templates/handoff.md`](templates/handoff.md) only as the chat response. It is a presentation template, not a runtime artifact: never save `handoff.md` in the run directory. Delete its supervisor section when no supervisor was selected.
 - Keep hot files lean: current state, unresolved rows, recent rounds, and unconsumed directives only.
@@ -159,7 +171,7 @@ Decide from context what you reasonably can and state the assumption; anything g
 Never end at "files generated." End with the exact next action and copy-ready prompt(s).
 
 - **Create both nodes here:** treat the user's A choice as authorization to create the two in-scope runtime sessions. Follow the selected reference's ordered capability check and creation protocol. Use the current project/checkout; do not create a cross-host prompt or silently switch to worktrees. Verify both nodes started, and report their IDs, both cadences, and how to stop them. Do not ask for a second confirmation.
-- **Prompts only:** render the completed [`templates/handoff.md`](templates/handoff.md) in chat without persisting it. It must say how many sessions/tasks/processes to open, where each prompt goes, what continues automatically, and how it stops.
+- **Prompts only:** render the completed [`templates/handoff.md`](templates/handoff.md) in chat without persisting it. It must say how many sessions/tasks/processes to open, where each prompt goes, what continues automatically, and how it stops. Never ask the owner to write host IDs or create a timer the compiled node already owns.
 - Never leave `{{PLACEHOLDER}}` text or tell the owner merely to "start the loop." Keep executor and supervisor in separate contexts; use a cheap/fast executor and a strong supervisor when available.
 
 ## The rules that make it work (encoded in the templates)
@@ -170,7 +182,7 @@ Never end at "files generated." End with the exact next action and copy-ready pr
 - Force convergence off durable state the supervisor audits; pilot expensive batches; require a real consumer before new surface area.
 - Count only reproducible evidence on the declared real set.
 - Pre-authorize checkable owner calls; present genuine exceptions as recommended A/B/C choices.
-- Keep the supervisor's context separate; it re-verifies, writes only directives, and stops its own timer at terminal state.
+- Keep the supervisor's context separate; it re-verifies, steers only through directives, and stops its own timer at terminal state.
 
 ## Files in this skill
 

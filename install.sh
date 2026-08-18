@@ -1,11 +1,13 @@
 #!/usr/bin/env sh
 # longgraph-skill installer — clones the library once and symlinks it as
-# `/longgraph` (primary) into hosts whose loaders FOLLOW symlinks: Codex and Cursor.
-# Also links the legacy name `/octopus` to the same cache so older promotions still work.
+# `/longgraph` (primary) into hosts whose loaders FOLLOW symlinks: Codex, Cursor,
+# and Grok Build. Also links the legacy name `/octopus` to the same tree so older
+# promotions still work.
 # Claude Code does NOT load symlinked skill dirs — install it there as a plugin:
 #   /plugin marketplace add levi-qiao/longgraph-skill  &&  /plugin install longgraph@longgraph-skill
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
+#   ./install.sh   # from a local checkout — links that tree
 # Legacy curl (GitHub renames redirect):
 #   curl -fsSL https://raw.githubusercontent.com/levi-qiao/octopus-skill/main/install.sh | sh
 set -eu
@@ -16,8 +18,12 @@ CACHE="${LONGGRAPH_CACHE:-${OCTOPUS_CACHE:-$HOME/.local/share/longgraph-skill}}"
 PRIMARY="longgraph"
 LEGACY="octopus"
 
-# 1. Clone or update the library once.
-if [ -d "$CACHE/.git" ]; then
+# Prefer the checkout this script lives in (local `./install.sh`).
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" 2>/dev/null && pwd || true)
+if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/SKILL.md" ] && [ -d "$SCRIPT_DIR/skills/loop-graph" ]; then
+  CACHE="$SCRIPT_DIR"
+  echo "Using local checkout $CACHE"
+elif [ -d "$CACHE/.git" ]; then
   echo "Updating longgraph-skill in $CACHE ..."
   git -C "$CACHE" pull --ff-only || echo "  (skipped pull — local changes present)"
 else
@@ -53,10 +59,11 @@ link_skill() {
   echo "  linked $name -> $dest"
 }
 
-echo "Linking /longgraph, /loop-converge (and legacy /octopus) into symlink-following hosts (Codex, Cursor):"
+echo "Linking /longgraph, /loop-converge (and legacy /octopus) into symlink-following hosts (Codex, Cursor, Grok Build):"
 for skills in \
   "${CODEX_SKILLS_DIR:-$HOME/.codex/skills}" \
-  "${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
+  "${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}" \
+  "${GROK_SKILLS_DIR:-$HOME/.grok/skills}"
 do
   link_skill "$skills" "$PRIMARY"
   link_skill "$skills" "$LEGACY"
@@ -64,7 +71,7 @@ do
 done
 
 echo ""
-echo "✅ Linked for Codex / Cursor — run:  /longgraph   or   /loop-converge"
+echo "✅ Linked for Codex / Cursor / Grok Build — run:  /longgraph   or   /loop-converge"
 echo "   (legacy alias still works:  /octopus )"
 echo "ℹ️  Claude Code does not load symlinked skills; install it there as a plugin:"
 echo "     /plugin marketplace add levi-qiao/longgraph-skill"

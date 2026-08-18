@@ -78,7 +78,7 @@ Why state, not signal? The scout overwrites its findings file as it refines (par
 
 ### What is NOT an edge
 
-**Ambient context** — read-only files that exist before and after a run: `ops.md`, `AGENTS.md`/`CLAUDE.md`, lint config, the templates themselves. Nobody writes them *between* nodes at runtime; they don't carry information along a run's timeline. They're the repo, not the graph.
+**Ambient context** — read-only files that exist before and after a run: `ops.md`, `AGENTS.md`/`CLAUDE.md`, lint config, the templates themselves. Nobody writes them *between* nodes at runtime; they don't carry information along a run's timeline. They're the repo, not the graph. A host-lifecycle Timers cell in `ops.md` is not an edge: only the owning node writes its own cell, and only when the selected reference keeps that section.
 
 The live signal file is a bounded queue, not the audit archive: it holds current STANDING policy plus unconsumed directives. The consumer watermark acknowledges ordered signals; before each append the single writer moves every acknowledged entry into the cold archive. Rotating against the watermark — a condition that arrives on its own — is what keeps this bounded; rotating at a fixed shard size is a rule that can wait forever while the live queue grows past the point where a reader still reads all of it.
 

@@ -49,6 +49,10 @@ Two tasks, two timers, no wake edge between them.
 - On this host, "stop your own timer" means resolving the exact deterministic name for
   this thread and deleting that automation. Say so in both node files. Do not persist
   automation IDs or generate an `ops.md` Timers table.
+- Owner-facing prompts never mention creating a scheduled task, wakeup, or automation
+  unless the owner explicitly asked to create one. The compiled `TIMER_STEP` is what
+  arms Codex. If they did ask, add one sentence that each node arms its own named
+  wakeup on first reply and they create none by hand.
 
 ## Create both nodes here
 
@@ -69,8 +73,7 @@ two thread creations; do not ask again.
 ## Fill the generic handoff
 
 - `SESSION_INSTRUCTION`: Open two Codex tasks in the same local project — one executor,
-  one supervisor. Each arms its own recurring wakeup on its first reply; you create no
-  automations by hand.
+  one supervisor. Paste the matching prompt into each.
 - `EXECUTOR_DESTINATION`: Task 1.
 - `EXECUTOR_LAUNCH`:
 
@@ -78,7 +81,7 @@ two thread creations; do not ask again.
   Read {{RUN_DIR}}/executor.md and follow it exactly. Do not load any skill.
   ```
 
-- `EXECUTOR_READY`: the task replies and confirms the named wakeup is armed.
+- `EXECUTOR_READY`: the task replies with its first status.
 - `SUPERVISOR_DESTINATION`: Task 2.
 - `SUPERVISOR_LAUNCH`:
 

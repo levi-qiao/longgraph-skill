@@ -79,7 +79,7 @@ flowchart LR
     classDef opt stroke-dasharray:5 4;
 ```
 
-Solid edges are the core graph: the executor works against the ledger; the supervisor watches from outside, commits clean checkpoints, and injects corrections through the one-way directives edge. The two never share a context and never write the same file. The dashed **scout** is an optional node — added only when research needs to happen off the critical path — writing to its own findings edge (see the [roadmap](#roadmap-more-node-roles)).
+Solid edges are the core graph: the executor works against the ledger; the supervisor watches from outside, commits clean checkpoints, and injects corrections through the one-way directives edge. The two never share a context and never write the same graph edge. The dashed **scout** is an optional node — added only when research needs to happen off the critical path — writing to its own findings edge (see the [roadmap](#roadmap-more-node-roles)).
 
 ## One strong model, cheap execution
 
@@ -114,7 +114,7 @@ Each loop **stops its own timer** when the run is done. Exact launch and stop be
    curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
    ```
 
-   <sub>Symlinks `/longgraph` for Codex / Cursor (legacy `/octopus` too). Claude Code uses the plugin.</sub>
+   <sub>Symlinks `/longgraph` for Codex / Cursor / Grok Build (legacy `/octopus` too). Claude Code uses the plugin.</sub>
 
 2. **Run `/longgraph` in Codex or Claude Code.** It detects the current host and inspects the workspace first, then asks one short batch only for unresolved owner decisions. The files land in a fresh `.longgraph/<date-slug>/` directory. ([What each file does →](#files-generated-per-run)) For unused / duplicate / slim work, invoke [`/loop-converge`](../loop-converge/README.md) instead — same compile path, pre-bound North Star.
 
@@ -148,7 +148,7 @@ Each run gets a fresh `.longgraph/<date-slug>/` in your repo:
 | `executor.md` | generated once | The executor prompt — the loop's thin pointer target. Encodes the loop's self-stop. |
 | `ledger.md` | the executor, every round | Single source of truth: goals, gates, convergence tracker, round log, open gaps. Read this to follow the run. |
 | `directives.md` | the supervisor; owner if unsupervised | Bounded one-way queue: current STANDING policy + unconsumed corrections. The designated writer rotates folded entries. |
-| `ops.md` | generated once; author/owner updates in place | Current environment, build and data facts; runtime nodes read it as ambient context. |
+| `ops.md` | generated once; author/owner updates facts in place; each node may write only its own Timers cell | Current environment, build and data facts; runtime nodes read it as ambient context. |
 | `supervisor.md` | generated once | The supervisor prompt; the selected host reference defines scheduling and self-stop. |
 | `archive/*.md` | the writer of the corresponding live edge | Cold history for folded directives and old rounds; normal nodes never read them. |
 

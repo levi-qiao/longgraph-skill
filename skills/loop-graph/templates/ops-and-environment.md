@@ -5,8 +5,8 @@ commands. When there are no non-trivial environment/data facts, keep only the in
 gates, standards pointer, and host lifecycle fields. Keep it factual.
 It is ambient context, not a timeline: runtime nodes read it; the author/owner updates
 superseded facts in place rather than appending history. Git is the history. The single
-exception is the Timers block at the bottom, where each node records the ID of its own
-timer so it can stop it at terminal state.
+runtime-node write is the Timers block at the bottom, where each node records the ID of
+its own timer so it can stop it at terminal state. The owner never types those IDs.
 Keep this file under {{FILE_LINE_CAP|200}} lines.
 Red line: secrets / credentials / real data content NEVER go in this file — only policy
 about them (where they come from, that they're env-injected, that they never get logged).
@@ -76,10 +76,12 @@ budget makes that tripwire unenforceable, so declare it or delete this section.}
 ## Timers
 
 <!-- Each node owns one recurring timer and writes only its own ID here, on its first
-invocation, so it can stop that timer at terminal state. No node reads the other's row —
-nothing wakes anything, and a stale ID belonging to a session you are not in is simply
-replaced by the one you create. Delete this section on a host whose launch command
-already carries the interval (nothing to create and nothing to record). -->
+invocation, so it can stop that timer at terminal state. Seed both cells `pending`.
+Never ask the owner to type an ID. No node reads the other's row — nothing wakes
+anything, and a stale ID belonging to a session you are not in is simply replaced by
+the one you resolve. Keep this section only when the selected host reference says each
+node must persist its own timer ID. Delete it when that reference says IDs are not
+run state. -->
 
 | Node | Interval | Timer ID |
 | --- | --- | --- |
