@@ -12,18 +12,20 @@ Read only for nodes hosted in Cursor.
   executor and put the supervisor on shell/cron or another fresh-per-run host when
   independent audit is required.
 - Stop the tracked in-session loop/sleeper when the ledger becomes terminal.
-- Delete `TIMER_STEP` — `/loop` already carries the interval — and delete the `ops.md`
-  Timers section. Restart in a new session manually at a green boundary when the
-  executor needs a clean context.
+- Delete the `ops.md` Timers section — this host has no timer ID to persist. Never
+  ask the owner to write a loop or session ID into `ops.md`. Restart in a new
+  session manually at a green boundary when the executor needs a clean context.
+- Executor `TIMER_STEP`:
+
+  > At a terminal ledger status, stop this `/loop`. Do not write `ops.md`.
 
 ## Fill the generic handoff
 
 - `SESSION_INSTRUCTION`: Open the executor in the target Cursor workspace; open the
-  supervisor on the selected fresh-context host.
+  supervisor on the selected fresh-context host. Do not type loop IDs into `ops.md`.
 - `EXECUTOR_DESTINATION`: Cursor executor session.
 - `EXECUTOR_LAUNCH`: `/loop {{EXEC_INTERVAL}} Execute the existing runtime node at
-  {{RUN_DIR}}/executor.md; carry the current milestone as far as it goes this fire, ending at a seam, and stop when
-  the ledger is terminal.`
+  {{RUN_DIR}}/executor.md. Do not load any skill.`
 - `EXECUTOR_READY`: the loop is registered and its first round begins.
 - `SUPERVISOR_DESTINATION`: copy from the selected supervisor host's reference.
 - `SUPERVISOR_LAUNCH`: copy from the selected supervisor host's reference.

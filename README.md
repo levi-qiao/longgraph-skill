@@ -116,9 +116,9 @@ disappear from context. longgraph moves the safeguards outside the model’s mem
   recommended A/B/C choice, not a technical homework assignment.
 
 It is Markdown, not an orchestration framework: no application runtime, server,
-or vendor lock-in. Install as a **Claude Code plugin**, symlink into **Codex /
-Cursor** (see install script), or run **prompts-only** on **Grok Build** (and
-other hosts) via the per-host references.
+or vendor lock-in. Install as a **Claude Code plugin**, or symlink into **Codex /
+Cursor / Grok Build** (see install script). Runtime nodes on Grok Build stay
+**prompts-only** — two `/loop` pastes, no direct launch.
 
 ## Multi-task loops & switching hosts
 
@@ -159,7 +159,7 @@ Install the plugin from the marketplace:
 /plugin install longgraph@longgraph-skill
 ```
 
-### Codex or Cursor
+### Codex, Cursor, or Grok Build
 
 Install the library and symlink `/longgraph` and `/loop-converge` (plus legacy `/octopus`) into hosts
 whose loaders follow symlinks:
@@ -170,21 +170,19 @@ curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/inst
 
 From a local clone, run `./install.sh` at the repository root.
 
-### Grok Build (and other prompts-only hosts)
-
-Author on Claude Code or Codex when you want direct node creation, **or** choose
-prompts-only and paste the frozen executor / supervisor pointers into
-[Grok Build](skills/loop-graph/references/grok.md) `/loop` tasks (same run
-directory). Cursor and shell/cron use the same prompts-only path — see
-[host compatibility](#host-compatibility).
+Authoring on Grok Build is `/longgraph` after that install. Starting the two runtime
+nodes is still prompts-only: paste the compiled `/loop` lines — see
+[Grok Build](skills/loop-graph/references/grok.md). Cursor and shell/cron use the
+same prompts-only execution path — see [host compatibility](#host-compatibility).
 
 ### Design a run
 
 Invoke `/longgraph` (or `/loop-converge` for unused / duplicate / slim). It
-detects Codex or Claude Code, inspects the workspace, and asks
+detects the current host, inspects the workspace, and asks
 only for unresolved owner decisions before compiling the run. Choose direct
-creation to have it start both same-host runtime nodes, or prompts-only for
-manual/cross-host launch (including Grok Build). You can also invoke `loop-graph` directly.
+creation on Codex or Claude Code to have it start both same-host runtime nodes, or
+prompts-only for manual/cross-host launch (including Grok Build). You can also
+invoke `loop-graph` directly.
 
 Authoring and runtime stay separate: the author skill compiles the work but never
 executes it. Generated nodes follow their frozen run contract under
@@ -195,7 +193,7 @@ executes it. Generated nodes follow their frozen run contract under
 | Role | Responsibility | Durable edge |
 | --- | --- | --- |
 | **Executor** | Works one ledger item, verifies it in the same round, then records the result | Reads and writes `ledger.md` |
-| **Supervisor** | Re-verifies from its own separate context, checkpoints passing work, and corrects drift | Reads the ledger; writes only the directives edge (live queue + cold archive) |
+| **Supervisor** | Re-verifies from its own separate context, checkpoints passing work, and corrects drift | Reads the ledger; steers only through the directives edge (live queue + cold archive) |
 | **Scout** *(optional)* | Researches a bounded question away from the critical path | Writes a findings file read only on reference |
 
 The load-bearing rule is **one node = one prompt + one single-writer edge**.

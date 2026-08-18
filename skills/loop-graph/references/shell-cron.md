@@ -9,7 +9,8 @@ Read only for nodes hosted by an agent CLI under shell or cron.
   then sleep. Use cron only when its lock and job-removal commands are already known.
 - Stop with `break` or remove the cron job at terminal state.
 - Delete `TIMER_STEP` and the `ops.md` Timers section; each process is already fresh and
-  the wrapper owns scheduling and stop.
+  the wrapper owns scheduling and stop. Never ask the owner to write a process or job
+  ID into `ops.md`.
 
 ## Fill the generic handoff
 

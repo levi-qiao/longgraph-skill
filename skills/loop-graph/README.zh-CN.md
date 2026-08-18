@@ -78,7 +78,7 @@ flowchart LR
     classDef opt stroke-dasharray:5 4;
 ```
 
-实线是核心图：执行节点对着台账推进；监督节点从外部审视、提交干净的 checkpoint、经单向 directives 边注入纠偏。两者不共享上下文，也不写同一个文件。虚线的**侦察节点**是可选的——只在调研需要脱离关键路径时加入——写自己独立的 findings 边（见[路线图](#路线图更多节点角色)）。
+实线是核心图：执行节点对着台账推进；监督节点从外部审视、提交干净的 checkpoint、经单向 directives 边注入纠偏。两者不共享上下文，也不写同一条图边。虚线的**侦察节点**是可选的——只在调研需要脱离关键路径时加入——写自己独立的 findings 边（见[路线图](#路线图更多节点角色)）。
 
 ## 一个强模型，廉价地执行
 
@@ -113,7 +113,7 @@ host 还有一个差别决定了一个 run 到底烧多少 token：**下一次�
    curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
    ```
 
-   <sub>为 Codex / Cursor 创建 `/longgraph` symlink（并保留遗留 `/octopus`）。Claude Code 用插件安装。</sub>
+   <sub>为 Codex / Cursor / Grok Build 创建 `/longgraph` symlink（并保留遗留 `/octopus`）。Claude Code 用插件安装。</sub>
 
 2. **在 Codex 或 Claude Code 中运行 `/longgraph`。** 它先识别当前宿主并检查工作区，只把无法推断的 owner 决策合成一小组问题。文件生成到全新的 `.longgraph/<日期-slug>/` 目录。（[每个文件的作用 →](#每次-run-生成的文件)）删无用 / 去重 / 瘦身请改用 [`/loop-converge`](../loop-converge/README.zh-CN.md)——同一套编译路径，北星已预填。
 
@@ -147,7 +147,7 @@ host 还有一个差别决定了一个 run 到底烧多少 token：**下一次�
 | `executor.md` | 生成一次 | 执行节点的提示词——loop 瘦指针指向它。内含 loop 的自停逻辑。 |
 | `ledger.md` | 执行节点，每轮 | 唯一真相：目标、门禁、收敛计数器、每轮日志、未决缺口。看它跟进度。 |
 | `directives.md` | 监督节点；无监督者时为 owner | 有界单向队列：当前 STANDING 策略 + 未消费纠偏；由指定写者轮转已折叠条目。 |
-| `ops.md` | 生成一次；author/owner 原位更新 | 当前环境、构建、数据事实；运行节点只把它作为 ambient context 读取。 |
+| `ops.md` | 生成一次；author/owner 原位更新事实；每个节点只写自己的 Timers 单元格 | 当前环境、构建、数据事实；运行节点只把它作为 ambient context 读取。 |
 | `supervisor.md` | 生成一次 | 监督节点的提示词；排期与自停由选中的宿主 reference 定义。 |
 | `archive/*.md` | 对应 live edge 的写者 | 已折叠指令和旧轮次的冷历史；正常节点不读取。 |
 
