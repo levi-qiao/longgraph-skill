@@ -35,12 +35,6 @@ open the same workspace, re-send the frozen node prompt, and continue.
 > use the host's normal task or goal directly; longgraph starts where durable graph
 > structure adds value.
 
-> **Renamed from octopus.** Same library; primary brand is now **longgraph** /
-> `longgraph-skill` / `/longgraph` / `.longgraph/`. Older posts that say
-> `octopus-skill`, `/octopus`, or `.octopus/` still work via GitHub repo redirect,
-> install legacy symlinks, and in-flight run-dir alias (see [Install](#quick-start)
-> and [Migration](#renamed-from-octopus)).
-
 ## Evidence
 
 These are not one-shot demos. longgraph is a **Markdown skill / prompt library**
@@ -161,7 +155,7 @@ Install the plugin from the marketplace:
 
 ### Codex, Cursor, or Grok Build
 
-Install the library and symlink `/longgraph` and `/loop-converge` (plus legacy `/octopus`) into hosts
+Install the library and symlink `/longgraph` and `/loop-converge` into hosts
 whose loaders follow symlinks:
 
 ```sh
@@ -218,19 +212,6 @@ For the rationale behind every constraint, read
 Authoritative syntax, pacing, context carry, and hooks live in separate
 [per-host references](skills/loop-graph/references/), so authoring loads only the selected host. Mid-run host switches reuse the same
 durable run directory; only how you start each tick changes.
-
-## Renamed from octopus
-
-| Was (legacy / still accepted) | Now (primary) |
-| --- | --- |
-| Product `octopus`, repo `octopus-skill` | **longgraph**, repo **longgraph-skill** |
-| Slash `/octopus` | **`/longgraph`** (install still symlinks `/octopus` → same tree) |
-| Plugin `octopus@octopus-skill` | **`longgraph@longgraph-skill`** |
-| Run dir `.octopus/<date-slug>/` | **`.longgraph/<date-slug>/`** (continue in-flight `.octopus/` runs in place) |
-| Contract `octopus.loop-graph.*` | **`longgraph.loop-graph.*`** (old headers on existing files still mean the same family) |
-
-GitHub renames redirect old clone/curl URLs (`…/octopus-skill/…` → `…/longgraph-skill/…`).
-Re-run `install.sh` or reinstall the plugin once so primary names win on disk.
 
 ## Repository map
 

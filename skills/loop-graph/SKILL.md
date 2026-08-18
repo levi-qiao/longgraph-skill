@@ -49,7 +49,7 @@ Five live artifacts from a short interview:
 
 **Run directory — fixed, one per run.** Everything above goes in `.longgraph/<YYYY-MM-DD-slug>/` at the repo root (workspace root for multi-repo runs), plus an `archive/` subdir for in-run rotations. **A new run always creates `.longgraph/…` from the templates — never retarget or edit a previous run's files**: patching stale prompts wastes tokens and leaves leftover text steering toward the old goal. The old directory stays untouched (it *is* the archive); distill what still holds into the new ledger's starting snapshot and copy still-in-force STANDING directives forward. Commit the run directory unless data policy forbids — it's the durable state the graph depends on.
 
-**Legacy alias (promotion continuity).** Older runs and posts used `.octopus/<date-slug>/`. If a workspace already has an in-flight `.octopus/…` tree and no matching `.longgraph/…` run, **continue that run in place** — do not force a rename mid-flight. New runs and all generated paths use `.longgraph/`. Runtime contract ids are `longgraph.loop-graph.*`; treat historical `octopus.loop-graph.*` headers on existing files as the same contract family.
+Runtime contract ids are `longgraph.loop-graph.*`.
 
 Invariants: **ledger = the only scoreboard**; **one item per round → verify → update ledger**; **the supervisor steers only through `directives.md` (a one-way edge) — it never edits the ledger or shares the executor's context**.
 
@@ -137,7 +137,7 @@ Set two cadences. The timer guarantees a node comes back; it does not pace it. `
 
 Decide from context what you reasonably can and state the assumption; anything genuinely the user's call (data policy, DB access, lowering a bar) becomes a red line, a **standing authorization** (offer your drafted recommendation as a choice), or an `owner-blocked` item (only if it truly can't be pre-decided). Never hand the owner an unstructured problem.
 
-**Step 2 — Generate** a fresh `.longgraph/<YYYY-MM-DD-slug>/` from `templates/` (never a new `.octopus/` directory):
+**Step 2 — Generate** a fresh `.longgraph/<YYYY-MM-DD-slug>/` from `templates/`:
 
 - Always: `executor.md`, `ledger.md`, `directives.md`, `ops.md`, and `archive/`.
   Add `supervisor.md` only when chosen.
