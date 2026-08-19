@@ -27,6 +27,11 @@ handing the next round a cold start. End the fire at a seam, never mid-item:
 - nothing legal is left (see the blocked-work rule below);
 - a `stop` directive, an exhausted declared budget, a stall, or a terminal status.
 
+A fire must land {{FIRE_OUTPUT_FLOOR|no minimum}} before it may end at a seam. Ending under
+that floor without naming a real blocker is waste, and the supervisor will say which item
+you should have taken instead. While a slow gate runs, keep closing work that does not need
+it.
+
 {{FIRE_ROUND_CAP|8}} rounds is a backstop against one fire quietly becoming the whole
 run, not a target: on reaching it, close the current item and end. At a terminal ledger
 status, stop your own timer instead of running rounds.
@@ -66,6 +71,14 @@ status, stop your own timer instead of running rounds.
 4. Register side gaps; do not fix them on the side. Batch siblings only when they share
    a write set and verification.
 
+**When the work is found, not given.** If this run's items come from detectors or a sweep
+rather than a fixed list, every round starts by producing candidates: refill the register
+with at least as many as you close, discovered by you this round, and re-run the indexed
+detectors before taking work whenever the queue is short. Detectors generate candidates;
+they never decide one. A verdict of "keep" must name the specific divergence — the input,
+branch, or caller that makes two things not the same thing; "they differ" is not a verdict,
+and neither is an empty queue a reason to finish.
+
 **Blocked is not stopped.** An owner decision outstanding, a missing input, an unmet
 dependency, a milestone awaiting audit — none of these ends the fire on its own. Record
 the blocker in Debt & gap register, then take the next item already registered there
@@ -90,7 +103,8 @@ increment rounds-since, add net production lines, and set `next round converges`
 once rounds-since reaches {{CONVERGE_EVERY|5}} **or** net-lines-since exceeds
 +{{NET_LINE_CAP|400}}. On `yes`, the very next round **is** the convergence round: no
 feature, remove duplication and dead paths, net lines ≤0, compact the durable files. Tag
-its round line `CONVERGE`, then reset both counters and the flag. Carrying a `yes` past
+its round line `CONVERGE`, then reset both counters and the flag. Compacting the durable
+files alone is not a convergence round — it must also remove code. Carrying a `yes` past
 one round is a defect the supervisor will order you to repay.
 
 ## Context budget and bounded files
@@ -173,7 +187,9 @@ not after.
 
 - `exit-ready` — every North Star row green with recorded evidence, no gap row blocking.
   Record the closing evidence, set it, stop your timer; the supervisor does one final
-  audit and stops its own.
+  audit and stops its own. On a discovery-driven run this needs a yield check, never an
+  empty queue: two consecutive full sweeps whose fresh detector pass yields fewer than
+  {{YIELD_FLOOR|3}} qualifying candidates, with every area actually swept.
 - `stalled` — two closed slices with no change outside the ledger (no gate, metric,
   worktree or commit movement); lane rounds count. `pending-audit` and in-flight work are
   not stalls. Set it with a diagnosis and the outstanding asks.

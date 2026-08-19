@@ -27,6 +27,13 @@ round and flips the flag to `yes` when either counter is reached; the next round
 the convergence round, after which both counters and the flag reset. A `yes` carried past
 one round is a defect the supervisor orders repaid. -->
 
+Discovery tracker: queue **0** | closed this sweep **0** / refilled **0** | areas swept **0**/{{AREA_COUNT}} | sweeps with no yield: **0**
+<!-- Discovery-driven runs only (items found by detectors/sweeps, not a fixed list); delete
+this line otherwise. The register is rolling: closing N candidates obliges the executor to
+discover at least N, and a short queue means re-running the indexed detectors before taking
+work. Terminal status needs a yield check — consecutive full sweeps under {{YIELD_FLOOR|3}}
+new qualifying candidates — never an empty queue. -->
+
 Milestone gate: `open`   <!-- open | pending-audit | passed. Only meaningful for multi-milestone runs with a supervisor; single-goal / no-supervisor runs leave it `n/a`. The executor sets it `pending-audit` when it closes the current milestone's last exit condition (promotion requested — it does NOT advance, but the rest of the run keeps moving under the blocked-work rule); the supervisor re-verifies the boundary and, on pass, appends an acceptance directive; the executor flips it `passed` only when that directive lands, and only then starts the next milestone. Advancing while this is `pending-audit` is a red line. -->
 Run status: `active`   <!-- active | exit-ready | stalled | closed. A terminal status (exit-ready/stalled/closed) is the signal for both nodes to stop their own timers. There is no waiting state: each node runs on its own timer, so an activation that finds nothing legal to do simply ends and the next fire looks again. -->
 
@@ -103,7 +110,10 @@ ending the fire. Keep rows concrete enough to be picked up that way — a one-li
 nobody can act on is dead air waiting to happen. Cap {{GAP_CAP|12}} live rows: past that,
 merge duplicates and fold anything no longer actionable into the Starting snapshot as one
 line. Seed this register at generation with enough real, independent work that the
-executor always has a legal next item. -->
+executor always has a legal next item. On a discovery-driven run, seed the *method* — the
+detectors, the refill quota, the rotation, and measured baselines — rather than a list of
+targets an author's single pass happened to spot; the list would otherwise become the
+run's ceiling. -->
 
 | ID | Priority | Milestone | One line |
 | --- | --- | --- | --- |

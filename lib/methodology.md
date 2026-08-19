@@ -105,8 +105,26 @@ or preference.
 
 **Prevents:** *state bleed between runs.* Retargeting an old executor prompt or ledger means patching stale goals line by line — token-expensive, error-prone, and the leftover text quietly steers the new run toward the old goal. Fresh generation from templates plus a distilled snapshot carries exactly the learnings and none of the stale scaffolding; a fixed, predictable location means the supervisor cron and a fresh executor always find state in the same place.
 
+## 11. Discovery-driven runs: seed the method, not the list
+
+**Rule:** when the work has to be *found* before it can be done — dead code, duplication, missing coverage, stale config — the authoring pass seeds **detectors, a refill quota, and a rotation over the whole surface**, not the targets. The register is rolling: a round that closes N candidates refills at least N it discovered itself, and a round that finds the queue short re-runs the detectors before taking work. Termination is a **yield** condition — two consecutive full sweeps whose fresh detector pass produces fewer than a threshold of qualifying candidates — never "the seeded list is empty".
+
+**Prevents:** *the seed becoming the ceiling.* An author has one context window and sees a fraction of the tree, so a hand-written candidate list is a sample, not an inventory. In one observed run the ledger shipped eleven seeded candidates; the executor worked exactly those, ruled the survivors "keep", and set `exit-ready` in eighteen rounds — while 229 detector hits and 149 near-duplicate pairs still stood untouched in the same repo. No rule was broken: the contract said "finish this list", so finishing it looked like success. Seeding the method makes the run's reach a function of the detectors and the rotation instead of what the author happened to notice.
+
+## 12. A budget is a scope decision in disguise
+
+**Rule:** price each gate by what it actually costs — money, wall-clock, or risk — and say which. A gate that costs only time is **batched**, never rationed: many candidates ride one run of it. Never leave a scarce-resource cap sitting in front of a whole area of the work. If a cap makes an area unreachable, that is a scope decision and it belongs in the scope question, not in a budget line.
+
+**Prevents:** *a budget quietly redrawing the map.* Cap a gate at six runs, then require that gate for any change to the main package, and the rational executor spends the whole run in the cheap corner and reports the main package as clean. That is what happened in the run above: the package that held two thirds of the detector hits never had a single line touched, and every local decision along the way was defensible. Ration what is genuinely scarce; let the rest be slow.
+
+## 13. The supervisor is also an accelerator
+
+**Rule:** the audit checks under-delivery with the same rigor as it checks violations — rounds that changed nothing outside the ledger, fires that ended under the output floor, areas never swept before a terminal claim, a rolling register that stopped refilling, a sweep that produced no merge. And its corrections stay **scoped, reasoned, and expiring**: a `Stop` names exact symbols or paths, why, and what lifts it. A directive that forbids a whole directory or a whole class of action (no merging, no deleting, no detector work) is a starvation risk, and every packet must dispatch the next concrete move rather than only forbidding.
+
+**Prevents:** *a supervised run starving under a stack of locally correct prohibitions.* An auditor rewarded only for catching defects converges on forbidding work, because forbidding never produces a defect to catch. In the observed run four consecutive directives banned the expensive gate, the main package, merging, and detector hunts; the executor obeyed, closed nothing outside the scoreboard for eleven of eighteen rounds, and the supervisor accepted the terminal status it had itself made inevitable. Auditing the *rate of real change* is what keeps the brake from becoming the outcome.
+
 ---
 
 ## Tuning
 
-The numbers (convergence every 5, 400-line cap, 3 rounds per fire, a supervisor tick at 3–4× the executor interval, 200-line file cap) are defaults, not dogma. Tune them in the interview to your project's rhythm. What must not change is the *shape*: a single scoreboard, one-item rounds with same-round verification, a forcing function against growth, visible-and-deferred gaps, hard stop conditions, absolute red lines, one self-driving timer per node with no wake edge between them, and — above all — a supervisor node whose context is separate from the executor's. Remove any one of those and the graph collapses back into a drifting loop.
+The numbers (convergence every 5, 400-line cap, 3 rounds per fire, a supervisor tick at 3–4× the executor interval, 200-line file cap, and any output floor or yield threshold an open-ended run needs) are defaults, not dogma. Tune them in the interview to your project's rhythm. What must not change is the *shape*: a single scoreboard, one-item rounds with same-round verification, a forcing function against growth, visible-and-deferred gaps, hard stop conditions, absolute red lines, one self-driving timer per node with no wake edge between them, and — above all — a supervisor node whose context is separate from the executor's. Remove any one of those and the graph collapses back into a drifting loop.
