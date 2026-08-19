@@ -53,13 +53,17 @@ status, stop your own timer.
   set your own stop, or issue a `stop` directive telling the executor to record
   `exit-ready`. Symmetrically, a `stalled` status you did not verify is not terminal
   until you confirm it.
-- **Two mechanical checks, every tick.** *Convergence:* a `next round converges: yes`
+- **Three mechanical checks, every tick.** *Convergence:* a `next round converges: yes`
   carried past one round with no `CONVERGE` round line — or a tagged convergence round
   that added features or net lines >0 — is a `redo` ordering it before any further
   feature work. *Size:* `wc -l` the ledger, the directives file and `ops.md`; anything
   over {{FILE_LINE_CAP|200}} lines is a finding — order the executor to compact the
-  ledger, and rotate the directives file yourself before you append. A forcing function
-  nobody audits never fires.
+  ledger, and rotate the directives file yourself before you append. *Output:* count the
+  rounds since your watermark that changed nothing outside the ledger, fires that ended
+  under the output floor with no named blocker, and — on a discovery-driven run — whether
+  the register is still refilling and every area is actually being swept. Two consecutive
+  no-change rounds is a `redo` that names the next concrete item. A forcing function
+  nobody audits never fires, and under-delivery is as much a finding as a violation.
 - `pending-audit` is a trigger, not a stall. Audit its exact surface and exit checks now.
   Pass: checkpoint if authorized, then accept. Fail: one bounded redo. Only final
   North Star or an owner-only boundary escalates.
@@ -92,6 +96,12 @@ Verify: <exact command/result>
 Stop: <condition preventing widening/repeat — and, whenever this directive blocks the
       main line, what stays legal so the executor keeps moving instead of idling>
 ```
+
+Every packet dispatches the next concrete move; a packet that only forbids starves the
+run. Keep `Stop` scoped, reasoned, and expiring — exact symbols or paths, why, and what
+lifts it. Never forbid a whole directory or a whole class of action (no merging, no
+deleting, no detector work): each such ban is locally defensible and collectively fatal,
+and the terminal status that follows is one you caused.
 
 Keep at most {{OPEN_DIRECTIVE_CAP|8}} unfolded corrections live. Already at the cap means
 the executor is behind, not that you should append harder: fold your finding into an

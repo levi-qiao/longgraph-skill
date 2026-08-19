@@ -12,8 +12,10 @@ and directives under `.longgraph/<date>-converge/`.
 ## When to use it
 
 Multi-round cleanup where "done" is checkable: tests stay green, detectors
-drop, net lines do not grow, no new public surface. Skip it for a one-shot
-tidy.
+drop, net lines do not grow, no new public surface. The run sweeps the scope in
+rotation and discovers its own candidates each round — it ends when fresh
+detector passes stop yielding, not when a seeded list runs out. Skip it for a
+one-shot tidy.
 
 ## How to run it
 

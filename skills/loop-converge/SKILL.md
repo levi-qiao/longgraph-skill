@@ -24,7 +24,7 @@ and it does not ship a second template set.
    Never ask which client this is when context already identifies it.
 2. Read and bind [`preset.md`](preset.md). That pack **is** the North Star,
    the supervisor requirement, the method guards, the knob overrides, the
-   recommended milestones, and the detector hints. Do not redesign them.
+   the recommended shape, and the detector hints. Do not redesign them.
 3. Start the owner interview immediately. With this pack bound, ask at most
    the three questions the pack names — **scope**, **authority**, **launch
    mode** — each as a recommended A/B (or A/B/C) choice. Do not ask for a
