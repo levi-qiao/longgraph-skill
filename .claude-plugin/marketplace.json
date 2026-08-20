@@ -9,7 +9,7 @@
     {
       "name": "longgraph",
       "source": "./",
-      "description": "Author loop-graph executor/supervisor runs with durable state, verified gates, and clear owner decision cards."
+      "description": "Author durable loop-graph runs for code convergence, requirement delivery, or evidence-led solution selection."
     }
   ]
 }

@@ -5,7 +5,7 @@
 ## Status header
 
 Current milestone: single goal (date parser green) | Round: 3 | Last round net lines: +18/−0
-Smallest unclosed item: GAP-002 timezone bug in `"in N days"` (picked up this round)
+Next unclosed work item: GAP-002 timezone bug in `"in N days"` (picked up this round)
 Convergence tracker: rounds since last 5: **3** | net lines since last +400: **+42** | **next round converges: no**
 Milestone gate: `n/a` (single goal — no intermediate boundaries)
 Run status: `active`

@@ -8,13 +8,16 @@ The same rules apply in Claude Code — [`CLAUDE.md`](CLAUDE.md) imports this fi
 A **curated, opinionated prompt library** for long-horizon agent work, framed as
 **"graph engineering."** It ships **Markdown prompts, not application code** — there
 is no build step and no runtime. One umbrella (`/longgraph`) checks whether the
-method fits, then delegates to the loop-graph author. Specialized entries such as
-**`skills/loop-converge/`** bind a goal pack and follow that same author — they do
+method fits, then delegates to the loop-graph compiler. Specialized entries such as
+**`skills/loop-converge/`**, **`skills/loop-deliver/`**, and
+**`skills/loop-research/`** bind a goal pack and follow that same compiler — they do
 not add a runtime.
 
 - **`skills/loop-graph/`** — an executor node + a separate-context supervisor node, each
   on its own recurring timer, with no wake edge between them.
 - **`skills/loop-converge/`** — preset entry: code-convergence interview → same compile.
+- **`skills/loop-deliver/`** — preset entry: requirement-delivery interview → same compile.
+- **`skills/loop-research/`** — preset entry: evidence-led solution selection → same compile.
 
 Simple self-contained goals use the host's ordinary task/goal directly; longgraph
 does not wrap them in a second objective.
@@ -27,10 +30,11 @@ node/edge vocabulary + invariants). The contribution bar is in [`CONTRIBUTING.md
 
 | Path | What it is |
 |---|---|
-| `SKILL.md` | `/longgraph` fit check and authoring entrypoint; may launch nodes but never acts as one |
-| `skills/loop-graph/SKILL.md` | author skill: interview → generate → deliver |
-| `skills/loop-converge/` | preset entry: binds a convergence pack, then follows loop-graph |
+| `SKILL.md` | `/longgraph` router and authoring entrypoint; may launch nodes but never acts as one |
+| `skills/loop-graph/SKILL.md` | shared compiler: interview → generate → deliver |
+| `skills/loop-{converge,deliver,research}/` | focused preset entries: bind their goal pack → same compile |
 | `skills/loop-graph/templates/*.md` | compiled runtime prompts — not code; keep `{{PLACEHOLDER}}`s and structural headings intact |
+| `skills/loop-graph/docs/preset-contract.md` | one source of truth for baseline versus goal-pack ownership |
 | `skills/loop-graph/examples/` | concrete, fully worked runs (these *are* project-specific — that's correct) |
 | `skills/loop-graph/references/*.md` | one independently loaded owner per host (invocation, context, hooks, handoff fields) |
 | `.claude-plugin/` | Claude Code plugin + marketplace manifests |
@@ -47,8 +51,9 @@ node/edge vocabulary + invariants). The contribution bar is in [`CONTRIBUTING.md
    enters without a real consumer (a run it was proven on). Curated > comprehensive.
    New abstraction/config in a template needs a concrete motivating case.
 3. **Don't break the load-bearing shape.** The graph's invariants are the product:
-   single scoreboard (`ledger` = **exactly one writer**); one item per round → verify
-   same round → update ledger; forced convergence off durable state; register-then-defer;
+   single scoreboard (`ledger` = **exactly one writer**); one independently verifiable
+   work item per round (a coherent workset when it shares one claim, write set, and gate)
+   → verify same round → update ledger; forced convergence off durable state; register-then-defer;
    hard stop conditions; absolute red lines; **one self-driving timer per node and no
    wake edge between them**; the supervisor steers only through the **one-way directives
    edge**, never editing the ledger or sharing the executor's context. Tune the numbers,

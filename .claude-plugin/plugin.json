@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "longgraph",
   "displayName": "longgraph",
-  "description": "Long-horizon agent skill: durable loop-graph runs (executor + clean-context supervisor), verified gates, owner A/B/C cards. Works with Claude Code, Codex, Cursor, and Grok Build. Invoke /longgraph or /loop-converge.",
+  "description": "Long-horizon agent skill: durable loop-graph runs (executor + clean-context supervisor), verified gates, owner A/B/C cards. Works with Claude Code, Codex, Cursor, and Grok Build. Invoke /longgraph, /loop-converge, /loop-deliver, or /loop-research.",
   "author": {
     "name": "levi-qiao",
     "url": "https://github.com/levi-qiao"

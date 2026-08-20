@@ -49,6 +49,14 @@ A node is a specialized agent role. Each node is described by a tuple:
 
 `authority` is the field #9 exposed as missing: "who decides X without escalating?" The executor decides *how* to implement; the supervisor decides *whether* the work meets acceptance criteria; the owner decides DDL, credentials, red-line exceptions.
 
+### Round work item
+
+A ledger item is one **independently verifiable workset**. It may contain multiple
+related edits when they share one behavior claim, write set, and gate; the executor
+implements and verifies the whole set in the same round. This preserves attribution and
+same-round proof while avoiding artificial cold starts between coupled edits. Unrelated
+changes remain separate items.
+
 ---
 
 ## Edges

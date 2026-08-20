@@ -22,9 +22,17 @@ Rules 1–7 keep the *executor* honest within a round. Rule 8 — clean-context 
 
 **The rotation rule has to fire on something that always arrives.** Rotate by *count against a cap* — rounds past the keep-window, corrections at or below the folded watermark — and cap every live file by line count as a backstop. Keying rotation to a boundary that may never be reached (a fixed shard size, the next milestone) is indistinguishable from having no rule: in one observed run the directives file was capped at eight live entries but told to shard "every 100 IDs", so after 33 corrections nothing had ever rotated, the file was 57 KB, the executor read only its tail and silently missed the four newest directives, and the supervisor — reading the same truncated tail — reissued IDs it had already used. Unbounded growth doesn't just cost tokens; past a threshold it corrupts the edge.
 
-## 2. One item per round → verify same round → update ledger
+## 2. One work item per round → verify same round → update ledger
 
-**Rule:** each round picks the single smallest unclosed item, implements it, verifies it with the narrowest test/gate/smoke, and records the result — all in one round. "Smallest" means the smallest **independently verifiable** increment, not the smallest possible edit: on a host whose rounds resume the previous round's context, each extra round re-carries every earlier round's output, so slicing past that point buys nothing and costs quadratically (see the selected [host reference](../skills/loop-graph/references/)). Siblings that share one verification belong in one round.
+**Rule:** each round picks one independently verifiable work item, implements it,
+verifies it with the narrowest test/gate/smoke, and records the result — all in one
+round. A work item can be the largest safe **workset** of siblings that share a behavior
+claim, write set, and verification. "Smallest" means the smallest independently
+verifiable increment, not the smallest possible edit: on a host whose rounds resume the
+previous round's context, each extra round re-carries every earlier round's output, so
+slicing past that point buys nothing and costs quadratically (see the selected [host
+reference](../skills/loop-graph/references/)). Unrelated changes stay separate; siblings
+that share one verification belong in one round.
 
 A round is not an activation. Each node fires on its own timer and closes several verified rounds per fire, because a fire boundary costs a cold re-derivation while the rounds inside one share warm context and a cached prefix. Keep the *round* small and verified; let the *fire* be productive.
 
@@ -127,4 +135,4 @@ or preference.
 
 ## Tuning
 
-The numbers (convergence every 5, 400-line cap, 3 rounds per fire, a supervisor tick at 3–4× the executor interval, 200-line file cap, and any output floor or yield threshold an open-ended run needs) are defaults, not dogma. Tune them in the interview to your project's rhythm. What must not change is the *shape*: a single scoreboard, one-item rounds with same-round verification, a forcing function against growth, visible-and-deferred gaps, hard stop conditions, absolute red lines, one self-driving timer per node with no wake edge between them, and — above all — a supervisor node whose context is separate from the executor's. Remove any one of those and the graph collapses back into a drifting loop.
+The numbers (convergence every 5, 400-line cap, 8 rounds per fire, a supervisor tick at 3–4× the executor interval, 200-line file cap, and any output floor or yield threshold an open-ended run needs) are defaults, not dogma. Tune them in the interview to your project's rhythm. What must not change is the *shape*: a single scoreboard, independently verifiable work-item rounds with same-round verification, a forcing function against growth, visible-and-deferred gaps, hard stop conditions, absolute red lines, one self-driving timer per node with no wake edge between them, and — above all — a supervisor node whose context is separate from the executor's. Remove any one of those and the graph collapses back into a drifting loop.

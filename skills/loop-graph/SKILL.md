@@ -1,9 +1,23 @@
 ---
 name: loop-graph
-description: Author and optionally direct-launch one durable loop-graph run as executor, ledger, directives, and supervisor artifacts under a dated `.longgraph` directory, then present copy-ready host prompts. Use for multi-round work with gated milestones, independent audit, cross-host execution, or durable state. Detect Codex or Claude Code from context and create both same-host runtime nodes when the owner chooses direct launch. Existing runtime nodes are self-contained. A sibling preset (for example /loop-converge) may bind a pack and then follow this skill.
+description: Compile one durable loop-graph run into executor, ledger, directives, ops, and supervisor artifacts under a dated `.longgraph` directory, then present copy-ready host prompts. Use directly for a custom multi-round shape with gated milestones, independent audit, cross-host execution, or durable state; focused sibling packs handle code convergence, requirement delivery, and evidence-led research. Existing runtime nodes are self-contained.
 ---
 
 # loop-graph — a graph of agent nodes, not a drifting loop
+
+## Module boundary
+
+This is the **shared compiler**, not a goal-specific workflow. It owns the graph
+shape, the five runtime artifact schemas, generic interview mechanics, and host
+handoff. A focused preset owns only its North Star, proof, interview questions,
+recommended work shape, method guards, knobs, and slug; it never forks templates
+or adds a runtime node.
+
+Use [`../loop-converge/SKILL.md`](../loop-converge/SKILL.md) for code cleanup,
+[`../loop-deliver/SKILL.md`](../loop-deliver/SKILL.md) for requirement delivery,
+and [`../loop-research/SKILL.md`](../loop-research/SKILL.md) for evidence-led
+solution selection. Use this skill directly only when a custom pack is genuinely
+needed. The exact contract is in [`docs/preset-contract.md`](docs/preset-contract.md).
 
 ## What it does & why
 
@@ -51,7 +65,10 @@ Five live artifacts from a short interview:
 
 Runtime contract ids are `longgraph.loop-graph.*`.
 
-Invariants: **ledger = the only scoreboard**; **one item per round → verify → update ledger**; **the supervisor steers only through `directives.md` (a one-way edge) — it never edits the ledger or shares the executor's context**.
+Invariants: **ledger = the only scoreboard**; **one independently verifiable work item
+(which may be one coherent workset) per round → verify → update ledger**; **the
+supervisor steers only through `directives.md` (a one-way edge) — it never edits the
+ledger or shares the executor's context**.
 
 ## When to use it
 
@@ -68,7 +85,8 @@ Interview in the user's language and mirror it in the prose inside the artifacts
 ## When called from a preset skill
 
 A sibling authoring skill (for example [`loop-converge`](../loop-converge/SKILL.md))
-may bind a **preset pack** and then hand off here. Treat the pack as already
+may bind a **preset pack** and then hand off here. The pack follows the
+[`preset contract`](docs/preset-contract.md); treat it as already
 answered for:
 
 - **North Star and proof** — skip that interview question unless the pack is
@@ -79,6 +97,9 @@ answered for:
 - **Recommended shape** — present the pack's decomposition (milestones, or a
   rotation for a sweeping run) as A unless inspection shows a materially
   different one.
+- **Artifact emphasis** — compile the pack's required facts into the shared
+  `ledger.md`, `ops.md`, `directives.md`, executor, and supervisor sections;
+  do not create a second runtime template or scoreboard.
 
 Still discover the workspace. Still ask at most three owner questions; with a
 bound pack those are typically scope, authority, and launch mode. Still
@@ -88,7 +109,7 @@ nodes.
 
 ## How to run it
 
-**Step 1 — Discover, then interview.** Before asking anything, inspect the workspace and current system/tool context. Infer the current authoring host, project root, repos, branches, dirty state, repo instructions, likely gates, and any explicit goal/constraints. **Never ask the user which client or host this is when the system context already identifies it.** Capture the dirty-state baseline before this session changes anything — whatever you go on to move, archive, generate, or delete becomes indistinguishable from the owner's uncommitted work unless your own paths are enumerated in the ledger's starting snapshot.
+**Step 1 — Discover, then interview.** Before asking anything, inspect the workspace and current system/tool context. Infer the current authoring host, project root, repos, branches, dirty state, repo instructions, likely gates, and any explicit goal/constraints. **Never ask the user which client or host this is when the system context already identifies it.** Capture the dirty-state baseline before this session changes anything — whatever you go on to move, archive, generate, or delete becomes indistinguishable from the owner's uncommitted work unless your own paths are enumerated in the ledger's starting snapshot. Keep authoring probes side-effect-free: direct scratch output into the new run's evidence directory, suppress tool caches when possible, and remove a known artifact this session created before handing off. An authoring run must not leave a product-path cache masquerading as owner work.
 
 Ask one short batch of at most three questions containing only unresolved owner
 decisions. Propose the answer; do not ask the owner to design it. If more than three
@@ -134,7 +155,13 @@ Do not load unrelated host references. The selected reference owns capability ch
 
 Set two cadences. The timer guarantees a node comes back; it does not pace it. `EXEC_INTERVAL` is how soon the executor returns after a fire ends — short, because the fire, not the interval, decides how much work happens. `SUP_INTERVAL` is 3–4× that, phase-offset, so the supervisor audits several times across a long fire.
 
-**Size the milestone to the fire, not the fire to a round count.** A round stays the smallest independently verifiable increment, but every fire boundary pays a cold re-derivation, so one fire should carry a whole milestone and end at a seam — the milestone exit, or a closed convergence round. That makes milestone granularity the real context-cost lever: a milestone the executor cannot plausibly finish in one warm fire should be split, and `FIRE_ROUND_CAP` is only a backstop against one fire becoming the entire run.
+**Size the milestone to the fire, not the fire to a round count.** A round stays one
+independently verifiable work item; that item may be the largest related workset that
+shares a behavior claim, write set, and gate. Every fire boundary pays a cold
+re-derivation, so one fire should carry a whole milestone and end at a seam — the
+milestone exit, or a closed convergence round. That makes milestone granularity the
+real context-cost lever: a milestone the executor cannot plausibly finish in one warm
+fire should be split, and `FIRE_ROUND_CAP` ends only that fire, never the run.
 
 **Compile context, do not narrate it.** Host prompts are one-line pointers to the runtime Markdown. At authoring time, build an `ops.md` Context index with exact files, symbols/headings, evidence paths, and narrow gates. Every Current slice and correction points to those IDs. Runtime nodes read the hot state plus referenced rows only; they do not scan the workspace, reopen whole authority documents, or restate source text. The supervisor audits deltas since its durable watermark and runs full gates only at promotion/checkpoint or when a narrow gate is insufficient.
 
@@ -180,7 +207,9 @@ Never end at "files generated." End with the exact next action and copy-ready pr
 ## The rules that make it work (encoded in the templates)
 
 - `ledger.md` is the single, bounded scoreboard; executor writes it, supervisor never does.
-- One item per round: implement, verify, record. Register side-gaps for later.
+- One independently verifiable work item per round: implement, verify, record.
+  A related workset shares one behavior claim, write set, and gate; unrelated work
+  stays separate. Register side-gaps for later.
 - Each node owns one timer and wakes only itself; blocked work moves to the registered lane instead of ending the fire.
 - Force convergence off durable state the supervisor audits; pilot expensive batches; require a real consumer before new surface area.
 - Count only reproducible evidence on the declared real set.

@@ -1,8 +1,9 @@
 # Contributing to longgraph-skill
 
 Thanks for helping! longgraph-skill is a small, opinionated prompt library: `/longgraph`
-checks fit, `loop-graph` compiles durable runtime nodes, preset entries such as
-`/loop-converge` bind a goal pack and follow that author, `lib/` holds shared
+checks fit, `loop-graph` compiles durable runtime nodes, focused preset entries such as
+`/loop-converge`, `/loop-deliver`, and `/loop-research` bind a goal pack and follow that
+compiler, `lib/` holds shared
 methodology, and `skills/loop-graph/references/` isolates host facts. Contributions that keep it curated rather than
 comprehensive are the most welcome.
 
@@ -21,7 +22,8 @@ comprehensive are the most welcome.
 - **New host dialects** — add one `skills/loop-graph/references/<host>.md`; do not
   load it from the main skill until that host is selected.
 - **New preset entries** — a thin `skills/<name>/` that binds a pack and follows
-  `loop-graph`; do not fork templates or add a runtime node.
+  `loop-graph`; follow the [preset contract](skills/loop-graph/docs/preset-contract.md),
+  do not fork templates or add a runtime node.
 
 ## Adding a new node role (`loop-graph`)
 
