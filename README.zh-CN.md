@@ -105,8 +105,9 @@ Grok Build**。Grok Build 上的运行节点仍是 prompts-only：两条 `/loop`
 
 ## 多任务 loop 与中途换宿主
 
-**一个 loop 是队列，不是单一故事。** 每轮仍只做完一个 ledger 条目（实现 → 验证 →
-记账），但 ledger 可以同时挂很多长条目——相关里程碑，或互不相关的 backlog
+**一个 loop 是队列，不是单一故事。** 每轮仍只完成一个可独立验收的 ledger 工作项
+（实现 → 验证 → 记账）。工作项可以是一组共享行为断言、写集和门禁的耦合改动；无关
+改动仍需分开。ledger 可以同时挂很多长条目——相关里程碑，或互不相关的 backlog
 （gate-wait backlog 是极端情形：与当前审计对象无依赖的有用工作）。下一个长任务换了
 主题，也不必重开一张图。
 
@@ -125,8 +126,10 @@ Grok Build**。Grok Build 上的运行节点仍是 prompts-only：两条 `/loop`
 | 你的任务形态 | 选择 | 得到什么 |
 | --- | --- | --- |
 | 一个普通 task / 单次会话能完成的自包含目标 | 直接用宿主的普通 task 或 goal | 不加 longgraph 包装，不多一层 prompt |
-| 多轮、持久状态、不可跳过的闸门、owner 边界、中途换宿主或独立验证 | [**longgraph / loop-graph**](skills/loop-graph/README.zh-CN.md) | 执行者 loop + 清洁上下文监督者，通过持久文件协作 |
-| 多轮删无用 / 去重 / 复用 / 瘦身（同一张双节点图） | [**`/loop-converge`**](skills/loop-converge/README.zh-CN.md) | 已预填收敛绑包的 loop-graph 作者 |
+| 需要多轮、可验收切片的功能、集成、迁移或行为需求 | [**`/loop-deliver`**](skills/loop-deliver/README.zh-CN.md) | 同一张图上的需求 pack，带可追溯验收证据 |
+| 多轮删无用 / 去重 / 复用 / 瘦身（同一张双节点图） | [**`/loop-converge`**](skills/loop-converge/README.zh-CN.md) | 已预填收敛绑包的共享编译器 |
+| 需要用开源、第一手研究和实验比较可行方案 | [**`/loop-research`**](skills/loop-research/README.zh-CN.md) | 证据驱动的选型 pack；只有结果可比才选优 |
+| 不属于以上类型的自定义长周期任务 | [**longgraph / loop-graph**](skills/loop-graph/README.zh-CN.md) | 用共享编译器生成定制 run |
 
 **一句话：**不需要这张图，就不要用 longgraph。
 
@@ -143,7 +146,8 @@ Grok Build**。Grok Build 上的运行节点仍是 prompts-only：两条 `/loop`
 
 ### Codex、Cursor 或 Grok Build
 
-安装库，并把 `/longgraph` 与 `/loop-converge` symlink 到会跟随链接的宿主：
+安装库，并把 `/longgraph`、`/loop-converge`、`/loop-deliver` 与 `/loop-research`
+symlink 到会跟随链接的宿主：
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
@@ -157,10 +161,11 @@ shell/cron 同样走 prompts-only 执行——见[宿主兼容性](#宿主兼容
 
 ### 设计一次 run
 
-调用 `/longgraph`（删无用 / 去重 / 瘦身用 `/loop-converge`）。它会自动识别
-当前宿主、先检查工作区，只询问无法推断的 owner 决策，
-再编译 loop-graph run。在 Codex 或 Claude Code 上选择“直接创建”后，它会在当前宿主启动两个运行节点；
-选择 prompts-only 才需要手动或跨宿主启动（含 Grok Build）。也可以直接调用 `loop-graph`。
+调用 `/longgraph`；它会把清理路由到 `/loop-converge`，把需求交付路由到
+`/loop-deliver`，把证据驱动选型路由到 `/loop-research`。它自动识别当前宿主、先检查
+工作区，只询问无法推断的 owner 决策，再编译 loop-graph run。在 Codex 或 Claude Code
+上选择“直接创建”后，它会在当前宿主启动两个运行节点；选择 prompts-only 才需要手动或
+跨宿主启动（含 Grok Build）。只有确实需要自定义 run 形态时才直接调用 `loop-graph`。
 
 生成期与运行期严格分离：author skill 只编译，不执行。生成的节点遵循
 `.longgraph/<日期-slug>/` 下已固化的本次 run 契约。
@@ -169,7 +174,7 @@ shell/cron 同样走 prompts-only 执行——见[宿主兼容性](#宿主兼容
 
 | 角色 | 职责 | 持久边 |
 | --- | --- | --- |
-| **执行者** | 每轮只做一个 ledger 条目，同轮验证，再记录结果 | 读写 `ledger.md` |
+| **执行者** | 每轮完成一个可独立验收的 ledger 工作项，同轮验证，再记录结果 | 读写 `ledger.md` |
 | **监督者** | 在独立上下文中重新验证、为通过的工作建立 checkpoint，并纠正漂移 | 只读 ledger；只通过 directives 边纠偏（live queue + cold archive） |
 | **侦察者**（可选） | 在关键路径之外研究一个有边界的问题 | 写 findings 文件，仅在 ledger 引用时读取 |
 
@@ -197,9 +202,12 @@ shell/cron 同样走 prompts-only 执行——见[宿主兼容性](#宿主兼容
 
 | 路径 | 用途 |
 | --- | --- |
-| [根 `SKILL.md`](SKILL.md) | `/longgraph` 入口；检查是否适用，再交给 loop-graph 生成 |
-| [Loop-graph author](skills/loop-graph/SKILL.md) | 生成执行者、监督者、ledger 与 directive 产物 |
+| [根 `SKILL.md`](SKILL.md) | `/longgraph` 路由入口；选择定向 pack 或自定义编译路径 |
+| [Loop-graph compiler](skills/loop-graph/SKILL.md) | 生成共享的执行者、监督者、ledger、directive 与 ops 产物 |
 | [loop-converge](skills/loop-converge/SKILL.md) | 预设入口：代码收敛面试 → 同一套 loop-graph 编译 |
+| [loop-deliver](skills/loop-deliver/SKILL.md) | 预设入口：需求交付面试 → 同一套编译 |
+| [loop-research](skills/loop-research/SKILL.md) | 预设入口：证据驱动选型面试 → 同一套编译 |
+| [Preset contract](skills/loop-graph/docs/preset-contract.md) | 共享编译器与目标 pack 的边界 |
 | [`lib/`](lib) | 共享方法论 |
 | [宿主 references](skills/loop-graph/references) | 每个宿主一份、按需加载的运行事实 owner |
 | [完整示例](skills/loop-graph/examples) | 公开 Git 自迭代 + 虚构 ledger，展示闸门运作 |

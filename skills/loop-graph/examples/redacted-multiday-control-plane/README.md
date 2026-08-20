@@ -39,9 +39,9 @@ continuous model execution hours or unattended production autonomy.
 
 ### 1. Single scoreboard across days
 
-The executor worked **one ledger item per round**, verified in the same round,
+The executor worked **one independently verifiable ledger work item per round**, verified in the same round,
 and wrote the result to `ledger.md`. After context compaction or a new session,
-the next fire re-read the ledger and continued from the smallest unclosed item —
+the next fire re-read the ledger and continued from the next unclosed work item —
 no transcript export required.
 
 ### 2. Clean-context supervisor overturned self-reported “done”
@@ -89,7 +89,7 @@ and not ignored. They re-entered the queue as ordinary items later.
 
 ```mermaid
 flowchart TD
-  A[Author graph once] --> B[Executor: one item per round]
+  A[Author graph once] --> B[Executor: one verified work item per round]
   B --> C{Gate or owner block?}
   C -->|No| B
   C -->|Yes| D[Record blocker]

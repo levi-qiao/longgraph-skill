@@ -18,7 +18,7 @@ below; update durable sections in place, never by appending.
 ## Status header
 
 Current milestone: {{M1 or "single goal"}} | Round: 0 (starts at 1) | Last round net lines: —
-Smallest unclosed item: {{FIRST_ITEM}}
+Next unclosed work item: {{FIRST_ITEM}}
 Last directive folded: none   <!-- highest numbered D-xxx fully applied; advance only after its action/state change is recorded -->
 
 Convergence tracker: rounds since last {{CONVERGE_EVERY|5}}: **0** | net lines since last +{{NET_LINE_CAP|400}}: **+0** | **next round converges: no**

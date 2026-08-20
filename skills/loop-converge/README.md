@@ -15,7 +15,8 @@ Multi-round cleanup where "done" is checkable: tests stay green, detectors
 drop, net lines do not grow, no new public surface. The run sweeps the scope in
 rotation and discovers its own candidates each round — it ends when fresh
 detector passes stop yielding, not when a seeded list runs out. Skip it for a
-one-shot tidy.
+one-shot tidy. One round lands the largest safe related workset sharing a proof
+bar and gate; a fire cap only starts the next fire, never ends the run.
 
 ## How to run it
 

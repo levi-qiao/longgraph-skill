@@ -48,7 +48,14 @@ After inspection, propose answers; do not ask the owner to design them.
 A rotation, not a phase chain. Round one pins the detectors that exist here,
 measures every baseline, and lands its first cheap deletion in the same round —
 inventory that produces nothing is spinning. After that, each round: refill the
-register from the detectors, take one family, prove it, land it, record it.
+register from the detectors, take one coherent workset, prove it, land it, record it.
+
+**A workset is the largest safe family, not a micro-cleanup.** Before editing, group all
+known candidates that share the same behavior claim, write surface, proof tier, and
+verification gate; change and verify that whole family together. Do not split it merely
+to produce more loop fires. Do not pull in a merely similar candidate with a different
+contract or verifier. A fire carries several closed worksets while warm; its round cap
+ends that fire only, leaves the run active, and can never be used as a terminal status.
 
 Rotate over the whole scope (partition it by directory or layer) and pick the
 next area by staleness, detector density, or adjacency to the last real find.
@@ -107,12 +114,24 @@ acceptance into the next work round.
 
 ## Knob overrides
 
-`CONVERGE_EVERY=6`, `NET_LINE_CAP=200`, `FIRE_ROUND_CAP=20` (a backstop, not a
-target — the output floor is what paces a fire), `FIRE_OUTPUT_FLOOR` = three
-verified candidates landed or a clear net-line reduction, `YIELD_FLOOR=3` new
-qualifying candidates per swept area. Every work round is already net ≤ 0 here,
-so converging every third round buys ceremony; a convergence round in this run
-must itself remove code. Other knobs stay at the loop-graph defaults.
+`CONVERGE_EVERY=6`, `NET_LINE_CAP=200`, `FIRE_ROUND_CAP=8` (a per-fire backstop,
+never a run cap), `FIRE_OUTPUT_FLOOR` = one completed coherent workset containing
+three verified candidates where that family exists, or a clear net-line reduction,
+and `YIELD_FLOOR=3` new qualifying candidates per swept area. Every work round is
+already net ≤ 0 here, so converging every third round buys ceremony; a convergence
+round in this run must itself remove code. Other knobs stay at the loop-graph defaults.
+
+## Artifact emphasis
+
+- In `ledger.md`, keep the detector baseline, rotation, candidate queue, workset proof,
+  and net-line result compact and current. The Current slice names the whole workset and
+  its shared verifier.
+- In `ops.md`, pin detector commands, blind spots, proof tiers, evidence paths, and the
+  least-cost gate that is still credible.
+- In `directives.md`, keep only authority and scoped corrections; it must not become a
+  second candidate register or a global ban list.
+- In `supervisor.md`, audit whether each workset was the largest safe related family and
+  whether a fire cap was mistaken for an end-of-run condition.
 
 ## Detector hints (compile into `ops.md` only)
 

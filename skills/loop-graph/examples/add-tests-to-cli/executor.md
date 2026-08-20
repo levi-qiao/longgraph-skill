@@ -25,7 +25,7 @@ Execution philosophy: implement first, verify immediately. Within one round, "do
 
 ## Every-round cadence
 
-1. Read `.longgraph/2026-07-28-taskcat-tests/ledger.md` + `.longgraph/2026-07-28-taskcat-tests/directives.md`; pick the single smallest unclosed item. One item per round.
+1. Read `.longgraph/2026-07-28-taskcat-tests/ledger.md` + `.longgraph/2026-07-28-taskcat-tests/directives.md`; take the next independently verifiable work item. A related workset remains one item.
 2. Implement → verify the same round with the narrowest test (`pytest tests/test_dates.py -q`) → update the ledger.
 3. Run the full gate: `pytest -q`. If red, the next round may only fix the gate.
 4. Every 5th round is a forced convergence round: zero new tests/features — only delete dead code, merge duplicate test helpers, tighten; net lines ≤ 0.

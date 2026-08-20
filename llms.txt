@@ -14,9 +14,12 @@
 
 ## Skills (authoring → runtime)
 
-- [Root `/longgraph`](https://github.com/levi-qiao/longgraph-skill/blob/main/SKILL.md): checks fit and delegates authoring to loop-graph; never executes generated work
-- [loop-graph author](https://github.com/levi-qiao/longgraph-skill/blob/main/skills/loop-graph/SKILL.md): executor + supervisor + ledger
+- [Root `/longgraph`](https://github.com/levi-qiao/longgraph-skill/blob/main/SKILL.md): routes focused long-horizon work and never executes generated work
+- [loop-graph compiler](https://github.com/levi-qiao/longgraph-skill/blob/main/skills/loop-graph/SKILL.md): shared executor + supervisor + ledger compile
 - [loop-converge](https://github.com/levi-qiao/longgraph-skill/blob/main/skills/loop-converge/SKILL.md): preset entry — code-convergence interview, then the same loop-graph compile
+- [loop-deliver](https://github.com/levi-qiao/longgraph-skill/blob/main/skills/loop-deliver/SKILL.md): preset entry — requirement-delivery interview, then the same compile
+- [loop-research](https://github.com/levi-qiao/longgraph-skill/blob/main/skills/loop-research/SKILL.md): preset entry — evidence-led solution comparison, then the same compile
+- [preset contract](https://github.com/levi-qiao/longgraph-skill/blob/main/skills/loop-graph/docs/preset-contract.md): baseline versus goal-pack ownership
 - [loop-graph model](https://github.com/levi-qiao/longgraph-skill/blob/main/skills/loop-graph/docs/model.md): node/edge invariants
 
 ## Install
@@ -39,5 +42,6 @@ curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/inst
 longgraph, longgraph-skill, long-horizon agent skill, long-horizon agent, long-running agent,
 agent drift, durable ledger, clean-context supervisor, multi-task agent loop, unrelated tasks one loop,
 switch host mid-run, portable agent state, Claude Code skill, Claude Code plugin, agent skill,
-multi-agent, prompt library, graph engineering, loop-graph, Cursor, Codex, Grok Build, Grok,
+multi-agent, prompt library, graph engineering, loop-graph, loop-converge, loop-deliver,
+loop-research, Cursor, Codex, Grok Build, Grok,
 verified gates, acceptance criteria, owner decision cards, not LangGraph

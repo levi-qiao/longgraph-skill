@@ -5,7 +5,7 @@
 ## Status header
 
 Current milestone: M3 cutover — owner-only DDL | Round: 9 | Last round net lines: +18/−4
-Smallest unclosed item: M3 (owner-only: drop the blob column)
+Next unclosed work item: M3 (owner-only: drop the blob column)
 Last directive folded: D-003
 Convergence tracker: rounds since last 5: **4** | net lines since last +400: **+58** | **next round converges: no**
 Milestone gate: `passed` (D-002 acceptance directive released M2→M3 boundary in Round 8)

@@ -27,9 +27,10 @@ else
   git clone --depth 1 "$REPO" "$CACHE"
 fi
 
-# 2. Symlink the library and each invocable preset into each host skills dir.
-#    Primary: longgraph (whole tree).
-#    Presets (loop-converge, …) are their own slash names → skills/<name>.
+# 2. Symlink the router and public presets into each host skills dir.
+#    `loop-graph` is the shared compiler, reached through /longgraph or a preset;
+#    it is deliberately not another top-level symlink.
+PRESETS="loop-converge loop-deliver loop-research"
 link_skill() {
   skills_dir="$1"
   name="$2"
@@ -54,19 +55,22 @@ unlink_skill() {
   fi
 }
 
-echo "Linking /longgraph and /loop-converge into symlink-following hosts (Codex, Cursor, Grok Build):"
+echo "Linking /longgraph and focused presets into symlink-following hosts (Codex, Cursor, Grok Build):"
 for skills in \
   "${CODEX_SKILLS_DIR:-$HOME/.codex/skills}" \
   "${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}" \
   "${GROK_SKILLS_DIR:-$HOME/.grok/skills}"
 do
   link_skill "$skills" "$PRIMARY"
-  link_skill "$skills" "loop-converge" "$CACHE/skills/loop-converge"
+  for preset in $PRESETS; do
+    link_skill "$skills" "$preset" "$CACHE/skills/$preset"
+  done
+  unlink_skill "$skills" "loop-graph"
   unlink_skill "$skills" "octopus"
 done
 
 echo ""
-echo "✅ Linked for Codex / Cursor / Grok Build — run:  /longgraph   or   /loop-converge"
+echo "✅ Linked for Codex / Cursor / Grok Build — run: /longgraph, /loop-converge, /loop-deliver, or /loop-research"
 echo "ℹ️  Claude Code does not load symlinked skills; install it there as a plugin:"
 echo "     /plugin marketplace add levi-qiao/longgraph-skill"
 echo "     /plugin install longgraph@longgraph-skill"

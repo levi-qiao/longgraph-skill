@@ -2,9 +2,13 @@
 
 # loop-graph
 
-**Run a long coding task as a small graph of agent nodes, not one drifting loop.**
+**Compile a long coding task into a small graph of agent nodes, not one drifting loop.**
 
-A Codex / [Claude Code](https://claude.com/claude-code) / Grok Build–oriented skill that turns *"make this production-ready"* into an executor node that does the work and a supervisor node that watches from outside the executor's context and corrects drift before it compounds.
+A Codex / [Claude Code](https://claude.com/claude-code) / Grok Build–oriented shared
+compiler that turns a long-horizon goal into an executor node that does the work and a
+supervisor node that watches from outside the executor's context and corrects drift before
+it compounds. Focused packs route code cleanup to `/loop-converge`, requirements to
+`/loop-deliver`, and evidence-led choices to `/loop-research`.
 
 loop-graph is **graph engineering** made concrete — the shift from tuning a single agent loop to wiring specialized agent roles into a graph. Two roles today; more planned.
 
@@ -35,7 +39,8 @@ Loop engineering tries to fix this inside the loop — better prompts, more remi
 
 Graph engineering moves the structure outside the model: a small graph of specialized agent roles with separate contexts, connected only by durable, inspectable state. loop-graph applies this to one scenario — long-horizon coding — with the smallest useful graph:
 
-- **Executor** — does the work, one item per round, against a single ledger.
+- **Executor** — does one independently verifiable work item per round against a single
+  ledger; related siblings with one claim, write set, and gate form one workset.
 - **Supervisor** — starts from a clean context on every tick and audits the run like an outside reviewer at acceptance: it **re-runs the gates itself** and inspects the real diff against the acceptance criteria and the repo's own standards (`AGENTS.md`/`CLAUDE.md`, `ops.md`), so it catches the drift, fake-done, and undisclosed shortcuts the executor cannot see in the context where the corner was cut — then commits what passes, decides pending items, and adjusts the plan through the one-way directives edge.
 
 The graph is designed to grow beyond these two roles — see the [roadmap](#roadmap-more-node-roles).
@@ -44,7 +49,9 @@ The nodes communicate only through inspectable state — a ledger, a git tree, a
 
 - **One scoreboard.** `ledger.md` is the single source of truth. When code, docs and ledger disagree, the ledger is fixed first.
 - **Bounded live files.** The ledger keeps current state and only the latest rounds; `directives.md` keeps fixed-at-generation policy subjects and a capped queue of unconsumed corrections. Rotation is keyed to a cap that is always reached — rounds past the keep-window, corrections at or below the folded watermark — and every live file has a hard line cap, so no edge can grow until a node truncates its read and misses the newest entry. Cold history lands in `archive/`, which normal nodes never read.
-- **One item per round**, verified the same round, then logged. No batching, no deferred testing.
+- **One independently verifiable work item per round**, verified in the same round, then
+  logged. A work item may be the largest related workset that shares a behavior claim,
+  write set, and gate; unrelated changes and deferred testing stay out.
 - **Forced convergence, tracked in the ledger.** A convergence round — no new features, net lines ≤ 0 — fires on whichever comes first: every Nth round (default 5) or once accumulated net lines cross the cap (default 400). The trigger is an explicit flag in the scoreboard, not a modulo the stateless loop must recompute, so it can't be silently skipped — and the supervisor audits that it happened.
 - **Register-then-defer.** Gaps found mid-round are logged, not silently patched or ignored.
 - **Blocked is not stopped.** An owner decision, a missing input, a milestone under audit — none of them ends the activation. The executor records the blocker and takes the next *already-registered* item whose write set is disjoint from the blocked surface, the audit surface, and every other item taken this way; the supervisor audits that lane separately, so it can neither blur nor delay milestone promotion.
@@ -83,7 +90,10 @@ Solid edges are the core graph: the executor works against the ledger; the super
 
 ## One strong model, cheap execution
 
-Because the nodes share no context, each can run on a different model. The discipline is what makes a cheap executor safe: its scope is capped at one item per round, the rules live in the ledger and directives rather than in its context, and a stronger model reviews the result.
+Because the nodes share no context, each can run on a different model. The discipline is
+what makes a cheap executor safe: its scope is capped at one independently verifiable work
+item per round, the rules live in the ledger and directives rather than in its context, and
+a stronger model reviews the result.
 
 | Node | Runs | Model | Why |
 | --- | --- | --- | --- |
@@ -116,7 +126,11 @@ Each loop **stops its own timer** when the run is done. Exact launch and stop be
 
    <sub>Symlinks `/longgraph` for Codex / Cursor / Grok Build. Claude Code uses the plugin.</sub>
 
-2. **Run `/longgraph` in Codex or Claude Code.** It detects the current host and inspects the workspace first, then asks one short batch only for unresolved owner decisions. The files land in a fresh `.longgraph/<date-slug>/` directory. ([What each file does →](#files-generated-per-run)) For unused / duplicate / slim work, invoke [`/loop-converge`](../loop-converge/README.md) instead — same compile path, pre-bound North Star.
+2. **Run `/longgraph` in Codex or Claude Code.** It detects the current host and inspects
+   the workspace first, then routes cleanup to [`/loop-converge`](../loop-converge/README.md),
+   requirements to [`/loop-deliver`](../loop-deliver/README.md), and evidence-led option
+   selection to [`/loop-research`](../loop-research/README.md). The files land in a fresh
+   `.longgraph/<date-slug>/` directory. ([What each file does →](#files-generated-per-run))
 
 3. **Choose A to create both nodes here (recommended), or B for prompts only.** On A, Codex or Claude Code creates and verifies the executor and supervisor directly; it does not ask you to identify the current client or open the sessions yourself.
 
@@ -130,7 +144,8 @@ These files are read, not edited:
 
 | Path | What it is |
 | --- | --- |
-| [`SKILL.md`](SKILL.md) | The skill entry: the interview and generation flow behind `/longgraph`. |
+| [`SKILL.md`](SKILL.md) | The shared compiler: interview and generation flow used by `/longgraph` and focused packs. |
+| [`docs/preset-contract.md`](docs/preset-contract.md) | Which rules belong in the baseline versus a goal pack. |
 | [`templates/`](templates/) | Node and edge templates the skill fills in per run; usable by hand outside Claude Code. |
 | [`methodology`](../../lib/methodology.md) | The rationale: each rule and the failure mode it prevents. |
 | [`examples/self-iteration-longgraph-skill/`](examples/self-iteration-longgraph-skill/) | **Public Git evidence** — this skill’s own multi-day hardening window (commit-backed; not a private client run). |
@@ -154,7 +169,10 @@ Each run gets a fresh `.longgraph/<date-slug>/` in your repo:
 
 ## When to use it
 
-Use it when the task spans many rounds, success is verifiable (tests, gates, metrics) and drift is a real risk. Skip it for one-shot edits, or for work where every step needs a human to judge success.
+Use this compiler directly when the task spans many rounds, success is verifiable (tests,
+gates, metrics), drift is a real risk, and no focused pack fits. Otherwise start at
+`/longgraph`. Skip it for one-shot edits, or for work where every step needs a human to
+judge success.
 
 ## FAQ
 

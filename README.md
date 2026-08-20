@@ -116,11 +116,13 @@ Cursor / Grok Build** (see install script). Runtime nodes on Grok Build stay
 
 ## Multi-task loops & switching hosts
 
-**One loop is a queue, not a single story.** Each round still does one ledger item
-end-to-end (implement → verify → record), but the ledger can hold many long items
-at once — related milestones *or* unrelated backlog (the gate-wait backlog pattern
-is the extreme case: useful work with no dependency on the item under audit). You
-do not need a new graph every time the next long task is about something else.
+**One loop is a queue, not a single story.** Each round still completes one
+independently verifiable ledger work item end-to-end (implement → verify → record). That
+item may be one coherent workset of coupled changes sharing a behavior claim, write set,
+and gate; unrelated work stays separate. The ledger can hold many long items at once —
+related milestones *or* unrelated backlog (the gate-wait backlog pattern is the extreme
+case: useful work with no dependency on the item under audit). You do not need a new graph
+every time the next long task is about something else.
 
 **The host is swappable; the files are not.** A compiled loop-graph run freezes
 prompts and state under `.longgraph/<date-slug>/`. To continue elsewhere:
@@ -137,8 +139,10 @@ dialect ([per-host references](skills/loop-graph/references/)) — only the *pro
 | Your task shape | Choose | What you get |
 | --- | --- | --- |
 | One self-contained goal that fits a normal task/session | Use the host's ordinary task or goal directly | No longgraph wrapper or extra prompt layer |
-| Many rounds, durable state, non-skippable gates, owner boundaries, host switching, or independent verification | [**longgraph / loop-graph**](skills/loop-graph/README.md) | An executor loop plus a clean-context supervisor, coordinated through durable files |
-| Multi-round unused / duplicate / reuse / slim (same two-node graph) | [**`/loop-converge`**](skills/loop-converge/README.md) | The loop-graph author with a pre-bound convergence pack |
+| A feature, integration, migration, or behavior requirement across many verified slices | [**`/loop-deliver`**](skills/loop-deliver/README.md) | A requirement pack on the shared graph, with traceable acceptance proof |
+| Multi-round unused / duplicate / reuse / slim (same two-node graph) | [**`/loop-converge`**](skills/loop-converge/README.md) | The shared compiler with a pre-bound convergence pack |
+| Compare feasible approaches with open-source evidence, primary research, and experiments | [**`/loop-research`**](skills/loop-research/README.md) | An evidence-led decision pack; it selects only when results are comparable |
+| Many rounds with a custom shape not covered above | [**longgraph / loop-graph**](skills/loop-graph/README.md) | The shared compiler for a custom graph run |
 
 **Rule of thumb:** if you do not need the graph, do not use longgraph.
 
@@ -155,8 +159,8 @@ Install the plugin from the marketplace:
 
 ### Codex, Cursor, or Grok Build
 
-Install the library and symlink `/longgraph` and `/loop-converge` into hosts
-whose loaders follow symlinks:
+Install the library and symlink `/longgraph`, `/loop-converge`, `/loop-deliver`, and
+`/loop-research` into hosts whose loaders follow symlinks:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/levi-qiao/longgraph-skill/main/install.sh | sh
@@ -171,12 +175,12 @@ same prompts-only execution path — see [host compatibility](#host-compatibilit
 
 ### Design a run
 
-Invoke `/longgraph` (or `/loop-converge` for unused / duplicate / slim). It
-detects the current host, inspects the workspace, and asks
-only for unresolved owner decisions before compiling the run. Choose direct
-creation on Codex or Claude Code to have it start both same-host runtime nodes, or
-prompts-only for manual/cross-host launch (including Grok Build). You can also
-invoke `loop-graph` directly.
+Invoke `/longgraph`; it routes cleanup to `/loop-converge`, requirements to
+`/loop-deliver`, and evidence-led option selection to `/loop-research`. It detects the
+current host, inspects the workspace, and asks only for unresolved owner decisions before
+compiling the run. Choose direct creation on Codex or Claude Code to have it start both
+same-host runtime nodes, or prompts-only for manual/cross-host launch (including Grok
+Build). Use `loop-graph` directly only for a genuinely custom run shape.
 
 Authoring and runtime stay separate: the author skill compiles the work but never
 executes it. Generated nodes follow their frozen run contract under
@@ -186,7 +190,7 @@ executes it. Generated nodes follow their frozen run contract under
 
 | Role | Responsibility | Durable edge |
 | --- | --- | --- |
-| **Executor** | Works one ledger item, verifies it in the same round, then records the result | Reads and writes `ledger.md` |
+| **Executor** | Works one independently verifiable ledger work item, verifies it in the same round, then records the result | Reads and writes `ledger.md` |
 | **Supervisor** | Re-verifies from its own separate context, checkpoints passing work, and corrects drift | Reads the ledger; steers only through the directives edge (live queue + cold archive) |
 | **Scout** *(optional)* | Researches a bounded question away from the critical path | Writes a findings file read only on reference |
 
@@ -217,9 +221,12 @@ durable run directory; only how you start each tick changes.
 
 | Path | Purpose |
 | --- | --- |
-| [Root `SKILL.md`](SKILL.md) | `/longgraph` entrypoint; checks fit and delegates authoring to loop-graph |
-| [Loop-graph author](skills/loop-graph/SKILL.md) | Generates executor, supervisor, ledger, and directive artifacts |
+| [Root `SKILL.md`](SKILL.md) | `/longgraph` router; chooses the focused pack or custom compiler path |
+| [Loop-graph compiler](skills/loop-graph/SKILL.md) | Generates the shared executor, supervisor, ledger, directive, and ops artifacts |
 | [loop-converge](skills/loop-converge/SKILL.md) | Preset entry: code-convergence interview → same loop-graph compile |
+| [loop-deliver](skills/loop-deliver/SKILL.md) | Preset entry: requirement-delivery interview → same compile |
+| [loop-research](skills/loop-research/SKILL.md) | Preset entry: evidence-led solution-selection interview → same compile |
+| [Preset contract](skills/loop-graph/docs/preset-contract.md) | Boundary between the shared compiler and goal-specific packs |
 | [`lib/`](lib) | Shared methodology |
 | [Host references](skills/loop-graph/references) | One independently loaded owner for each host's runtime facts |
 | [Worked examples](skills/loop-graph/examples) | Public-Git self-iteration plus fictional ledgers showing gates in action |

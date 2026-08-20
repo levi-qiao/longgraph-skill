@@ -28,7 +28,7 @@ Execution philosophy: implement first, verify immediately. Within one round, "do
 
 ## Every-round cadence
 
-1. Read `.longgraph/2026-07-28-blob-storage/ledger.md` + `.longgraph/2026-07-28-blob-storage/directives.md`; open directives first. If the milestone gate is `pending-audit`, follow the protocol below. Otherwise pick the single smallest unclosed item. One item per round.
+1. Read `.longgraph/2026-07-28-blob-storage/ledger.md` + `.longgraph/2026-07-28-blob-storage/directives.md`; open directives first. If the milestone gate is `pending-audit`, follow the protocol below. Otherwise take the next independently verifiable work item. A related workset remains one item.
 2. Implement → verify the same round with the narrowest gate (`pytest tests/test_storage.py -q`) → update the ledger.
 3. Run the full gate: `pytest -q` and `scripts/smoke_serve.sh`. If red, the next round may only fix the gate.
 4. Update the ledger's Convergence tracker every round. When its flag reads `next round converges: yes` — at 5 rounds since the last one, or +400 net production lines, whichever comes first — the next round **is** the convergence round: zero new features, only delete dead code, collapse duplicate helpers, tighten; net lines ≤ 0. Tag its round line `CONVERGE`, then reset both counters and the flag.
