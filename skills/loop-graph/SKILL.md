@@ -190,7 +190,7 @@ Decide from context what you reasonably can and state the assumption; anything g
   ID into `ops.md`. Host-specific facts belong in references, not in the generic
   templates.
 - Name the host's cheap model tier as `FANOUT_TIER` in `ops.md` when the executor may spawn read-only sub-tasks; delete the section when the host has no cheap concurrent tier. Read-only investigators run cheap; the executor itself does not.
-- Render [`templates/handoff.md`](templates/handoff.md) only as the chat response. It is a presentation template, not a runtime artifact: never save `handoff.md` in the run directory. Delete its supervisor section when no supervisor was selected.
+- Render [`templates/handoff.md`](templates/handoff.md) only as the chat response. It is a presentation template, not a runtime artifact: never save `handoff.md` in the run directory. Delete its supervisor section and the `To steer` line when no supervisor was selected.
 - Keep hot files lean: current state, unresolved rows, recent rounds, and unconsumed directives only.
 
 **Step 3 — Deliver without making the owner discover the workflow.** Offer only when the user has not already chosen:
@@ -201,7 +201,7 @@ Decide from context what you reasonably can and state the assumption; anything g
 Never end at "files generated." End with the exact next action and copy-ready prompt(s).
 
 - **Create both nodes here:** treat the user's A choice as authorization to create the two in-scope runtime sessions. Follow the selected reference's ordered capability check and creation protocol. Use the current project/checkout; do not create a cross-host prompt or silently switch to worktrees. Verify both nodes started, and report their IDs, both cadences, and how to stop them. Do not ask for a second confirmation.
-- **Prompts only:** render the completed [`templates/handoff.md`](templates/handoff.md) in chat without persisting it. It must say how many sessions/tasks/processes to open, where each prompt goes, what continues automatically, and how it stops. Never ask the owner to write host IDs or create a timer the compiled node already owns.
+- **Prompts only:** render the completed [`templates/handoff.md`](templates/handoff.md) in chat without persisting it. It must say how many sessions/tasks/processes to open, where each prompt goes, what continues automatically, how it stops, and how to steer. Never ask the owner to write host IDs or create a timer the compiled node already owns.
 - Never leave `{{PLACEHOLDER}}` text or tell the owner merely to "start the loop." Keep executor and supervisor in separate contexts; use a cheap/fast executor and a strong supervisor when available.
 
 ## The rules that make it work (encoded in the templates)
