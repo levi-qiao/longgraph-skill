@@ -39,6 +39,8 @@ Paste:
 
 {{RUNNING_STATE}}
 
+To steer: talk to the supervisor. It writes `directives.md`; the executor applies it on the next fire. Do not edit the node files, the ledger, or `ops.md`.
+
 Context reset: {{RESET_INSTRUCTION}}
 
 To stop: {{STOP_INSTRUCTION}}
