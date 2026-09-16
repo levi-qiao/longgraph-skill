@@ -1,6 +1,7 @@
 ---
 name: loop-deliver
-description: Author and optionally direct-launch a two-node loop-graph run for implementing a product or engineering requirement through verified vertical slices. Use when a requested feature, integration, migration, or behavior change needs multiple rounds, durable acceptance proof, and independent audit. Not for code cleanup, comparing alternatives before choosing, or a one-shot implementation. Do not execute or resume generated runtime node files from this authoring skill.
+description: Use only when the user explicitly invokes /loop-deliver or names this skill. Authors a loop-deliver run. Do not use unless named. Do not execute or resume generated runtime node files.
+disable-model-invocation: true
 ---
 
 # loop-deliver — a loop-graph preset for requirements

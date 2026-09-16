@@ -1,6 +1,7 @@
 ---
 name: loop-research
-description: Author and optionally direct-launch a two-node loop-graph run that compares feasible technical approaches with open-source evidence, primary research, and controlled experiments before selecting one. Use when a decision needs several research and evaluation rounds with durable evidence and independent audit. Not for implementing an already chosen requirement, code cleanup, or a quick literature summary. Do not execute or resume generated runtime node files from this authoring skill.
+description: Use only when the user explicitly invokes /loop-research or names this skill. Authors a loop-research run. Do not use unless named. Do not execute or resume generated runtime node files.
+disable-model-invocation: true
 ---
 
 # loop-research — a loop-graph preset for evidence-led choices

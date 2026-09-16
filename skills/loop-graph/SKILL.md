@@ -1,6 +1,7 @@
 ---
 name: loop-graph
-description: Compile one durable loop-graph run into executor, ledger, directives, ops, and supervisor artifacts under a dated `.longgraph` directory, then present copy-ready host prompts. Use directly for a custom multi-round shape with gated milestones, independent audit, cross-host execution, or durable state; focused sibling packs handle code convergence, requirement delivery, and evidence-led research. Existing runtime nodes are self-contained.
+description: Use only when the user explicitly invokes /loop-graph or names this skill. Compiles a custom loop-graph run. Do not use unless named. Existing runtime nodes are self-contained.
+disable-model-invocation: true
 ---
 
 # loop-graph — a graph of agent nodes, not a drifting loop

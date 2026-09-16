@@ -1,6 +1,7 @@
 ---
 name: loop-converge
-description: Author and optionally direct-launch a two-node loop-graph run whose North Star is code convergence — delete unused code, merge duplicates, reuse, slim. Use when the user invokes /loop-converge, or asks to loop on dead code, duplication, unused exports, DRY cleanup, or merging twin implementations. Starts the owner interview (scope / authority / launch) immediately; supervisor is required. Not for adding features or a one-shot tidy. Do not execute or resume existing runtime node files from this authoring skill.
+description: Use only when the user explicitly invokes /loop-converge or names this skill. Authors a loop-converge run. Do not use unless named. Do not execute or resume generated runtime node files.
+disable-model-invocation: true
 ---
 
 # loop-converge — a loop-graph preset for slimming code
